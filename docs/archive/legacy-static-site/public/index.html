@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resource Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #ececeb;
+        --panel: #f2f2f2;
+        --soft: #f8f8f8;
+        --white: #ffffff;
+        --text: #1f2a37;
+        --muted: #6d7278;
+        --border: #d9d9d8;
+        --purple: #7a2f74;
+        --purple-dark: #5d204f;
+        --button: #2b2b2b;
+        --shadow: rgba(28, 28, 28, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        font-family: 'Inter', sans-serif;
+        color: var(--text);
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: 1440px;
+        min-height: 100vh;
+        background: var(--bg);
+      }
+
+      .topbar {
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px 0 24px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7ea574 0%, #5d8d61 100%);
+        position: relative;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,0.26);
+      }
+
+      .brand-mark::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 7px;
+        width: 14px;
+        height: 10px;
+        border-radius: 50% 50% 45% 45%;
+        background: rgba(255,255,255,0.25);
+      }
+
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        top: 18px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-name {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+      }
+
+      .brand-sub {
+        font-size: 0.74rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .lang-switch {
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,0.03);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .lang-switch:hover {
+        background: rgba(0,0,0,0.05);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .nav-item {
+        font-weight: 500;
+        color: var(--text);
+        opacity: 0.9;
+        font-size: 1.1rem;
+        cursor: pointer;
+      }
+
+      .nav-item:first-child {
+        padding: 10px 16px;
+        border-radius: 14px;
+        background: rgba(0,0,0,0.04);
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #8a3d7f 0%, #5f2b64 100%);
+        color: white;
+        border-radius: 14px;
+        padding: 10px 12px 10px 10px;
+        min-width: 128px;
+        justify-content: flex-end;
+        box-shadow: 0 6px 14px rgba(97, 48, 90, 0.15);
+      }
+
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.7);
+        background: linear-gradient(135deg, #e8d2a2, #c0a06c);
+        position: relative;
+      }
+
+      .avatar::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 5px;
+        width: 12px;
+        height: 8px;
+        border-radius: 50% 50% 52% 52%;
+        background: rgba(122, 86, 39, 0.7);
+      }
+
+      .avatar::after {
+        content: "";
+        position: absolute;
+        left: 7px;
+        bottom: 4px;
+        width: 10px;
+        height: 8px;
+        border-radius: 50% 50% 48% 48%;
+        background: rgba(122, 86, 39, 0.7);
+      }
+
+      .user-name {
+        font-size: 1.08rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .main {
+        padding: 44px 0 0;
+      }
+
+      .hero {
+        text-align: center;
+        margin: 0 auto;
+        max-width: 920px;
+      }
+
+      .hero-badge {
+        display: inline-block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--purple-dark);
+        background: rgba(122, 47, 116, 0.08);
+        border: 1px solid rgba(122, 47, 116, 0.12);
+        border-radius: 999px;
+        padding: 7px 14px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: clamp(3.3rem, 5vw, 5rem);
+        line-height: 0.96;
+        margin: 0;
+        letter-spacing: -0.08em;
+        font-weight: 800;
+        color: #1c2430;
+      }
+
+      .hero-copy {
+        margin: 26px auto 0;
+        max-width: 760px;
+        font-size: 1.08rem;
+        line-height: 1.7;
+        color: #5e6c7a;
+        font-weight: 500;
+      }
+
+      .cards {
+        max-width: 980px;
+        margin: 68px auto 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 22px;
+        padding: 0 24px;
+      }
+
+      .card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        background: rgba(248,248,248,0.7);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 18px 18px 16px;
+        min-height: 120px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+      }
+
+      .card-main {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .resource-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(122, 47, 116, 0.1);
+        color: var(--purple-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        border: 1px solid rgba(122, 47, 116, 0.12);
+      }
+
+      .text-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .card-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #1e2530;
+      }
+
+      .card-meta {
+        font-size: 0.85rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .card-text {
+        font-size: 0.96rem;
+        color: #5a6570;
+        font-weight: 500;
+        max-width: 420px;
+      }
+
+      .card-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid rgba(31, 42, 55, 0.8);
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--button);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .card:nth-child(5) {
+        grid-column: 1 / span 2;
+        max-width: 660px;
+        margin: 0 auto;
+      }
+
+      .footer-brand {
+        text-align: center;
+        padding: 56px 0 38px;
+      }
+
+      .footer-brand .brand-name {
+        font-size: clamp(1.8rem, 2vw, 2.4rem);
+      }
+
+      .footer-brand .brand-sub {
+        margin-top: 8px;
+      }
+
+      @media (max-width: 900px) {
+        .topbar {
+          padding: 0 14px;
+        }
+
+        .nav {
+          gap: 12px;
+        }
+
+        .nav-item {
+          font-size: 0.95rem;
+        }
+
+        .cards {
+          grid-template-columns: 1fr;
+        }
+
+        .card:nth-child(5) {
+          grid-column: auto;
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .topbar {
+          flex-wrap: wrap;
+          height: auto;
+          padding: 18px 16px;
+          gap: 18px;
+        }
+
+        .top-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .nav {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .brand-name {
+          font-size: 1.6rem;
+        }
+
+        .hero {
+          padding: 0 18px;
+        }
+
+        .card {
+          padding: 16px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="Resource Center brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div class="brand-text">
+            <div id="brandName" class="brand-name">Resource Center</div>
+            <div id="brandSubtitle" class="brand-sub">Manage your bookings and reservations</div>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button id="langToggle" class="lang-switch" aria-label="Switch language">FR</button>
+          <nav class="nav" aria-label="Main navigation">
+            <div id="navReservations" class="nav-item">Reservations</div>
+            <div id="navResources" class="nav-item">Resources</div>
+            <div id="navCalendar" class="nav-item">Calendar</div>
+            <div id="navSettings" class="nav-item">Settings</div>
+          </nav>
+          <div class="user-pill" aria-label="Current user profile">
+            <div class="avatar" aria-hidden="true"></div>
+            <div class="user-name">Name123</div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="hero">
+          <div id="heroBadge" class="hero-badge">Company Resource Booking Platform</div>
+          <h1 id="heroTitle">Book the right resource at the right time</h1>
+          <div id="heroCopy" class="hero-copy">
+            Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.
+          </div>
+        </section>
+
+        <section class="cards" aria-label="Resource categories">
+          <article class="card">
+            <div class="card-main">
+              <div class="resource-icon" aria-hidden="true">🗂️</div>
+              <div class="text-block">
+                <div id="roomTitle" class="card-title">Meeting Rooms</div>
+                <div id="roomMeta" class="card-meta">6 spaces • 12 seats</div>
+              </div>
+            </div>
+            <div id="roomDesc" class="card-text">Book a room for a team sync, client session, or all-hands meeting.</div>
+            <button class="card-action" aria-label="Go to meeting rooms">→</button>
+          </article>
+
+          <article class="card">
+            <div class="card-main">
+              <div class="resource-icon" aria-hidden="true">💻</div>
+              <div class="text-block">
+                <div id="laptopTitle" class="card-title">Laptops</div>
+                <div id="laptopMeta" class="card-meta">24 devices • 18 available</div>
+              </div>
+            </div>
+            <div id="laptopDesc" class="card-text">Borrow a laptop for remote work, training, or a temporary workstation.</div>
+            <button class="card-action" aria-label="Go to laptops">→</button>
+          </article>
+
+          <article class="card">
+            <div class="card-main">
+              <div class="resource-icon" aria-hidden="true">🚗</div>
+              <div class="text-block">
+                <div id="vehicleTitle" class="card-title">Vehicles</div>
+                <div id="vehicleMeta" class="card-meta">8 vehicles • 4 available</div>
+              </div>
+            </div>
+            <div id="vehicleDesc" class="card-text">Reserve a company car for client visits, site visits, or team travel.</div>
+            <button class="card-action" aria-label="Go to vehicles">→</button>
+          </article>
+
+          <article class="card">
+            <div class="card-main">
+              <div class="resource-icon" aria-hidden="true">📽️</div>
+              <div class="text-block">
+                <div id="projectorTitle" class="card-title">Projectors</div>
+                <div id="projectorMeta" class="card-meta">6 units • 4 available</div>
+              </div>
+            </div>
+            <div id="projectorDesc" class="card-text">Add a projector to your room booking for presentations and workshops.</div>
+            <button class="card-action" aria-label="Go to projectors">→</button>
+          </article>
+
+          <article class="card">
+            <div class="card-main">
+              <div class="resource-icon" aria-hidden="true">🧰</div>
+              <div class="text-block">
+                <div id="equipmentTitle" class="card-title">Equipment</div>
+                <div id="equipmentMeta" class="card-meta">12 items • 9 available</div>
+              </div>
+            </div>
+            <div id="equipmentDesc" class="card-text">Reserve cameras, tripods, microphones, and other shared equipment.</div>
+            <button class="card-action" aria-label="Go to equipment">→</button>
+          </article>
+        </section>
+
+        <div class="footer-brand">
+          <div id="footerTitle" class="brand-name">Reservation Center</div>
+          <div id="footerSubtitle" class="brand-sub">Company resource booking platform</div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const translations = {
+        fr: {
+          brandSubtitle: 'Gérez vos réservations et vos ressources',
+          navReservations: 'Réservations',
+          navResources: 'Ressources',
+          navCalendar: 'Calendrier',
+          navSettings: 'Paramètres',
+          heroBadge: 'Plateforme de réservation de ressources d’entreprise',
+          heroTitle: 'Réservez la bonne ressource au bon moment',
+          heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
+          roomTitle: 'Salles de réunion',
+          roomMeta: '6 espaces • 12 places',
+          roomDesc: 'Réservez une salle pour une réunion d’équipe, une séance client ou une assemblée générale.',
+          laptopTitle: 'Ordinateurs portables',
+          laptopMeta: '24 appareils • 18 disponibles',
+          laptopDesc: 'Empruntez un ordinateur portable pour le télétravail, une formation ou un poste temporaire.',
+          vehicleTitle: 'Véhicules',
+          vehicleMeta: '8 véhicules • 4 disponibles',
+          vehicleDesc: 'Réservez une voiture de service pour des visites clients, des déplacements de chantier ou des trajets d’équipe.',
+          projectorTitle: 'Vidéoprojecteurs',
+          projectorMeta: '6 unités • 4 disponibles',
+          projectorDesc: 'Ajoutez un vidéoprojecteur à votre réservation de salle pour des présentations et des ateliers.',
+          equipmentTitle: 'Équipement',
+          equipmentMeta: '12 articles • 9 disponibles',
+          equipmentDesc: 'Réservez des caméras, trépieds, microphones et autres équipements partagés.',
+          footerTitle: 'Centre de réservation',
+          footerSubtitle: 'Plateforme de réservation de ressources d’entreprise'
+        },
+        en: {
+          brandSubtitle: 'Manage your bookings and reservations',
+          navReservations: 'Reservations',
+          navResources: 'Resources',
+          navCalendar: 'Calendar',
+          navSettings: 'Settings',
+          heroBadge: 'Company Resource Booking Platform',
+          heroTitle: 'Book the right resource at the right time',
+          heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
+          roomTitle: 'Meeting Rooms',
+          roomMeta: '6 spaces • 12 seats',
+          roomDesc: 'Book a room for a team sync, client session, or all-hands meeting.',
+          laptopTitle: 'Laptops',
+          laptopMeta: '24 devices • 18 available',
+          laptopDesc: 'Borrow a laptop for remote work, training, or a temporary workstation.',
+          vehicleTitle: 'Vehicles',
+          vehicleMeta: '8 vehicles • 4 available',
+          vehicleDesc: 'Reserve a company car for client visits, site visits, or team travel.',
+          projectorTitle: 'Projectors',
+          projectorMeta: '6 units • 4 available',
+          projectorDesc: 'Add a projector to your room booking for presentations and workshops.',
+          equipmentTitle: 'Equipment',
+          equipmentMeta: '12 items • 9 available',
+          equipmentDesc: 'Reserve cameras, tripods, microphones, and other shared equipment.',
+          footerTitle: 'Reservation Center',
+          footerSubtitle: 'Company resource booking platform'
+        }
+      };
+
+      function detectInitialLanguage() {
+        const browserLocale = navigator.language || navigator.languages?.[0] || 'en-US';
+        const localeCode = browserLocale.toLowerCase();
+        if (localeCode.startsWith('fr')) {
+          return 'fr';
+        }
+        return 'en';
+      }
+
+      const languageToggle = document.getElementById('langToggle');
+      let currentLanguage = localStorage.getItem('resource-center-lang') || detectInitialLanguage();
+
+      function applyLanguage(lang) {
+        const strings = translations[lang];
+        if (!strings) return;
+
+        document.getElementById('brandSubtitle').textContent = strings.brandSubtitle;
+        document.getElementById('navReservations').textContent = strings.navReservations;
+        document.getElementById('navResources').textContent = strings.navResources;
+        document.getElementById('navCalendar').textContent = strings.navCalendar;
+        document.getElementById('navSettings').textContent = strings.navSettings;
+        document.getElementById('heroBadge').textContent = strings.heroBadge;
+        document.getElementById('heroTitle').textContent = strings.heroTitle;
+        document.getElementById('heroCopy').textContent = strings.heroCopy;
+        document.getElementById('roomTitle').textContent = strings.roomTitle;
+        document.getElementById('roomMeta').textContent = strings.roomMeta;
+        document.getElementById('roomDesc').textContent = strings.roomDesc;
+        document.getElementById('laptopTitle').textContent = strings.laptopTitle;
+        document.getElementById('laptopMeta').textContent = strings.laptopMeta;
+        document.getElementById('laptopDesc').textContent = strings.laptopDesc;
+        document.getElementById('vehicleTitle').textContent = strings.vehicleTitle;
+        document.getElementById('vehicleMeta').textContent = strings.vehicleMeta;
+        document.getElementById('vehicleDesc').textContent = strings.vehicleDesc;
+        document.getElementById('projectorTitle').textContent = strings.projectorTitle;
+        document.getElementById('projectorMeta').textContent = strings.projectorMeta;
+        document.getElementById('projectorDesc').textContent = strings.projectorDesc;
+        document.getElementById('equipmentTitle').textContent = strings.equipmentTitle;
+        document.getElementById('equipmentMeta').textContent = strings.equipmentMeta;
+        document.getElementById('equipmentDesc').textContent = strings.equipmentDesc;
+        document.getElementById('footerTitle').textContent = strings.footerTitle;
+        document.getElementById('footerSubtitle').textContent = strings.footerSubtitle;
+
+        document.documentElement.lang = lang;
+        languageToggle.textContent = lang === 'fr' ? 'EN' : 'FR';
+        currentLanguage = lang;
+        localStorage.setItem('resource-center-lang', lang);
+      }
+
+      languageToggle.addEventListener('click', function () {
+        const nextLang = currentLanguage === 'fr' ? 'en' : 'fr';
+        applyLanguage(nextLang);
+      });
+
+      applyLanguage(currentLanguage);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+# Symfony generated and local files
+app/.env.dev.local
+app/.env.local
+app/.env.local.php
+app/var/
+app/vendor/
+app/public/bundles/
+app/config/secrets/prod/prod.decrypt.private.php
+
+# Local development and editor files
+.idea/
+.vscode/
+*.log
+Thumbs.db
+
+# Docker overrides
+docker-compose.override.yml

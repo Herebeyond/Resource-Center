@@ -1,0 +1,9 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resource-center-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped

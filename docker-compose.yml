@@ -1,0 +1,15 @@
+services:
+  symfony_app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: reservation-center-symfony
+    ports:
+      - "8000:8000"
+    working_dir: /var/www/html
+    volumes:
+      - ./app:/var/www/html
+    environment:
+      APP_ENV: dev
+      APP_SECRET: dev-secret
+    restart: unless-stopped

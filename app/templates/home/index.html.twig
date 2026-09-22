@@ -1,0 +1,299 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="brand" aria-label="Resource Center brand">
+                <div class="brand-mark" aria-hidden="true"></div>
+                <div class="brand-text">
+                    <div id="brandName" class="brand-name">Resource Center</div>
+                    <div id="brandSubtitle" class="brand-sub">Manage your bookings and reservations</div>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <button id="langToggle" class="lang-switch" aria-label="Switch language">FR</button>
+                <nav class="nav" aria-label="Main navigation">
+                    <div id="navReservations" class="nav-item">Reservations</div>
+                    <div id="navResources" class="nav-item">Resources</div>
+                    <div id="navCalendar" class="nav-item">Calendar</div>
+                    <div id="navSettings" class="nav-item">Settings</div>
+                </nav>
+                <div class="user-pill">
+                    <button id="profileToggle" class="profile-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
+                        <div class="avatar" aria-hidden="true"></div>
+                        <span id="profileName" class="user-name">Name123</span>
+                    </button>
+                    <div id="profileMenu" class="profile-menu" role="menu" hidden>
+                        <a id="signInLink" href="#sign-in" role="menuitem">Sign in</a>
+                        <a id="registerLink" href="#register" role="menuitem">Register</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <section class="hero">
+                <h1 id="heroTitle">Book the right resource at the right time</h1>
+                <div id="heroCopy" class="hero-copy">
+                    Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.
+                </div>
+            </section>
+
+            <section class="cards" aria-label="Resource categories">
+                <article class="card">
+                    <div class="card-top">
+                        <div class="card-main">
+                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Screen-Curved--Streamline-Ultimate.svg" alt=""></div>
+                            <div class="text-block">
+                                <div id="roomTitle" class="card-title">Meeting Rooms</div>
+                                <div class="card-meta">
+                                    <span id="roomCount">6 spaces</span>
+                                    <span id="roomCapacity">12 seats</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="card-action" aria-label="Go to meeting rooms"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                    </div>
+                    <div id="roomDesc" class="card-text">Book a room for a team sync, client session, or all-hands meeting.</div>
+                </article>
+
+                <article class="card">
+                    <div class="card-top">
+                        <div class="card-main">
+                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Laptop--Streamline-Ultimate.svg" alt=""></div>
+                            <div class="text-block">
+                                <div id="laptopTitle" class="card-title">Laptops</div>
+                                <div class="card-meta">
+                                    <span id="laptopCount">24 devices</span>
+                                    <span id="laptopAvailability">18 available</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="card-action" aria-label="Go to laptops"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                    </div>
+                    <div id="laptopDesc" class="card-text">Borrow a laptop for remote work, training, or a temporary workstation.</div>
+                </article>
+
+                <article class="card">
+                    <div class="card-top">
+                        <div class="card-main">
+                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Vehicle-Car-Personal-4--Streamline-Nova.png" alt=""></div>
+                            <div class="text-block">
+                                <div id="vehicleTitle" class="card-title">Vehicles</div>
+                                <div class="card-meta">
+                                    <span id="vehicleCount">8 vehicles</span>
+                                    <span id="vehicleAvailability">4 available</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="card-action" aria-label="Go to vehicles"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                    </div>
+                    <div id="vehicleDesc" class="card-text">Reserve a company car for client visits, site visits, or team travel.</div>
+                </article>
+
+                <article class="card">
+                    <div class="card-top">
+                        <div class="card-main">
+                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Video-Camera--Streamline-Nova.png" alt=""></div>
+                            <div class="text-block">
+                                <div id="projectorTitle" class="card-title">Projectors</div>
+                                <div class="card-meta">
+                                    <span id="projectorCount">6 units</span>
+                                    <span id="projectorAvailability">4 available</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="card-action" aria-label="Go to projectors"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                    </div>
+                    <div id="projectorDesc" class="card-text">Add a projector to your room booking for presentations and workshops.</div>
+                </article>
+
+                <article class="card">
+                    <div class="card-top">
+                        <div class="card-main">
+                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Tool-Box--Streamline-Ultimate.svg" alt=""></div>
+                            <div class="text-block">
+                                <div id="equipmentTitle" class="card-title">Equipment</div>
+                                <div class="card-meta">
+                                    <span id="equipmentCount">12 items</span>
+                                    <span id="equipmentAvailability">9 available</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="card-action" aria-label="Go to equipment"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                    </div>
+                    <div id="equipmentDesc" class="card-text">Reserve cameras, tripods, microphones, and other shared equipment.</div>
+                </article>
+            </section>
+
+            <div class="footer-brand">
+                <div id="footerTitle" class="brand-name">Reservation Center</div>
+                <div id="footerSubtitle" class="brand-sub">Company resource booking platform</div>
+            </div>
+        </main>
+    </div>
+
+    <button id="scrollUp" class="scroll-up" type="button" aria-label="Scroll to top" title="Scroll to top"><img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt=""></button>
+
+    <script>
+        const translations = {
+            fr: {
+                brandSubtitle: 'Gérez vos réservations et vos ressources',
+                navReservations: 'Réservations',
+                navResources: 'Ressources',
+                navCalendar: 'Calendrier',
+                navSettings: 'Paramètres',
+                signIn: 'Connexion',
+                register: 'Créer un compte',
+                scrollUp: 'Retour en haut',
+                heroTitle: 'Réservez la bonne ressource au bon moment',
+                heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
+                roomTitle: 'Salles de réunion',
+                roomCount: '6 espaces',
+                roomCapacity: '12 places',
+                roomDesc: 'Réservez une salle pour une réunion d’équipe, une séance client ou une assemblée générale.',
+                laptopTitle: 'Ordinateurs portables',
+                laptopCount: '24 appareils',
+                laptopAvailability: '18 disponibles',
+                laptopDesc: 'Empruntez un ordinateur portable pour le télétravail, une formation ou un poste temporaire.',
+                vehicleTitle: 'Véhicules',
+                vehicleCount: '8 véhicules',
+                vehicleAvailability: '4 disponibles',
+                vehicleDesc: 'Réservez une voiture de service pour des visites clients, des déplacements de chantier ou des trajets d’équipe.',
+                projectorTitle: 'Vidéoprojecteurs',
+                projectorCount: '6 unités',
+                projectorAvailability: '4 disponibles',
+                projectorDesc: 'Ajoutez un vidéoprojecteur à votre réservation de salle pour des présentations et des ateliers.',
+                equipmentTitle: 'Équipement',
+                equipmentCount: '12 articles',
+                equipmentAvailability: '9 disponibles',
+                equipmentDesc: 'Réservez des caméras, trépieds, microphones et autres équipements partagés.',
+                footerTitle: 'Centre de réservation',
+                footerSubtitle: 'Plateforme de réservation de ressources d’entreprise'
+            },
+            en: {
+                brandSubtitle: 'Manage your bookings and reservations',
+                navReservations: 'Reservations',
+                navResources: 'Resources',
+                navCalendar: 'Calendar',
+                navSettings: 'Settings',
+                signIn: 'Sign in',
+                register: 'Register',
+                scrollUp: 'Scroll to top',
+                heroTitle: 'Book the right resource at the right time',
+                heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
+                roomTitle: 'Meeting Rooms',
+                roomCount: '6 spaces',
+                roomCapacity: '12 seats',
+                roomDesc: 'Book a room for a team sync, client session, or all-hands meeting.',
+                laptopTitle: 'Laptops',
+                laptopCount: '24 devices',
+                laptopAvailability: '18 available',
+                laptopDesc: 'Borrow a laptop for remote work, training, or a temporary workstation.',
+                vehicleTitle: 'Vehicles',
+                vehicleCount: '8 vehicles',
+                vehicleAvailability: '4 available',
+                vehicleDesc: 'Reserve a company car for client visits, site visits, or team travel.',
+                projectorTitle: 'Projectors',
+                projectorCount: '6 units',
+                projectorAvailability: '4 available',
+                projectorDesc: 'Add a projector to your room booking for presentations and workshops.',
+                equipmentTitle: 'Equipment',
+                equipmentCount: '12 items',
+                equipmentAvailability: '9 available',
+                equipmentDesc: 'Reserve cameras, tripods, microphones, and other shared equipment.',
+                footerTitle: 'Reservation Center',
+                footerSubtitle: 'Company resource booking platform'
+            }
+        };
+
+        function detectInitialLanguage() {
+            const browserLocale = navigator.language || navigator.languages?.[0] || 'en-US';
+            const localeCode = browserLocale.toLowerCase();
+            return localeCode.startsWith('fr') ? 'fr' : 'en';
+        }
+
+        const languageToggle = document.getElementById('langToggle');
+        let currentLanguage = localStorage.getItem('resource-center-lang') || detectInitialLanguage();
+
+        function applyLanguage(lang) {
+            const strings = translations[lang];
+            if (!strings) return;
+
+            document.getElementById('brandSubtitle').textContent = strings.brandSubtitle;
+            document.getElementById('navReservations').textContent = strings.navReservations;
+            document.getElementById('navResources').textContent = strings.navResources;
+            document.getElementById('navCalendar').textContent = strings.navCalendar;
+            document.getElementById('navSettings').textContent = strings.navSettings;
+            document.getElementById('signInLink').textContent = strings.signIn;
+            document.getElementById('registerLink').textContent = strings.register;
+            document.getElementById('scrollUp').setAttribute('aria-label', strings.scrollUp);
+            document.getElementById('scrollUp').setAttribute('title', strings.scrollUp);
+            document.getElementById('heroTitle').textContent = strings.heroTitle;
+            document.getElementById('heroCopy').textContent = strings.heroCopy;
+            document.getElementById('roomTitle').textContent = strings.roomTitle;
+            document.getElementById('roomCount').textContent = strings.roomCount;
+            document.getElementById('roomCapacity').textContent = strings.roomCapacity;
+            document.getElementById('roomDesc').textContent = strings.roomDesc;
+            document.getElementById('laptopTitle').textContent = strings.laptopTitle;
+            document.getElementById('laptopCount').textContent = strings.laptopCount;
+            document.getElementById('laptopAvailability').textContent = strings.laptopAvailability;
+            document.getElementById('laptopDesc').textContent = strings.laptopDesc;
+            document.getElementById('vehicleTitle').textContent = strings.vehicleTitle;
+            document.getElementById('vehicleCount').textContent = strings.vehicleCount;
+            document.getElementById('vehicleAvailability').textContent = strings.vehicleAvailability;
+            document.getElementById('vehicleDesc').textContent = strings.vehicleDesc;
+            document.getElementById('projectorTitle').textContent = strings.projectorTitle;
+            document.getElementById('projectorCount').textContent = strings.projectorCount;
+            document.getElementById('projectorAvailability').textContent = strings.projectorAvailability;
+            document.getElementById('projectorDesc').textContent = strings.projectorDesc;
+            document.getElementById('equipmentTitle').textContent = strings.equipmentTitle;
+            document.getElementById('equipmentCount').textContent = strings.equipmentCount;
+            document.getElementById('equipmentAvailability').textContent = strings.equipmentAvailability;
+            document.getElementById('equipmentDesc').textContent = strings.equipmentDesc;
+            document.getElementById('footerTitle').textContent = strings.footerTitle;
+            document.getElementById('footerSubtitle').textContent = strings.footerSubtitle;
+
+            document.documentElement.lang = lang;
+            languageToggle.textContent = lang === 'fr' ? 'EN' : 'FR';
+            currentLanguage = lang;
+            localStorage.setItem('resource-center-lang', lang);
+        }
+
+        languageToggle.addEventListener('click', function () {
+            const nextLang = currentLanguage === 'fr' ? 'en' : 'fr';
+            applyLanguage(nextLang);
+        });
+
+        const profileToggle = document.getElementById('profileToggle');
+        const profileMenu = document.getElementById('profileMenu');
+
+        profileToggle.addEventListener('click', function () {
+            const isOpen = profileToggle.getAttribute('aria-expanded') === 'true';
+            profileToggle.setAttribute('aria-expanded', String(!isOpen));
+            profileMenu.hidden = isOpen;
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!profileToggle.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileToggle.setAttribute('aria-expanded', 'false');
+                profileMenu.hidden = true;
+            }
+        });
+
+        const scrollUp = document.getElementById('scrollUp');
+
+        window.addEventListener('scroll', function () {
+            scrollUp.classList.toggle('is-visible', window.scrollY > 320);
+        }, { passive: true });
+
+        scrollUp.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        applyLanguage(currentLanguage);
+    </script>
+{% endblock %}
