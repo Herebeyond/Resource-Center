@@ -1,4 +1,24 @@
 services:
+  database:
+    image: postgres:16-alpine
+    container_name: reservation-center-postgres
+    environment:
+      POSTGRES_DB: resource_center
+      POSTGRES_USER: resource_center
+      POSTGRES_PASSWORD: resource_center_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - database_data:/var/lib/postgresql/data
+      - ./database/Reservations.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/Reservations.demo.fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resource_center -d resource_center"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   symfony_app:
     build:
       context: ./app
@@ -9,7 +29,14 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./app:/var/www/html
+    depends_on:
+      database:
+        condition: service_healthy
     environment:
       APP_ENV: dev
       APP_SECRET: dev-secret
+      DATABASE_URL: "postgresql://resource_center:resource_center_dev_password@database:5432/resource_center?serverVersion=16&charset=utf8"
     restart: unless-stopped
+
+volumes:
+  database_data:

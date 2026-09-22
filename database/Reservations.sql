@@ -472,7 +472,7 @@ VALUES
   ('resource.manage', 'Gérer les ressources'),
   ('user.manage', 'Gérer les utilisateurs'),
   ('planning.read', 'Consulter le calendrier'),
-  ('audit.read', 'Consulter les journaux d\'audit')
+  ('audit.read', 'Consulter les journaux d''audit')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO role_permissions (role_id, permission_id)

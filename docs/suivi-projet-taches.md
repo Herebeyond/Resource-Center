@@ -16,21 +16,21 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
 ### Préparer le projet
 
 - [ ] Initialiser la structure du projet
-  - [ ] Initialiser le projet Symfony
-  - [ ] Configurer les variables d'environnement
-  - [ ] Configurer PostgreSQL
-  - [ ] Configurer Git
+  - [x] Initialiser le projet Symfony
+  - [x] Configurer les variables d'environnement
+  - [x] Configurer PostgreSQL
+  - [x] Configurer Git
   - [x] Créer la structure des dossiers
-  - [ ] Ajouter les dépendances nécessaires
-  - [ ] Vérifier que le projet démarre correctement
+  - [x] Ajouter les dépendances nécessaires
+  - [x] Vérifier que le projet démarre correctement
 
 - [ ] Connecter l'application à la base de données
-  - [ ] Configurer la connexion PostgreSQL
-  - [ ] Importer le schéma SQL
-  - [ ] Vérifier les tables et les relations
-  - [ ] Vérifier les contraintes et les triggers
-  - [ ] Tester les fixtures de démonstration
-  - [ ] Documenter la procédure d'installation
+  - [x] Configurer la connexion PostgreSQL
+  - [x] Importer le schéma SQL
+  - [x] Vérifier les tables et les relations
+  - [x] Vérifier les contraintes et les triggers
+  - [x] Tester les fixtures de démonstration
+  - [x] Documenter la procédure d'installation
 
 - [x] Préparer le déploiement local avec Docker Desktop
   - [x] Créer la configuration Docker
