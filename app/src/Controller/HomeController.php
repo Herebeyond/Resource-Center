@@ -13,4 +13,16 @@ class HomeController extends AbstractController
     {
         return $this->render('home/index.html.twig');
     }
+
+    #[Route('/connexion', name: 'app_login', methods: ['GET', 'POST'])]
+    public function login(): Response
+    {
+        return $this->render('account/login.html.twig');
+    }
+
+    #[Route('/profil', name: 'app_profile')]
+    public function profile(): Response
+    {
+        return $this->render('account/profile.html.twig');
+    }
 }

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign in | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell">
+        <main class="account-page">
+            <section class="account-panel" aria-labelledby="login-title">
+                <div class="account-label">Resource Center</div>
+                <h1 id="login-title">Sign in</h1>
+                <p class="account-intro">Access your company resources and reservations.</p>
+
+                <form class="account-form" method="post" action="{{ path('app_login') }}">
+                    <div class="form-field">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" autocomplete="email" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="password">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required>
+                    </div>
+                    <button class="account-button" type="submit">Sign in</button>
+                </form>
+
+                <p class="account-note">Your account is created and managed by your company administrator. Public registration is not available.</p>
+                <a class="account-link" href="{{ path('app_home') }}">Back to home</a>
+            </section>
+        </main>
+    </div>
+{% endblock %}

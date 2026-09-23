@@ -29,6 +29,8 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./app:/var/www/html
+      - symfony_vendor:/var/www/html/vendor
+      - symfony_var:/var/www/html/var
     depends_on:
       database:
         condition: service_healthy
@@ -40,3 +42,5 @@ services:
 
 volumes:
   database_data:
+  symfony_vendor:
+  symfony_var:

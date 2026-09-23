@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profile | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell">
+        <main class="account-page">
+            <section class="account-panel" aria-labelledby="profile-title">
+                <div class="account-label">User menu</div>
+                <h1 id="profile-title">Name123</h1>
+                <p class="account-intro">Manage your account and access your reservation area.</p>
+
+                <div class="profile-summary">
+                    <div class="avatar" aria-hidden="true"></div>
+                    <div>
+                        <strong>Name123</strong>
+                        <span>Company user account</span>
+                    </div>
+                </div>
+
+                <a class="account-link" href="{{ path('app_login') }}">Sign in with another account</a>
+                <br>
+                <a class="account-link" href="{{ path('app_home') }}">Back to home</a>
+            </section>
+        </main>
+    </div>
+{% endblock %}

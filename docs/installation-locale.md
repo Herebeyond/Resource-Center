@@ -17,6 +17,8 @@ Les scripts sont exécutés dans cet ordre lors de la première création du vol
 
 L'application est disponible sur `http://127.0.0.1:8000`.
 
+En développement, le code `app/` est monté dans le conteneur pour refléter les modifications immédiatement. Les dossiers `vendor/` et `var/` utilisent des volumes Docker dédiés afin d'éviter les lenteurs liées à un montage depuis OneDrive. Le projet n'utilise pas de police distante : les ressources de la homepage restent locales.
+
 ## Connexion Symfony
 
 Symfony utilise Doctrine DBAL et la variable `DATABASE_URL`. Dans Docker, elle pointe vers le service `database`. En lancement local depuis `app/`, elle pointe vers `127.0.0.1`.

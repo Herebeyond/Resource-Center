@@ -27,8 +27,8 @@
                         <span id="profileName" class="user-name">Name123</span>
                     </button>
                     <div id="profileMenu" class="profile-menu" role="menu" hidden>
-                        <a id="signInLink" href="#sign-in" role="menuitem">Sign in</a>
-                        <a id="registerLink" href="#register" role="menuitem">Register</a>
+                        <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">Profile</a>
+                        <a id="signInLink" href="{{ path('app_login') }}" role="menuitem">Sign in</a>
                     </div>
                 </div>
             </div>
@@ -147,7 +147,7 @@
                 navCalendar: 'Calendrier',
                 navSettings: 'Paramètres',
                 signIn: 'Connexion',
-                register: 'Créer un compte',
+                profile: 'Profil',
                 scrollUp: 'Retour en haut',
                 heroTitle: 'Réservez la bonne ressource au bon moment',
                 heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
@@ -181,7 +181,7 @@
                 navCalendar: 'Calendar',
                 navSettings: 'Settings',
                 signIn: 'Sign in',
-                register: 'Register',
+                profile: 'Profile',
                 scrollUp: 'Scroll to top',
                 heroTitle: 'Book the right resource at the right time',
                 heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
@@ -228,8 +228,8 @@
             document.getElementById('navResources').textContent = strings.navResources;
             document.getElementById('navCalendar').textContent = strings.navCalendar;
             document.getElementById('navSettings').textContent = strings.navSettings;
+            document.getElementById('profileLink').textContent = strings.profile;
             document.getElementById('signInLink').textContent = strings.signIn;
-            document.getElementById('registerLink').textContent = strings.register;
             document.getElementById('scrollUp').setAttribute('aria-label', strings.scrollUp);
             document.getElementById('scrollUp').setAttribute('title', strings.scrollUp);
             document.getElementById('heroTitle').textContent = strings.heroTitle;
