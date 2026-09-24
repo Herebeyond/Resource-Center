@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ReservationController extends AbstractController
 {
@@ -31,6 +32,7 @@ class ReservationController extends AbstractController
     public function __construct(
         private readonly Connection $connection,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -47,6 +49,8 @@ class ReservationController extends AbstractController
         }
 
         $selectedDate = $this->normalizeDate($request->query->get('date'));
+        $timeframe = $request->query->get('timeframe') === 'full' ? 'full' : 'work';
+        $hours = range($timeframe === 'full' ? 0 : 6, $timeframe === 'full' ? 23 : 18);
         $resources = $this->getResources((int) $user['company_id'], self::TYPE_MAP[$type]);
         $selectedResourceId = (int) ($request->query->get('resource') ?: ($resources[0]['id'] ?? 0));
         $selectedResource = $this->findResource($resources, $selectedResourceId);
@@ -64,9 +68,9 @@ class ReservationController extends AbstractController
             $csrfToken = (string) $request->request->get('_csrf_token');
 
             if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('reservation', $csrfToken))) {
-                $error = 'The form security token is invalid. Please reload the page.';
+                $error = 'reservation.invalid_token';
             } elseif (!$selectedResource || !$this->validTimeRange($startTime, $endTime) || $title === '') {
-                $error = 'Please select a resource, a valid time range, and enter a name.';
+                $error = 'reservation.invalid_form';
             } else {
                 $startAt = $selectedDate . ' ' . $startTime . ':00';
                 $endAt = $selectedDate . ' ' . $endTime . ':00';
@@ -83,7 +87,7 @@ class ReservationController extends AbstractController
                 );
 
                 if ($conflict) {
-                    $error = 'A reservation already exists in the time-frame you chose.';
+                    $error = 'reservation.conflict';
                 } else {
                     $nearby = $this->connection->fetchOne(
                         "SELECT 1
@@ -95,7 +99,7 @@ class ReservationController extends AbstractController
                          LIMIT 1",
                         ['resource_id' => $selectedResourceId, 'start_at' => $startAt]
                     );
-                    $warning = $nearby ? 'This reservation is very close to another one. Please check the transition time.' : null;
+                    $warning = $nearby ? 'reservation.nearby' : null;
 
                     $statusId = (int) $this->connection->fetchOne("SELECT id FROM reservation_status WHERE code = 'confirmed'");
                     $this->connection->insert('reservations', [
@@ -113,6 +117,7 @@ class ReservationController extends AbstractController
                         'type' => $type,
                         'date' => $selectedDate,
                         'resource' => $selectedResourceId,
+                        'timeframe' => $timeframe,
                         'created' => 1,
                     ]);
                 }
@@ -122,15 +127,18 @@ class ReservationController extends AbstractController
         return $this->render('reservation/index.html.twig', [
             'current_user' => $user,
             'type' => $type,
-            'type_label' => self::LABELS[$type]['title'],
-            'search_placeholder' => self::LABELS[$type]['search'],
+            'type_label' => $this->translator->trans($this->typeLabelKey($type), [], 'reservation', $request->getLocale()),
+            'search_placeholder' => $this->translator->trans($this->searchKey($type), [], 'reservation', $request->getLocale()),
             'resources' => $resources,
             'selected_resource' => $selectedResource,
             'selected_date' => $selectedDate,
+            'timeframe' => $timeframe,
+            'hours' => $hours,
             'reservations' => $this->getReservations((int) $user['company_id'], self::TYPE_MAP[$type], $selectedDate),
-            'error' => $error,
-            'warning' => $warning,
+            'error' => $error ? $this->translator->trans($error, [], 'reservation', $request->getLocale()) : null,
+            'warning' => $warning ? $this->translator->trans($warning, [], 'reservation', $request->getLocale()) : null,
             'created' => (bool) $request->query->get('created'),
+            'reservation_translations' => $this->getTranslations($type),
         ]);
     }
 
@@ -178,6 +186,80 @@ class ReservationController extends AbstractController
              ORDER BY r.start_at",
             ['company_id' => $companyId, 'type' => $type, 'date' => $date]
         );
+    }
+
+    private function typeLabelKey(string $type): string
+    {
+        return match ($type) {
+            'room' => 'reservation.select_room',
+            'vehicle' => 'reservation.select_vehicle',
+            'laptop' => 'reservation.select_laptop',
+            'projector' => 'reservation.select_projector',
+            default => 'reservation.select_equipment',
+        };
+    }
+
+    private function searchKey(string $type): string
+    {
+        return match ($type) {
+            'room' => 'reservation.search_room',
+            'vehicle' => 'reservation.search_vehicle',
+            'laptop' => 'reservation.search_laptop',
+            'projector' => 'reservation.search_projector',
+            default => 'reservation.search_equipment',
+        };
+    }
+
+    private function getTranslations(string $type): array
+    {
+        $keys = [
+            'brandSubtitle' => 'reservation.brand_subtitle', 'navReservations' => 'reservation.nav_reservations',
+            'navResources' => 'reservation.nav_resources', 'navCalendar' => 'reservation.nav_calendar',
+            'navSettings' => 'reservation.nav_settings',
+            'chooseResource' => 'reservation.choose_resource', 'searchOptions' => 'reservation.search_options',
+            'videoConferencing' => 'reservation.video_conferencing', 'other' => 'reservation.other',
+            'whiteboard' => 'reservation.whiteboard', 'minimumSeats' => 'reservation.minimum_seats',
+            'maximumSeats' => 'reservation.maximum_seats', 'building' => 'reservation.building',
+            'allBuildings' => 'reservation.all_buildings', 'selectDate' => 'reservation.select_date',
+            'today' => 'reservation.today', 'next7Days' => 'reservation.next_7_days',
+            'selectDateLabel' => 'reservation.select_date_label', 'selectTime' => 'reservation.select_time',
+            'timeframe' => 'reservation.timeframe', 'workHours' => 'reservation.work_hours',
+            'fullDay' => 'reservation.full_day', 'start' => 'reservation.start', 'end' => 'reservation.end',
+            'name' => 'reservation.name', 'reservationName' => 'reservation.reservation_name',
+            'description' => 'reservation.description', 'addDetails' => 'reservation.add_details',
+            'timeSlot' => 'reservation.time_slot', 'availability' => 'reservation.availability',
+            'summary' => 'reservation.summary', 'review' => 'reservation.review', 'resource' => 'reservation.resource',
+            'noResource' => 'reservation.no_resource', 'date' => 'reservation.date', 'time' => 'reservation.time',
+            'cancel' => 'reservation.cancel', 'confirm' => 'reservation.confirm', 'created' => 'reservation.created',
+            'noResources' => 'reservation.no_resources', 'error' => 'reservation.invalid_form',
+            'warning' => 'reservation.nearby', 'companyResource' => 'reservation.company_resource',
+            'videoTag' => 'reservation.video_tag', 'whiteboardTag' => 'reservation.whiteboard_tag',
+            'seats' => 'reservation.seats', 'changeLanguage' => 'account.change_language',
+        ];
+
+        $translations = [
+            'fr' => $this->translateKeys($keys, 'fr'),
+            'en' => $this->translateKeys($keys, 'en'),
+        ];
+
+        $translations['fr']['changeLanguage'] = $this->translator->trans('account.change_language', [], 'messages', 'fr');
+        $translations['en']['changeLanguage'] = $this->translator->trans('account.change_language', [], 'messages', 'en');
+        foreach (['fr', 'en'] as $locale) {
+            $translations[$locale]['typeLabel'] = $this->translator->trans($this->typeLabelKey($type), [], 'reservation', $locale);
+            $translations[$locale]['searchPlaceholder'] = $this->translator->trans($this->searchKey($type), [], 'reservation', $locale);
+        }
+
+        return $translations;
+    }
+
+    private function translateKeys(array $keys, string $locale): array
+    {
+        $result = [];
+        foreach ($keys as $name => $key) {
+            $result[$name] = $this->translator->trans($key, [], 'reservation', $locale);
+        }
+
+        return $result;
     }
 
     private function findResource(array $resources, int $id): ?array

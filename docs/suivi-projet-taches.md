@@ -141,6 +141,12 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Ressources chargées depuis PostgreSQL
   - [x] Réservations existantes affichées dans la timeline
   - [x] Icônes réelles utilisées selon le type de ressource
+  - [x] Ajouter le changement de langue
+  - [x] Rendre les filtres fonctionnels
+  - [x] Ajouter les modes heures de travail et journée complète
+  - [x] Afficher la plage saisie en orange avec bordure en pointillés
+  - [x] Synchroniser le résumé avec les champs en temps réel
+  - [x] Empêcher la soumission avec la touche Entrée
 
 - [ ] Gérer les conflits et les réservations rapprochées
   - [ ] Détecter les chevauchements de réservation

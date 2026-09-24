@@ -9,15 +9,16 @@
                 <div class="brand-mark" aria-hidden="true"></div>
                 <div class="brand-text">
                     <div class="brand-name">Resource Center</div>
-                    <div class="brand-sub">{{ 'brand.subtitle'|trans }}</div>
+                    <div class="brand-sub" data-i18n="brandSubtitle">{{ reservation_translations.en.brandSubtitle }}</div>
                 </div>
             </div>
             <div class="top-actions">
+                <button id="reservationLangToggle" class="lang-switch" type="button" aria-label="{{ reservation_translations.en.changeLanguage }}">FR</button>
                 <nav class="nav" aria-label="Main navigation">
-                    <a class="nav-item nav-item-active" href="{{ path('app_reservation', {type: 'room'}) }}">Reservations</a>
-                    <a class="nav-item" href="{{ path('app_home') }}">Resources</a>
-                    <span class="nav-item">Calendar</span>
-                    <span class="nav-item">Settings</span>
+                    <a class="nav-item nav-item-active" data-i18n="navReservations" href="{{ path('app_reservation', {type: 'room'}) }}">{{ reservation_translations.en.navReservations }}</a>
+                    <a class="nav-item" data-i18n="navResources" href="{{ path('app_home') }}">{{ reservation_translations.en.navResources }}</a>
+                    <span class="nav-item" data-i18n="navCalendar">{{ reservation_translations.en.navCalendar }}</span>
+                    <span class="nav-item" data-i18n="navSettings">{{ reservation_translations.en.navSettings }}</span>
                 </nav>
                 <div class="user-pill">
                     <span class="avatar" aria-hidden="true"></span>
@@ -28,8 +29,8 @@
 
         <main class="reservation-layout">
             <aside class="reservation-sidebar">
-                <h1>{{ type_label }}</h1>
-                <p class="reservation-help">Choose a resource or facility to view availability.</p>
+                <h1 data-type-label>{{ type_label }}</h1>
+                <p id="reservationHelp" class="reservation-help">{{ reservation_translations.en.chooseResource }}</p>
                 <label class="reservation-search">
                     <span class="visually-hidden">{{ search_placeholder }}</span>
                     <input type="search" placeholder="{{ search_placeholder }}" data-resource-filter>
@@ -37,22 +38,27 @@
                 </label>
 
                 <fieldset class="search-options">
-                    <legend>Search options</legend>
-                    <label><input type="checkbox" checked> Video Conferencing</label>
-                    <label><input type="checkbox"> Other</label>
-                    <label><input type="checkbox" checked> Whiteboard</label>
+                    <legend id="searchOptionsLabel">{{ reservation_translations.en.searchOptions }}</legend>
+                    <label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>
+                    <label><input type="checkbox" data-feature="other"> <span data-i18n="other">{{ reservation_translations.en.other }}</span></label>
+                    <label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>
                     <div class="number-filters">
-                        <label>Minimum seats<input type="number" min="0"></label>
-                        <label>Maximum seats<input type="number" min="0"></label>
+                        <label><span data-i18n="minimumSeats">{{ reservation_translations.en.minimumSeats }}</span><input type="number" min="0" data-filter-min></label>
+                        <label><span data-i18n="maximumSeats">{{ reservation_translations.en.maximumSeats }}</span><input type="number" min="0" data-filter-max></label>
                     </div>
-                    <label>Building<select><option>All buildings</option></select></label>
+                    <label><span data-i18n="building">{{ reservation_translations.en.building }}</span><select data-filter-building><option data-i18n="allBuildings">{{ reservation_translations.en.allBuildings }}</option></select></label>
                 </fieldset>
 
                 <div class="resource-list" data-resource-list>
                     {% for resource in resources %}
                         <a class="resource-choice{% if selected_resource and selected_resource.id == resource.id %} is-selected{% endif %}"
                            href="{{ path('app_reservation', {type: type, date: selected_date, resource: resource.id}) }}"
-                           data-resource-card data-resource-name="{{ resource.name|lower }}">
+                           data-resource-card
+                           data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }}"
+                           data-resource-capacity="{{ resource.places }}"
+                           data-resource-building="{{ resource.location|default('')|lower }}"
+                           data-resource-screen="{{ resource.has_screen ? 'true' : 'false' }}"
+                           data-resource-whiteboard="{{ resource.has_whiteboard ? 'true' : 'false' }}">
                             {% set resourceIcon = {
                                 room: 'Screen-Curved--Streamline-Ultimate.svg',
                                 vehicle: 'Vehicle-Car-Personal-4--Streamline-Nova.png',
@@ -63,17 +69,17 @@
                             <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
                             <span class="resource-choice-content">
                                 <strong>{{ resource.name }}</strong>
-                                <small>{{ resource.location ?: 'Company resource' }} · {{ resource.places }} seats</small>
+                                <small>{{ resource.location ?: reservation_translations.en.companyResource }} · {{ resource.places }} {{ reservation_translations.en.seats }}</small>
                                 {% if resource.has_screen or resource.has_whiteboard %}
                                     <span class="resource-tags">
-                                        {% if resource.has_screen %}<em>Video Conferencing</em>{% endif %}
-                                        {% if resource.has_whiteboard %}<em>Whiteboard</em>{% endif %}
+                                        {% if resource.has_screen %}<em>{{ reservation_translations.en.videoTag }}</em>{% endif %}
+                                        {% if resource.has_whiteboard %}<em>{{ reservation_translations.en.whiteboardTag }}</em>{% endif %}
                                     </span>
                                 {% endif %}
                             </span>
                         </a>
                     {% else %}
-                        <p class="empty-state">No resources are available for this category.</p>
+                        <p class="empty-state" data-i18n="noResources">{{ reservation_translations.en.noResources }}</p>
                     {% endfor %}
                 </div>
             </aside>
@@ -81,7 +87,7 @@
             <section class="reservation-content">
                 <div class="reservation-toolbar">
                     <div>
-                        <h2>Select Date</h2>
+                        <h2 id="selectDateTitle" data-i18n="selectDate">{{ reservation_translations.en.selectDate }}</h2>
                         <div class="date-strip">
                             {% for offset in 0..6 %}
                                 {% set date = date(selected_date)|date_modify('+' ~ offset ~ ' day') %}
@@ -94,8 +100,8 @@
                         </div>
                     </div>
                     <div class="date-actions">
-                        <a href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">Today</a>
-                        <input type="date" value="{{ selected_date }}" data-date-picker aria-label="Select date">
+                        <a data-i18n="today" href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">{{ reservation_translations.en.today }}</a>
+                        <input type="date" value="{{ selected_date }}" data-date-picker aria-label="{{ reservation_translations.en.selectDateLabel }}">
                     </div>
                 </div>
 
@@ -104,25 +110,25 @@
                     <input type="hidden" name="resource_id" value="{{ selected_resource ? selected_resource.id : '' }}">
                     <input type="hidden" name="date" value="{{ selected_date }}" data-selected-date>
                     <div class="form-row">
-                        <label>Timeframe<select><option>Full</option><option>Morning</option><option>Afternoon</option></select></label>
-                        <label>Start<input name="start_time" type="time" value="11:00" required></label>
-                        <label>End<input name="end_time" type="time" value="12:00" required></label>
-                        <label class="form-grow">Name<input name="title" type="text" placeholder="Reservation name" required></label>
+                        <label><span data-i18n="timeframe">{{ reservation_translations.en.timeframe }}</span><select name="timeframe" data-timeframe><option value="work"{% if timeframe == 'work' %} selected{% endif %}>{{ reservation_translations.en.workHours }}</option><option value="full"{% if timeframe == 'full' %} selected{% endif %}>{{ reservation_translations.en.fullDay }}</option></select></label>
+                        <label><span data-i18n="start">{{ reservation_translations.en.start }}</span><input name="start_time" type="time" value="11:00" required></label>
+                        <label><span data-i18n="end">{{ reservation_translations.en.end }}</span><input name="end_time" type="time" value="12:00" required></label>
+                        <label class="form-grow"><span data-i18n="name">{{ reservation_translations.en.name }}</span><input name="title" type="text" placeholder="{{ reservation_translations.en.reservationName }}" required></label>
                     </div>
-                    <label class="description-field">Description<textarea name="notes" rows="2" placeholder="Add details for this reservation"></textarea></label>
+                    <label class="description-field"><span data-i18n="description">{{ reservation_translations.en.description }}</span><textarea name="notes" rows="2" placeholder="{{ reservation_translations.en.addDetails }}"></textarea></label>
                 </form>
 
-                {% if error %}<div class="reservation-alert reservation-alert-error">{{ error }}</div>{% endif %}
-                {% if warning %}<div class="reservation-alert reservation-alert-warning">{{ warning }}</div>{% endif %}
-                {% if created %}<div class="reservation-alert reservation-alert-success">Reservation created successfully.</div>{% endif %}
+                {% if error %}<div class="reservation-alert reservation-alert-error" data-i18n="error">{{ error }}</div>{% endif %}
+                {% if warning %}<div class="reservation-alert reservation-alert-warning" data-i18n="warning">{{ warning }}</div>{% endif %}
+                {% if created %}<div class="reservation-alert reservation-alert-success" data-i18n="created">{{ reservation_translations.en.created }}</div>{% endif %}
 
                 <section class="timeline-panel" aria-label="Availability timeline">
-                    <div class="timeline-header"><span>Time Slot</span><span>Availability</span></div>
-                    {% for hour in 6..18 %}
+                    <div class="timeline-header"><span data-i18n="timeSlot">{{ reservation_translations.en.timeSlot }}</span><span data-i18n="availability">{{ reservation_translations.en.availability }}</span></div>
+                    {% for hour in hours %}
                         <div class="timeline-row"><time>{{ '%02d:00'|format(hour) }}</time><div></div></div>
                     {% endfor %}
                     {% for reservation in reservations %}
-                        <div class="reservation-block" style="--reservation-start: {{ reservation.start_at|date('G') - 6 }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
+                        <div class="reservation-block" style="--reservation-start: {{ reservation.start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
                             <strong>{{ reservation.title }}</strong>
                             <span>{{ reservation.resource_name }} · {{ reservation.start_at|date('H:i') }} - {{ reservation.end_at|date('H:i') }}</span>
                         </div>
@@ -130,16 +136,16 @@
                 </section>
 
                 <section class="reservation-summary">
-                    <h2>Reservation Summary</h2>
-                    <p>Please review your selection before confirming.</p>
+                    <h2 id="summaryTitle" data-i18n="summary">{{ reservation_translations.en.summary }}</h2>
+                    <p id="summaryReview" data-i18n="review">{{ reservation_translations.en.review }}</p>
                     <dl>
-                        <dt>Resource</dt><dd>{{ selected_resource ? selected_resource.name : 'No resource selected' }}</dd>
-                        <dt>Date</dt><dd>{{ selected_date|date('l, F d, Y') }}</dd>
-                        <dt>Time</dt><dd>11:00 - 12:00</dd>
+                        <dt>{{ reservation_translations.en.resource }}</dt><dd id="summaryResource">{{ selected_resource ? selected_resource.name : reservation_translations.en.noResource }}</dd>
+                        <dt>{{ reservation_translations.en.date }}</dt><dd id="summaryDate">{{ selected_date|date('l, F d, Y') }}</dd>
+                        <dt>{{ reservation_translations.en.time }}</dt><dd id="summaryTime">11:00 - 12:00</dd>
                     </dl>
                     <div class="summary-actions">
-                        <button type="button" class="secondary-button" data-clear-selection>Cancel</button>
-                        <button type="submit" class="account-button" form="reservation-form" disabled>Confirm Reservation</button>
+                        <button type="button" class="secondary-button" data-clear-selection>{{ reservation_translations.en.cancel }}</button>
+                        <button id="confirmReservation" type="submit" class="account-button" form="reservation-form" disabled>{{ reservation_translations.en.confirm }}</button>
                     </div>
                 </section>
             </section>
@@ -147,31 +153,137 @@
     </div>
 
     <script>
-        const filterInput = document.querySelector('[data-resource-filter]');
+        const reservationTranslations = {{ reservation_translations|json_encode|raw }};
+        const reservationLanguageToggle = document.getElementById('reservationLangToggle');
         const resourceCards = [...document.querySelectorAll('[data-resource-card]')];
-        const reservationForm = document.querySelector('.reservation-form');
-        const confirmButton = document.querySelector('[form="reservation-form"]');
+        const reservationForm = document.getElementById('reservation-form');
+        const confirmButton = document.getElementById('confirmReservation');
+        const timeline = document.querySelector('.timeline-panel');
+        const filterInput = document.querySelector('[data-resource-filter]');
+        const minSeats = document.querySelector('[data-filter-min]');
+        const maxSeats = document.querySelector('[data-filter-max]');
+        const buildingFilter = document.querySelector('[data-filter-building]');
         const datePicker = document.querySelector('[data-date-picker]');
         const selectedDate = document.querySelector('[data-selected-date]');
+        const timeframeSelect = document.querySelector('[data-timeframe]');
+        const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+        let reservationLanguage = localStorage.getItem('resource-center-lang') || browserLanguage;
+        let confirmedByButton = false;
 
-        filterInput?.addEventListener('input', function () {
-            const query = this.value.toLowerCase().trim();
-            resourceCards.forEach((card) => {
-                card.hidden = query !== '' && !card.dataset.resourceName.includes(query);
+        function applyReservationLanguage(language) {
+            const strings = reservationTranslations[language];
+            document.documentElement.lang = language;
+            document.querySelectorAll('[data-i18n]').forEach((element) => {
+                const key = element.dataset.i18n;
+                if (strings[key]) element.textContent = strings[key];
             });
+            document.querySelector('[data-type-label]').textContent = strings.typeLabel;
+            filterInput.placeholder = strings.searchPlaceholder;
+            document.querySelector('[data-filter-building] option').textContent = strings.allBuildings;
+            document.querySelector('[data-date-picker]').setAttribute('aria-label', strings.selectDateLabel);
+            document.querySelector('[data-timeframe] option[value="work"]').textContent = strings.workHours;
+            document.querySelector('[data-timeframe] option[value="full"]').textContent = strings.fullDay;
+            document.querySelector('[data-selected-date]').closest('form').querySelector('[data-i18n="start"]')?.textContent;
+            reservationLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
+            reservationLanguageToggle.setAttribute('aria-label', strings.changeLanguage);
+            document.querySelectorAll('.resource-choice small').forEach((element) => {
+                element.textContent = element.textContent.replace(/(seats|places)$/, strings.seats);
+            });
+            reservationLanguage = language;
+            localStorage.setItem('resource-center-lang', language);
+        }
+
+        function populateBuildings() {
+            const buildings = [...new Set(resourceCards.map((card) => card.dataset.resourceBuilding).filter(Boolean))];
+            buildings.forEach((building) => {
+                const option = document.createElement('option');
+                option.value = building;
+                option.textContent = building;
+                buildingFilter.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            const query = filterInput.value.toLowerCase().trim();
+            const minimum = Number(minSeats.value || 0);
+            const maximum = Number(maxSeats.value || Number.MAX_SAFE_INTEGER);
+            const building = buildingFilter.value.toLowerCase();
+            const screenRequired = document.querySelector('[data-feature="screen"]').checked;
+            const whiteboardRequired = document.querySelector('[data-feature="whiteboard"]').checked;
+            const otherRequired = document.querySelector('[data-feature="other"]').checked;
+
+            resourceCards.forEach((card) => {
+                const matches = card.dataset.resourceName.includes(query)
+                    && Number(card.dataset.resourceCapacity || 0) >= minimum
+                    && Number(card.dataset.resourceCapacity || 0) <= maximum
+                    && (building === '' || card.dataset.resourceBuilding.includes(building))
+                    && (!screenRequired || card.dataset.resourceScreen === 'true')
+                    && (!whiteboardRequired || card.dataset.resourceWhiteboard === 'true')
+                    && (!otherRequired || (card.dataset.resourceScreen === 'false' && card.dataset.resourceWhiteboard === 'false'));
+                card.hidden = !matches;
+            });
+        }
+
+        function updateSummary() {
+            const title = reservationForm.querySelector('[name="title"]').value.trim();
+            const start = reservationForm.querySelector('[name="start_time"]').value;
+            const end = reservationForm.querySelector('[name="end_time"]').value;
+            const selectedResource = document.querySelector('.resource-choice.is-selected strong');
+            document.getElementById('summaryResource').textContent = selectedResource?.textContent || reservationTranslations[reservationLanguage].noResource;
+            document.getElementById('summaryDate').textContent = new Date(`${selectedDate.value}T00:00:00`).toLocaleDateString(reservationLanguage === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('summaryTime').textContent = `${start || '--:--'} - ${end || '--:--'}`;
+            confirmButton.disabled = !(reservationForm.querySelector('[name="resource_id"]').value && title && start && end && end > start);
+
+            timeline.querySelector('.draft-reservation-block')?.remove();
+            if (start && end && end > start) {
+                const draft = document.createElement('div');
+                const startHour = Number(start.split(':')[0]) + Number(start.split(':')[1]) / 60;
+                const duration = (Number(end.split(':')[0]) + Number(end.split(':')[1]) / 60) - startHour;
+                const firstHour = Number(document.querySelector('.timeline-row time')?.textContent.split(':')[0] || 6);
+                draft.className = 'reservation-block draft-reservation-block';
+                draft.style.setProperty('--reservation-start', startHour - firstHour);
+                draft.style.setProperty('--reservation-duration', duration);
+                draft.innerHTML = `<strong>${title || reservationTranslations[reservationLanguage].reservationName}</strong><span>${start} - ${end}</span>`;
+                timeline.appendChild(draft);
+            }
+        }
+
+        filterInput?.addEventListener('input', applyFilters);
+        [minSeats, maxSeats, buildingFilter].forEach((control) => control?.addEventListener('input', applyFilters));
+        document.querySelectorAll('[data-feature]').forEach((control) => control.addEventListener('change', applyFilters));
+
+        timeframeSelect?.addEventListener('change', function () {
+            const params = new URLSearchParams(window.location.search);
+            params.set('timeframe', this.value);
+            window.location.search = params.toString();
         });
 
         datePicker?.addEventListener('change', function () {
-            selectedDate.value = this.value;
-            window.location.search = new URLSearchParams({ date: this.value }).toString();
+            const params = new URLSearchParams(window.location.search);
+            params.set('date', this.value);
+            window.location.search = params.toString();
         });
 
-        reservationForm?.addEventListener('input', function () {
-            const hasResource = reservationForm.querySelector('[name="resource_id"]').value !== '';
-            const hasTitle = reservationForm.querySelector('[name="title"]').value.trim() !== '';
-            const start = reservationForm.querySelector('[name="start_time"]').value;
-            const end = reservationForm.querySelector('[name="end_time"]').value;
-            confirmButton.disabled = !(hasResource && hasTitle && start && end && end > start);
+        reservationForm?.addEventListener('input', updateSummary);
+        reservationForm?.addEventListener('submit', function (event) {
+            if (!confirmedByButton) event.preventDefault();
         });
+        confirmButton?.addEventListener('click', function () {
+            confirmedByButton = true;
+        });
+        document.querySelector('[data-clear-selection]')?.addEventListener('click', function () {
+            reservationForm.reset();
+            confirmedByButton = false;
+            updateSummary();
+        });
+        reservationLanguageToggle.addEventListener('click', function () {
+            applyReservationLanguage(reservationLanguage === 'fr' ? 'en' : 'fr');
+            updateSummary();
+        });
+
+        populateBuildings();
+        applyReservationLanguage(reservationLanguage);
+        applyFilters();
+        updateSummary();
     </script>
 {% endblock %}

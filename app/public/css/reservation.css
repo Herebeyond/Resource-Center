@@ -325,12 +325,17 @@
     align-content: center;
     justify-items: center;
     padding: 5px;
-    border: 2px solid #5964ff;
+    border: 2px dashed #e9a23b;
     border-radius: 7px;
-    background: #b8baff;
-    color: #252a47;
+    background: #fff0d8;
+    color: #754914;
     font-size: 0.62rem;
     z-index: 2;
+}
+
+.draft-reservation-block {
+    background: #ffe0a8;
+    border-color: #d98216;
 }
 
 .reservation-block span { font-size: 0.56rem; }
