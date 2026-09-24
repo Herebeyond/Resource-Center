@@ -55,7 +55,7 @@
                                 <div id="roomTitle" class="card-title">Meeting Rooms</div>
                                 <div class="card-meta">
                                     <span id="roomCount">{{ resource_cards.rooms.total }} spaces</span>
-                                    <span id="roomCapacity">{{ resource_cards.rooms.capacity }} seats</span>
+                                    <span id="roomAvailability">{{ resource_cards.rooms.available }} available</span>
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
                 heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
                 roomTitle: 'Salles de réunion',
                 roomCount: '6 espaces',
-                roomCapacity: '12 places',
+                roomAvailability: 'disponibles',
                 roomDesc: 'Réservez une salle pour une réunion d’équipe, une séance client ou une assemblée générale.',
                 laptopTitle: 'Ordinateurs portables',
                 laptopCount: '24 appareils',
@@ -208,7 +208,7 @@
                 heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
                 roomTitle: 'Meeting Rooms',
                 roomCount: '6 spaces',
-                roomCapacity: '12 seats',
+                roomAvailability: 'available',
                 roomDesc: 'Book a room for a team sync, client session, or all-hands meeting.',
                 laptopTitle: 'Laptops',
                 laptopCount: '24 devices',
@@ -259,7 +259,7 @@
             document.getElementById('heroCopy').textContent = strings.heroCopy;
             document.getElementById('roomTitle').textContent = strings.roomTitle;
             document.getElementById('roomCount').textContent = `${resourceStats.rooms.total} ${strings.spaces}`;
-            document.getElementById('roomCapacity').textContent = `${resourceStats.rooms.capacity} ${strings.seats}`;
+            document.getElementById('roomAvailability').textContent = `${resourceStats.rooms.available} ${strings.roomAvailability}`;
             document.getElementById('roomDesc').textContent = strings.roomDesc;
             document.getElementById('laptopTitle').textContent = strings.laptopTitle;
             document.getElementById('laptopCount').textContent = `${resourceStats.laptops.total} ${strings.devices}`;

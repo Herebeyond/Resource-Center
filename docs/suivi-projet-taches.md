@@ -107,6 +107,11 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [ ] Définir la capacité
   - [ ] Gérer les états disponible, indisponible et maintenance
   - [x] Alimenter les statistiques de la homepage depuis PostgreSQL
+  - [x] Afficher le total et la disponibilité des salles depuis PostgreSQL
+
+- [x] Organiser les styles frontend
+  - [x] Extraire les styles inline des templates Twig
+  - [x] Créer la feuille `app/public/css/app.css`
 
 - [ ] Développer la consultation des disponibilités
   - [ ] Sélectionner une date
