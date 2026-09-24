@@ -17,8 +17,13 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(Request $request): Response
     {
+        $currentUser = $this->getCurrentUser($request);
+        if (!$currentUser) {
+            return $this->redirectToRoute('app_login');
+        }
+
         return $this->render('home/index.html.twig', [
-            'current_user' => $this->getCurrentUser($request),
+            'current_user' => $currentUser,
             'resource_cards' => $this->getResourceCards(),
         ]);
     }

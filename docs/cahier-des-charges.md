@@ -164,6 +164,8 @@ Une API de consultation est prévue, mais ses endpoints, son authentification et
 ## 6. Règles métier prioritaires
 
 Le système devra respecter les règles suivantes :
+- un utilisateur non connecté doit être redirigé vers la page de connexion avant d'accéder au site principal ;
+- les données métier de la homepage ne doivent être chargées qu'après identification de l'utilisateur et de son entreprise ;
 - une ressource ne peut pas être réservée deux fois sur le même créneau ;
 - une ressource indisponible ou en maintenance ne peut pas être réservée ;
 - un utilisateur ne peut effectuer que les actions autorisées par son rôle et ses permissions activées ;

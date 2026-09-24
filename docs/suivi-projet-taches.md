@@ -93,6 +93,7 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Créer les utilisateurs de test
   - [x] Vérifier les identifiants dans PostgreSQL
   - [x] Afficher le profil selon la session
+  - [x] Rediriger les utilisateurs non connectés vers la connexion
   - [ ] Ajouter les rôles
   - [ ] Protéger les pages privées
   - [ ] Refuser les actions non autorisées
