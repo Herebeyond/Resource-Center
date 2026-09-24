@@ -39,10 +39,10 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [ ] Vérifier le lancement local sur le navigateur
 
 - [ ] Mettre en place l'interface multilingue de base
-  - [ ] Ajouter le support FR / EN
-  - [ ] Ajouter le bouton de changement de langue
-  - [ ] Détecter la langue par défaut selon le pays / navigateur
-  - [ ] Vérifier le comportement sur la homepage
+  - [x] Ajouter le support FR / EN
+  - [x] Ajouter le bouton de changement de langue
+  - [x] Détecter la langue par défaut selon le pays / navigateur
+  - [x] Vérifier le comportement sur la homepage et la page de connexion
 
 ### Finaliser la conception
 
@@ -63,7 +63,7 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Finaliser la page d'accueil HTML conforme à la maquette fournie
   - [ ] Finaliser la page de réservation
   - [ ] Ajouter la page de calendrier
-  - [ ] Ajouter la page de connexion
+  - [x] Ajouter la page de connexion
   - [ ] Ajouter les pages de gestion des ressources
   - [ ] Ajouter la page de gestion des réservations
   - [ ] Ajouter les pages d'administration

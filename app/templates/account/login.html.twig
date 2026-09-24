@@ -6,29 +6,89 @@
     <div class="page-shell">
         <main class="account-page">
             <section class="account-panel" aria-labelledby="login-title">
+                <div class="account-toolbar">
+                    <button id="loginLangToggle" class="lang-switch" type="button" aria-label="Switch language">FR</button>
+                </div>
                 <div class="account-label">Resource Center</div>
                 <h1 id="login-title">Sign in</h1>
-                <p class="account-intro">Access your company resources and reservations.</p>
+                <p id="loginIntro" class="account-intro">Access your company resources and reservations.</p>
 
                 {% if error %}
-                    <div class="account-error" role="alert">{{ error }}</div>
+                    <div id="loginError" class="account-error" role="alert">{{ error }}</div>
                 {% endif %}
 
                 <form class="account-form" method="post" action="{{ path('app_login') }}">
                     <div class="form-field">
-                        <label for="email">Email</label>
+                        <label id="emailLabel" for="email">Email</label>
                         <input id="email" name="email" type="email" autocomplete="email" required>
                     </div>
                     <div class="form-field">
-                        <label for="password">Password</label>
+                        <label id="passwordLabel" for="password">Password</label>
                         <input id="password" name="password" type="password" autocomplete="current-password" required>
                     </div>
-                    <button class="account-button" type="submit">Sign in</button>
+                    <button id="loginSubmit" class="account-button" type="submit">Sign in</button>
                 </form>
 
-                <p class="account-note">Your account is created and managed by your company administrator. Public registration is not available.</p>
-                <a class="account-link" href="{{ path('app_home') }}">Back to home</a>
+                <p id="loginNote" class="account-note">Your account is created and managed by your company administrator. Public registration is not available.</p>
+                <a id="backHomeLink" class="account-link" href="{{ path('app_home') }}">Back to home</a>
             </section>
         </main>
     </div>
+
+    <script>
+        const loginTranslations = {
+            fr: {
+                title: 'Connexion',
+                intro: 'Accédez aux ressources et aux réservations de votre entreprise.',
+                email: 'Adresse email',
+                password: 'Mot de passe',
+                submit: 'Se connecter',
+                note: 'Votre compte est créé et géré par l’administrateur de votre entreprise. L’inscription publique n’est pas disponible.',
+                backHome: 'Retour à l’accueil',
+                error: 'Adresse email ou mot de passe incorrect.',
+                toggle: 'EN',
+                aria: 'Changer de langue'
+            },
+            en: {
+                title: 'Sign in',
+                intro: 'Access your company resources and reservations.',
+                email: 'Email',
+                password: 'Password',
+                submit: 'Sign in',
+                note: 'Your account is created and managed by your company administrator. Public registration is not available.',
+                backHome: 'Back to home',
+                error: 'Incorrect email address or password.',
+                toggle: 'FR',
+                aria: 'Switch language'
+            }
+        };
+
+        const loginLanguageToggle = document.getElementById('loginLangToggle');
+        const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+        let loginLanguage = localStorage.getItem('resource-center-lang') || browserLanguage;
+
+        function applyLoginLanguage(language) {
+            const strings = loginTranslations[language];
+            document.documentElement.lang = language;
+            document.getElementById('login-title').textContent = strings.title;
+            document.getElementById('loginIntro').textContent = strings.intro;
+            document.getElementById('emailLabel').textContent = strings.email;
+            document.getElementById('passwordLabel').textContent = strings.password;
+            document.getElementById('loginSubmit').textContent = strings.submit;
+            document.getElementById('loginNote').textContent = strings.note;
+            document.getElementById('backHomeLink').textContent = strings.backHome;
+            loginLanguageToggle.textContent = strings.toggle;
+            loginLanguageToggle.setAttribute('aria-label', strings.aria);
+            const error = document.getElementById('loginError');
+            if (error) error.textContent = strings.error;
+            loginLanguage = language;
+            localStorage.setItem('resource-center-lang', language);
+        }
+
+        loginLanguageToggle.addEventListener('click', function () {
+            applyLoginLanguage(loginLanguage === 'fr' ? 'en' : 'fr');
+        });
+
+        applyLoginLanguage(loginLanguage);
+    </script>
 {% endblock %}
