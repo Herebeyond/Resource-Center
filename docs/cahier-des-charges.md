@@ -166,6 +166,9 @@ Une API de consultation est prévue, mais ses endpoints, son authentification et
 Le système devra respecter les règles suivantes :
 - un utilisateur non connecté doit être redirigé vers la page de connexion avant d'accéder au site principal ;
 - les données métier de la homepage ne doivent être chargées qu'après identification de l'utilisateur et de son entreprise ;
+- l'adresse email utilisée pour la connexion doit identifier un seul compte dans l'ensemble du site ;
+- les formulaires d'authentification et de déconnexion doivent être protégés contre les requêtes CSRF ;
+- la session doit être renouvelée après une authentification réussie ;
 - une ressource ne peut pas être réservée deux fois sur le même créneau ;
 - une ressource indisponible ou en maintenance ne peut pas être réservée ;
 - un utilisateur ne peut effectuer que les actions autorisées par son rôle et ses permissions activées ;

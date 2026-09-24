@@ -29,7 +29,10 @@
                     </button>
                     <div id="profileMenu" class="profile-menu" role="menu" hidden>
                         <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">{{ 'nav.profile'|trans }}</a>
-                        <a id="logoutLink" href="{{ path('app_logout') }}" role="menuitem">{{ 'nav.sign_out'|trans }}</a>
+                        <form action="{{ path('app_logout') }}" method="post" role="menuitem">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                            <button id="logoutLink" type="submit">{{ 'nav.sign_out'|trans }}</button>
+                        </form>
                     </div>
                 </div>
                 {% else %}

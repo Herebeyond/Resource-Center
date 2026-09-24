@@ -15,3 +15,6 @@ Thumbs.db
 
 # Docker overrides
 docker-compose.override.yml
+
+# Local Docker credentials
+.env

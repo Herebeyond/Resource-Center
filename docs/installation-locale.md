@@ -8,7 +8,7 @@
 
 ## Démarrage
 
-Depuis la racine du projet, démarrer la stack Docker. Le service `database` lance PostgreSQL 16 et le service `symfony_app` attend que PostgreSQL soit sain avant de démarrer.
+Depuis la racine du projet, renseigner les variables locales à partir de `.env.example`, puis démarrer la stack Docker. Le fichier `.env` reste local et n'est pas versionné. Le service `database` lance PostgreSQL 16 et le service `symfony_app` attend que PostgreSQL soit sain avant de démarrer.
 
 Les scripts sont exécutés dans cet ordre lors de la première création du volume :
 

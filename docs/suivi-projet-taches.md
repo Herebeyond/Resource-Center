@@ -94,6 +94,9 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Vérifier les identifiants dans PostgreSQL
   - [x] Afficher le profil selon la session
   - [x] Rediriger les utilisateurs non connectés vers la connexion
+  - [x] Ajouter la protection CSRF
+  - [x] Régénérer la session après connexion
+  - [x] Limiter les statistiques aux ressources de l'entreprise connectée
   - [ ] Ajouter les rôles
   - [ ] Protéger les pages privées
   - [ ] Refuser les actions non autorisées
@@ -191,6 +194,10 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [ ] Tester les ressources en maintenance
   - [ ] Tester les réservations adjacentes
   - [ ] Tester l'API
+
+- [x] Maintenir les dépendances Symfony
+  - [x] Mettre Symfony à jour vers la version 7.4 maintenue
+  - [x] Vérifier l'audit Composer
 
 - [ ] Préparer la démonstration finale
   - [ ] Créer les données de démonstration

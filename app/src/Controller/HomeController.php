@@ -7,6 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HomeController extends AbstractController
@@ -14,6 +16,7 @@ class HomeController extends AbstractController
     public function __construct(
         private readonly Connection $connection,
         private readonly TranslatorInterface $translator,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
     )
     {
     }
@@ -28,7 +31,7 @@ class HomeController extends AbstractController
 
         return $this->render('home/index.html.twig', [
             'current_user' => $currentUser,
-            'resource_cards' => $this->getResourceCards(),
+            'resource_cards' => $this->getResourceCards((int) $currentUser['company_id']),
             'translations' => $this->getHomeTranslations(),
         ]);
     }
@@ -41,14 +44,17 @@ class HomeController extends AbstractController
         if ($request->isMethod('POST')) {
             $email = trim((string) $request->request->get('email'));
             $password = (string) $request->request->get('password');
+            $csrfToken = (string) $request->request->get('_csrf_token');
             $user = $this->connection->fetchAssociative(
-                'SELECT id, first_name, last_name, email, password_hash
+                'SELECT id, company_id, first_name, last_name, email, password_hash
                  FROM users
                  WHERE LOWER(email) = LOWER(:email) AND is_active = TRUE',
                 ['email' => $email]
             );
 
-            if ($user && password_verify($password, (string) $user['password_hash'])) {
+            if ($this->csrfTokenManager->isTokenValid(new CsrfToken('authenticate', $csrfToken))
+                && $user && password_verify($password, (string) $user['password_hash'])) {
+                $request->getSession()->migrate(true);
                 $request->getSession()->set('user_id', (int) $user['id']);
                 return $this->redirectToRoute('app_home');
             }
@@ -73,9 +79,14 @@ class HomeController extends AbstractController
         return $this->render('account/profile.html.twig', ['current_user' => $user]);
     }
 
-    #[Route('/deconnexion', name: 'app_logout', methods: ['GET'])]
+    #[Route('/deconnexion', name: 'app_logout', methods: ['POST'])]
     public function logout(Request $request): Response
     {
+        $csrfToken = (string) $request->request->get('_csrf_token');
+        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('logout', $csrfToken))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $request->getSession()->clear();
         return $this->redirectToRoute('app_home');
     }
@@ -88,7 +99,7 @@ class HomeController extends AbstractController
         }
 
         $user = $this->connection->fetchAssociative(
-            'SELECT id, first_name, last_name, email FROM users WHERE id = :id AND is_active = TRUE',
+            'SELECT id, company_id, first_name, last_name, email FROM users WHERE id = :id AND is_active = TRUE',
             ['id' => $userId]
         );
 
@@ -100,7 +111,7 @@ class HomeController extends AbstractController
         return $user;
     }
 
-    private function getResourceCards(): array
+    private function getResourceCards(int $companyId): array
     {
         $rows = $this->connection->fetchAllAssociative(
             "SELECT rt.name AS type_name,
@@ -110,8 +121,9 @@ class HomeController extends AbstractController
              FROM resources r
              JOIN resource_types rt ON rt.id = r.type_id
              JOIN resource_states rs ON rs.id = r.state_id
-             WHERE r.is_active = TRUE
-             GROUP BY rt.name"
+               WHERE r.is_active = TRUE AND r.company_id = :company_id
+               GROUP BY rt.name",
+              ['company_id' => $companyId]
         );
 
         $cards = [
