@@ -30,7 +30,6 @@
                 </form>
 
                 <p id="loginNote" class="account-note">Your account is created and managed by your company administrator. Public registration is not available.</p>
-                <a id="backHomeLink" class="account-link" href="{{ path('app_home') }}">Back to home</a>
             </section>
         </main>
     </div>
@@ -44,7 +43,6 @@
                 password: 'Mot de passe',
                 submit: 'Se connecter',
                 note: 'Votre compte est créé et géré par l’administrateur de votre entreprise. L’inscription publique n’est pas disponible.',
-                backHome: 'Retour à l’accueil',
                 error: 'Adresse email ou mot de passe incorrect.',
                 toggle: 'EN',
                 aria: 'Changer de langue'
@@ -56,7 +54,6 @@
                 password: 'Password',
                 submit: 'Sign in',
                 note: 'Your account is created and managed by your company administrator. Public registration is not available.',
-                backHome: 'Back to home',
                 error: 'Incorrect email address or password.',
                 toggle: 'FR',
                 aria: 'Switch language'
@@ -76,7 +73,6 @@
             document.getElementById('passwordLabel').textContent = strings.password;
             document.getElementById('loginSubmit').textContent = strings.submit;
             document.getElementById('loginNote').textContent = strings.note;
-            document.getElementById('backHomeLink').textContent = strings.backHome;
             loginLanguageToggle.textContent = strings.toggle;
             loginLanguageToggle.setAttribute('aria-label', strings.aria);
             const error = document.getElementById('loginError');
