@@ -147,6 +147,9 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Afficher la plage saisie en orange avec bordure en pointillés
   - [x] Synchroniser le résumé avec les champs en temps réel
   - [x] Empêcher la soumission avec la touche Entrée
+  - [x] Ajouter plusieurs salles de démonstration
+  - [x] Sélectionner une salle sans recharger la page
+  - [x] Actualiser la timeline et le résumé lors du changement de salle
 
 - [ ] Gérer les conflits et les réservations rapprochées
   - [ ] Détecter les chevauchements de réservation

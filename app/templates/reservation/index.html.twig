@@ -54,6 +54,7 @@
                         <a class="resource-choice{% if selected_resource and selected_resource.id == resource.id %} is-selected{% endif %}"
                            href="{{ path('app_reservation', {type: type, date: selected_date, resource: resource.id}) }}"
                            data-resource-card
+                           data-reservation-resource-id="{{ resource.id }}"
                            data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }}"
                            data-resource-capacity="{{ resource.places }}"
                            data-resource-building="{{ resource.location|default('')|lower }}"
@@ -128,7 +129,7 @@
                         <div class="timeline-row"><time>{{ '%02d:00'|format(hour) }}</time><div></div></div>
                     {% endfor %}
                     {% for reservation in reservations %}
-                        <div class="reservation-block" style="--reservation-start: {{ reservation.start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
+                        <div class="reservation-block" data-reservation-resource-id="{{ reservation.resource_id }}" style="--reservation-start: {{ reservation.start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
                             <strong>{{ reservation.title }}</strong>
                             <span>{{ reservation.resource_name }} · {{ reservation.start_at|date('H:i') }} - {{ reservation.end_at|date('H:i') }}</span>
                         </div>
@@ -246,7 +247,20 @@
                 draft.innerHTML = `<strong>${title || reservationTranslations[reservationLanguage].reservationName}</strong><span>${start} - ${end}</span>`;
                 timeline.appendChild(draft);
             }
+
+            const selectedId = reservationForm.querySelector('[name="resource_id"]').value;
+            timeline.querySelectorAll('[data-reservation-resource-id]').forEach((block) => {
+                block.hidden = block.dataset.reservationResourceId !== selectedId;
+            });
         }
+
+        resourceCards.forEach((card) => card.addEventListener('click', function (event) {
+            event.preventDefault();
+            resourceCards.forEach((item) => item.classList.remove('is-selected'));
+            this.classList.add('is-selected');
+            reservationForm.querySelector('[name="resource_id"]').value = this.dataset.reservationResourceId;
+            updateSummary();
+        }));
 
         filterInput?.addEventListener('input', applyFilters);
         [minSeats, maxSeats, buildingFilter].forEach((control) => control?.addEventListener('input', applyFilters));

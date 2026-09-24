@@ -83,6 +83,24 @@ WHERE c.name = 'Entreprise Démo CDA'
 ON CONFLICT (company_id, code) DO NOTHING;
 
 INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
+SELECT c.id, rt.id, rs.id, 'Huddle Room 1', 'SALLE-HUDDLE-01', 'Batiment B - 1er étage', 4, TRUE
+FROM companies c JOIN resource_types rt ON rt.name = 'salle' JOIN resource_states rs ON rs.label = 'disponible'
+WHERE c.name = 'Entreprise Démo CDA'
+ON CONFLICT (company_id, code) DO NOTHING;
+
+INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
+SELECT c.id, rt.id, rs.id, 'Auditorium', 'SALLE-AUDITORIUM', 'Campus principal', 200, TRUE
+FROM companies c JOIN resource_types rt ON rt.name = 'salle' JOIN resource_states rs ON rs.label = 'disponible'
+WHERE c.name = 'Entreprise Démo CDA'
+ON CONFLICT (company_id, code) DO NOTHING;
+
+INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
+SELECT c.id, rt.id, rs.id, 'Executive Boardroom', 'SALLE-EXECUTIVE', 'Batiment A - Rez-de-chaussée', 12, TRUE
+FROM companies c JOIN resource_types rt ON rt.name = 'salle' JOIN resource_states rs ON rs.label = 'disponible'
+WHERE c.name = 'Entreprise Démo CDA'
+ON CONFLICT (company_id, code) DO NOTHING;
+
+INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
 SELECT c.id, rt.id, rs.id, 'Ordinateur portable Dell 01', 'PORT-DELL-01', 'Armoire informatique - Etage 1', NULL, TRUE
 FROM companies c
 JOIN resource_types rt ON rt.name = 'portable'
@@ -120,6 +138,24 @@ SELECT r.id, 'Batiment A', '2', TRUE, TRUE, TRUE, 10
 FROM resources r
 JOIN companies c ON c.id = r.company_id
 WHERE c.name = 'Entreprise Démo CDA' AND r.code = 'SALLE-ORION'
+ON CONFLICT (resource_id) DO NOTHING;
+
+INSERT INTO room_details (resource_id, building, floor, has_screen, has_whiteboard, has_projector, available_places)
+SELECT r.id, 'Batiment B', '1', TRUE, FALSE, FALSE, 4
+FROM resources r
+WHERE r.code = 'SALLE-HUDDLE-01'
+ON CONFLICT (resource_id) DO NOTHING;
+
+INSERT INTO room_details (resource_id, building, floor, has_screen, has_whiteboard, has_projector, available_places)
+SELECT r.id, 'Campus principal', '1', TRUE, TRUE, TRUE, 200
+FROM resources r
+WHERE r.code = 'SALLE-AUDITORIUM'
+ON CONFLICT (resource_id) DO NOTHING;
+
+INSERT INTO room_details (resource_id, building, floor, has_screen, has_whiteboard, has_projector, available_places)
+SELECT r.id, 'Batiment A', '0', TRUE, TRUE, TRUE, 12
+FROM resources r
+WHERE r.code = 'SALLE-EXECUTIVE'
 ON CONFLICT (resource_id) DO NOTHING;
 
 INSERT INTO vehicle_details (resource_id, license_plate, brand, model, fuel_type)
