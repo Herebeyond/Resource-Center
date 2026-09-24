@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ type_label }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell reservation-page">
+        <header class="topbar">
+            <div class="brand" aria-label="Resource Center brand">
+                <div class="brand-mark" aria-hidden="true"></div>
+                <div class="brand-text">
+                    <div class="brand-name">Resource Center</div>
+                    <div class="brand-sub">{{ 'brand.subtitle'|trans }}</div>
+                </div>
+            </div>
+            <div class="top-actions">
+                <nav class="nav" aria-label="Main navigation">
+                    <a class="nav-item nav-item-active" href="{{ path('app_reservation', {type: 'room'}) }}">Reservations</a>
+                    <a class="nav-item" href="{{ path('app_home') }}">Resources</a>
+                    <span class="nav-item">Calendar</span>
+                    <span class="nav-item">Settings</span>
+                </nav>
+                <div class="user-pill">
+                    <span class="avatar" aria-hidden="true"></span>
+                    <span class="user-name">{{ current_user.first_name }}</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="reservation-layout">
+            <aside class="reservation-sidebar">
+                <h1>{{ type_label }}</h1>
+                <p class="reservation-help">Choose a resource or facility to view availability.</p>
+                <label class="reservation-search">
+                    <span class="visually-hidden">{{ search_placeholder }}</span>
+                    <input type="search" placeholder="{{ search_placeholder }}" data-resource-filter>
+                    <span aria-hidden="true">⌕</span>
+                </label>
+
+                <fieldset class="search-options">
+                    <legend>Search options</legend>
+                    <label><input type="checkbox" checked> Video Conferencing</label>
+                    <label><input type="checkbox"> Other</label>
+                    <label><input type="checkbox" checked> Whiteboard</label>
+                    <div class="number-filters">
+                        <label>Minimum seats<input type="number" min="0"></label>
+                        <label>Maximum seats<input type="number" min="0"></label>
+                    </div>
+                    <label>Building<select><option>All buildings</option></select></label>
+                </fieldset>
+
+                <div class="resource-list" data-resource-list>
+                    {% for resource in resources %}
+                        <a class="resource-choice{% if selected_resource and selected_resource.id == resource.id %} is-selected{% endif %}"
+                           href="{{ path('app_reservation', {type: type, date: selected_date, resource: resource.id}) }}"
+                           data-resource-card data-resource-name="{{ resource.name|lower }}">
+                            {% set resourceIcon = {
+                                room: 'Screen-Curved--Streamline-Ultimate.svg',
+                                vehicle: 'Vehicle-Car-Personal-4--Streamline-Nova.png',
+                                laptop: 'Laptop--Streamline-Ultimate.svg',
+                                projector: 'Video-Camera--Streamline-Nova.png',
+                                equipment: 'Tool-Box--Streamline-Ultimate.svg'
+                            }[type] %}
+                            <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
+                            <span class="resource-choice-content">
+                                <strong>{{ resource.name }}</strong>
+                                <small>{{ resource.location ?: 'Company resource' }} · {{ resource.places }} seats</small>
+                                {% if resource.has_screen or resource.has_whiteboard %}
+                                    <span class="resource-tags">
+                                        {% if resource.has_screen %}<em>Video Conferencing</em>{% endif %}
+                                        {% if resource.has_whiteboard %}<em>Whiteboard</em>{% endif %}
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </a>
+                    {% else %}
+                        <p class="empty-state">No resources are available for this category.</p>
+                    {% endfor %}
+                </div>
+            </aside>
+
+            <section class="reservation-content">
+                <div class="reservation-toolbar">
+                    <div>
+                        <h2>Select Date</h2>
+                        <div class="date-strip">
+                            {% for offset in 0..6 %}
+                                {% set date = date(selected_date)|date_modify('+' ~ offset ~ ' day') %}
+                                <a class="date-cell{% if date|date('Y-m-d') == selected_date %} is-selected{% endif %}"
+                                   href="{{ path('app_reservation', {type: type, date: date|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">
+                                    <small>{{ date|date('D') }}</small>
+                                    <strong>{{ date|date('d') }}</strong>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="date-actions">
+                        <a href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">Today</a>
+                        <input type="date" value="{{ selected_date }}" data-date-picker aria-label="Select date">
+                    </div>
+                </div>
+
+                <form id="reservation-form" class="reservation-form" method="post" action="{{ path('app_reservation', {type: type}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('reservation') }}">
+                    <input type="hidden" name="resource_id" value="{{ selected_resource ? selected_resource.id : '' }}">
+                    <input type="hidden" name="date" value="{{ selected_date }}" data-selected-date>
+                    <div class="form-row">
+                        <label>Timeframe<select><option>Full</option><option>Morning</option><option>Afternoon</option></select></label>
+                        <label>Start<input name="start_time" type="time" value="11:00" required></label>
+                        <label>End<input name="end_time" type="time" value="12:00" required></label>
+                        <label class="form-grow">Name<input name="title" type="text" placeholder="Reservation name" required></label>
+                    </div>
+                    <label class="description-field">Description<textarea name="notes" rows="2" placeholder="Add details for this reservation"></textarea></label>
+                </form>
+
+                {% if error %}<div class="reservation-alert reservation-alert-error">{{ error }}</div>{% endif %}
+                {% if warning %}<div class="reservation-alert reservation-alert-warning">{{ warning }}</div>{% endif %}
+                {% if created %}<div class="reservation-alert reservation-alert-success">Reservation created successfully.</div>{% endif %}
+
+                <section class="timeline-panel" aria-label="Availability timeline">
+                    <div class="timeline-header"><span>Time Slot</span><span>Availability</span></div>
+                    {% for hour in 6..18 %}
+                        <div class="timeline-row"><time>{{ '%02d:00'|format(hour) }}</time><div></div></div>
+                    {% endfor %}
+                    {% for reservation in reservations %}
+                        <div class="reservation-block" style="--reservation-start: {{ reservation.start_at|date('G') - 6 }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
+                            <strong>{{ reservation.title }}</strong>
+                            <span>{{ reservation.resource_name }} · {{ reservation.start_at|date('H:i') }} - {{ reservation.end_at|date('H:i') }}</span>
+                        </div>
+                    {% endfor %}
+                </section>
+
+                <section class="reservation-summary">
+                    <h2>Reservation Summary</h2>
+                    <p>Please review your selection before confirming.</p>
+                    <dl>
+                        <dt>Resource</dt><dd>{{ selected_resource ? selected_resource.name : 'No resource selected' }}</dd>
+                        <dt>Date</dt><dd>{{ selected_date|date('l, F d, Y') }}</dd>
+                        <dt>Time</dt><dd>11:00 - 12:00</dd>
+                    </dl>
+                    <div class="summary-actions">
+                        <button type="button" class="secondary-button" data-clear-selection>Cancel</button>
+                        <button type="submit" class="account-button" form="reservation-form" disabled>Confirm Reservation</button>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const filterInput = document.querySelector('[data-resource-filter]');
+        const resourceCards = [...document.querySelectorAll('[data-resource-card]')];
+        const reservationForm = document.querySelector('.reservation-form');
+        const confirmButton = document.querySelector('[form="reservation-form"]');
+        const datePicker = document.querySelector('[data-date-picker]');
+        const selectedDate = document.querySelector('[data-selected-date]');
+
+        filterInput?.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            resourceCards.forEach((card) => {
+                card.hidden = query !== '' && !card.dataset.resourceName.includes(query);
+            });
+        });
+
+        datePicker?.addEventListener('change', function () {
+            selectedDate.value = this.value;
+            window.location.search = new URLSearchParams({ date: this.value }).toString();
+        });
+
+        reservationForm?.addEventListener('input', function () {
+            const hasResource = reservationForm.querySelector('[name="resource_id"]').value !== '';
+            const hasTitle = reservationForm.querySelector('[name="title"]').value.trim() !== '';
+            const start = reservationForm.querySelector('[name="start_time"]').value;
+            const end = reservationForm.querySelector('[name="end_time"]').value;
+            confirmButton.disabled = !(hasResource && hasTitle && start && end && end > start);
+        });
+    </script>
+{% endblock %}

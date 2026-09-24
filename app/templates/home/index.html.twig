@@ -60,7 +60,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="card-action" aria-label="Go to meeting rooms"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'room'}) }}" aria-label="Go to meeting rooms"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="roomDesc" class="card-text">{{ 'resource.room_description'|trans }}</div>
                 </article>
@@ -77,7 +77,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="card-action" aria-label="Go to laptops"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'laptop'}) }}" aria-label="Go to laptops"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="laptopDesc" class="card-text">{{ 'resource.laptop_description'|trans }}</div>
                 </article>
@@ -94,7 +94,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="card-action" aria-label="Go to vehicles"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'vehicle'}) }}" aria-label="Go to vehicles"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="vehicleDesc" class="card-text">{{ 'resource.vehicle_description'|trans }}</div>
                 </article>
@@ -111,7 +111,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="card-action" aria-label="Go to projectors"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'projector'}) }}" aria-label="Go to projectors"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="projectorDesc" class="card-text">{{ 'resource.projector_description'|trans }}</div>
                 </article>
@@ -128,7 +128,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="card-action" aria-label="Go to equipment"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'equipment'}) }}" aria-label="Go to equipment"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="equipmentDesc" class="card-text">{{ 'resource.equipment_description'|trans }}</div>
                 </article>

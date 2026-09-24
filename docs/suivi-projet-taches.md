@@ -127,14 +127,20 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [ ] Afficher un message lorsqu'aucun résultat n'est trouvé
 
 - [ ] Développer la création d'une réservation
-  - [ ] Sélectionner une ressource
-  - [ ] Sélectionner un créneau
-  - [ ] Saisir le motif de la réservation
-  - [ ] Vérifier les données saisies
-  - [ ] Vérifier la disponibilité côté serveur
-  - [ ] Enregistrer la réservation
-  - [ ] Afficher une confirmation
-  - [ ] Empêcher la double réservation
+  - [x] Sélectionner une ressource
+  - [x] Sélectionner un créneau
+  - [x] Saisir le motif de la réservation
+  - [x] Vérifier les données saisies
+  - [x] Vérifier la disponibilité côté serveur
+  - [x] Enregistrer la réservation
+  - [x] Afficher une confirmation
+  - [x] Empêcher la double réservation
+
+- [x] Créer les pages de réservation par type de ressource
+  - [x] Page réutilisable pour salles, véhicules et équipements
+  - [x] Ressources chargées depuis PostgreSQL
+  - [x] Réservations existantes affichées dans la timeline
+  - [x] Icônes réelles utilisées selon le type de ressource
 
 - [ ] Gérer les conflits et les réservations rapprochées
   - [ ] Détecter les chevauchements de réservation
