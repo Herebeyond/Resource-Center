@@ -7,10 +7,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HomeController extends AbstractController
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly TranslatorInterface $translator,
+    )
     {
     }
 
@@ -25,6 +29,7 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
             'current_user' => $currentUser,
             'resource_cards' => $this->getResourceCards(),
+            'translations' => $this->getHomeTranslations(),
         ]);
     }
 
@@ -48,10 +53,13 @@ class HomeController extends AbstractController
                 return $this->redirectToRoute('app_home');
             }
 
-            $error = 'Adresse email ou mot de passe incorrect.';
+            $error = 'account.invalid_credentials';
         }
 
-        return $this->render('account/login.html.twig', ['error' => $error]);
+        return $this->render('account/login.html.twig', [
+            'error' => $error ? $this->translator->trans($error, [], 'messages', $request->getLocale()) : null,
+            'login_translations' => $this->getLoginTranslations(),
+        ]);
     }
 
     #[Route('/profil', name: 'app_profile')]
@@ -133,5 +141,66 @@ class HomeController extends AbstractController
         }
 
         return $cards;
+    }
+
+    private function getHomeTranslations(): array
+    {
+        return [
+            'fr' => $this->translateKeys([
+                'brandSubtitle' => 'brand.subtitle', 'navReservations' => 'nav.reservations',
+                'navResources' => 'nav.resources', 'navCalendar' => 'nav.calendar',
+                'navSettings' => 'nav.settings', 'signIn' => 'nav.sign_in',
+                'signOut' => 'nav.sign_out', 'profile' => 'nav.profile',
+                'heroTitle' => 'hero.title', 'heroCopy' => 'hero.copy',
+                'roomTitle' => 'resource.meeting_rooms', 'laptopTitle' => 'resource.laptops',
+                'vehicleTitle' => 'resource.vehicles', 'projectorTitle' => 'resource.projectors',
+                'equipmentTitle' => 'resource.equipment', 'spaces' => 'unit.spaces',
+                'seats' => 'unit.seats', 'devices' => 'unit.devices', 'available' => 'unit.available',
+                'vehicles' => 'unit.vehicles', 'units' => 'unit.units', 'items' => 'unit.items',
+                'roomDesc' => 'resource.room_description', 'laptopDesc' => 'resource.laptop_description',
+                'vehicleDesc' => 'resource.vehicle_description', 'projectorDesc' => 'resource.projector_description',
+                'equipmentDesc' => 'resource.equipment_description', 'footerTitle' => 'footer.title',
+                'footerSubtitle' => 'footer.subtitle', 'scrollUp' => 'account.scroll_top',
+                'changeLanguage' => 'account.change_language',
+            ], 'fr'),
+            'en' => $this->translateKeys([
+                'brandSubtitle' => 'brand.subtitle', 'navReservations' => 'nav.reservations',
+                'navResources' => 'nav.resources', 'navCalendar' => 'nav.calendar',
+                'navSettings' => 'nav.settings', 'signIn' => 'nav.sign_in',
+                'signOut' => 'nav.sign_out', 'profile' => 'nav.profile',
+                'heroTitle' => 'hero.title', 'heroCopy' => 'hero.copy',
+                'roomTitle' => 'resource.meeting_rooms', 'laptopTitle' => 'resource.laptops',
+                'vehicleTitle' => 'resource.vehicles', 'projectorTitle' => 'resource.projectors',
+                'equipmentTitle' => 'resource.equipment', 'spaces' => 'unit.spaces',
+                'seats' => 'unit.seats', 'devices' => 'unit.devices', 'available' => 'unit.available',
+                'vehicles' => 'unit.vehicles', 'units' => 'unit.units', 'items' => 'unit.items',
+                'roomDesc' => 'resource.room_description', 'laptopDesc' => 'resource.laptop_description',
+                'vehicleDesc' => 'resource.vehicle_description', 'projectorDesc' => 'resource.projector_description',
+                'equipmentDesc' => 'resource.equipment_description', 'footerTitle' => 'footer.title',
+                'footerSubtitle' => 'footer.subtitle', 'scrollUp' => 'account.scroll_top',
+                'changeLanguage' => 'account.change_language',
+            ], 'en'),
+        ];
+    }
+
+    private function getLoginTranslations(): array
+    {
+        $keys = [
+            'title' => 'account.sign_in', 'intro' => 'account.intro', 'email' => 'account.email',
+            'password' => 'account.password', 'submit' => 'account.sign_in', 'note' => 'account.note',
+            'error' => 'account.invalid_credentials', 'toggle' => 'account.change_language',
+        ];
+
+        return ['fr' => $this->translateKeys($keys, 'fr'), 'en' => $this->translateKeys($keys, 'en')];
+    }
+
+    private function translateKeys(array $keys, string $locale): array
+    {
+        $translations = [];
+        foreach ($keys as $name => $key) {
+            $translations[$name] = $this->translator->trans($key, [], 'messages', $locale);
+        }
+
+        return $translations;
     }
 }

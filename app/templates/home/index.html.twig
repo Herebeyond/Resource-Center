@@ -9,17 +9,17 @@
                 <div class="brand-mark" aria-hidden="true"></div>
                 <div class="brand-text">
                     <div id="brandName" class="brand-name">Resource Center</div>
-                    <div id="brandSubtitle" class="brand-sub">Manage your bookings and reservations</div>
+                    <div id="brandSubtitle" class="brand-sub">{{ 'brand.subtitle'|trans }}</div>
                 </div>
             </div>
 
             <div class="top-actions">
                 <button id="langToggle" class="lang-switch" aria-label="Switch language">FR</button>
                 <nav class="nav" aria-label="Main navigation">
-                    <div id="navReservations" class="nav-item">Reservations</div>
-                    <div id="navResources" class="nav-item">Resources</div>
-                    <div id="navCalendar" class="nav-item">Calendar</div>
-                    <div id="navSettings" class="nav-item">Settings</div>
+                    <div id="navReservations" class="nav-item">{{ 'nav.reservations'|trans }}</div>
+                    <div id="navResources" class="nav-item">{{ 'nav.resources'|trans }}</div>
+                    <div id="navCalendar" class="nav-item">{{ 'nav.calendar'|trans }}</div>
+                    <div id="navSettings" class="nav-item">{{ 'nav.settings'|trans }}</div>
                 </nav>
                 {% if current_user %}
                 <div class="user-pill">
@@ -28,22 +28,20 @@
                         <span id="profileName" class="user-name">{{ current_user.first_name }}</span>
                     </button>
                     <div id="profileMenu" class="profile-menu" role="menu" hidden>
-                        <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">Profile</a>
-                        <a id="logoutLink" href="{{ path('app_logout') }}" role="menuitem">Sign out</a>
+                        <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">{{ 'nav.profile'|trans }}</a>
+                        <a id="logoutLink" href="{{ path('app_logout') }}" role="menuitem">{{ 'nav.sign_out'|trans }}</a>
                     </div>
                 </div>
                 {% else %}
-                    <a class="profile-toggle profile-guest" href="{{ path('app_login') }}" aria-label="Sign in">Sign in</a>
+                    <a class="profile-toggle profile-guest" href="{{ path('app_login') }}" aria-label="{{ 'nav.sign_in'|trans }}">{{ 'nav.sign_in'|trans }}</a>
                 {% endif %}
             </div>
         </header>
 
         <main class="main">
             <section class="hero">
-                <h1 id="heroTitle">Book the right resource at the right time</h1>
-                <div id="heroCopy" class="hero-copy">
-                    Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.
-                </div>
+                <h1 id="heroTitle">{{ 'hero.title'|trans }}</h1>
+                <div id="heroCopy" class="hero-copy">{{ 'hero.copy'|trans }}</div>
             </section>
 
             <section class="cards" aria-label="Resource categories">
@@ -54,14 +52,14 @@
                             <div class="text-block">
                                 <div id="roomTitle" class="card-title">Meeting Rooms</div>
                                 <div class="card-meta">
-                                    <span id="roomCount">{{ resource_cards.rooms.total }} spaces</span>
-                                    <span id="roomAvailability">{{ resource_cards.rooms.available }} available</span>
+                                    <span id="roomCount">{{ resource_cards.rooms.total }} {{ 'unit.spaces'|trans }}</span>
+                                    <span id="roomAvailability">{{ resource_cards.rooms.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
                         <button class="card-action" aria-label="Go to meeting rooms"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
                     </div>
-                    <div id="roomDesc" class="card-text">Book a room for a team sync, client session, or all-hands meeting.</div>
+                    <div id="roomDesc" class="card-text">{{ 'resource.room_description'|trans }}</div>
                 </article>
 
                 <article class="card">
@@ -71,14 +69,14 @@
                             <div class="text-block">
                                 <div id="laptopTitle" class="card-title">Laptops</div>
                                 <div class="card-meta">
-                                    <span id="laptopCount">{{ resource_cards.laptops.total }} devices</span>
-                                    <span id="laptopAvailability">{{ resource_cards.laptops.available }} available</span>
+                                    <span id="laptopCount">{{ resource_cards.laptops.total }} {{ 'unit.devices'|trans }}</span>
+                                    <span id="laptopAvailability">{{ resource_cards.laptops.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
                         <button class="card-action" aria-label="Go to laptops"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
                     </div>
-                    <div id="laptopDesc" class="card-text">Borrow a laptop for remote work, training, or a temporary workstation.</div>
+                    <div id="laptopDesc" class="card-text">{{ 'resource.laptop_description'|trans }}</div>
                 </article>
 
                 <article class="card">
@@ -88,14 +86,14 @@
                             <div class="text-block">
                                 <div id="vehicleTitle" class="card-title">Vehicles</div>
                                 <div class="card-meta">
-                                    <span id="vehicleCount">{{ resource_cards.vehicles.total }} vehicles</span>
-                                    <span id="vehicleAvailability">{{ resource_cards.vehicles.available }} available</span>
+                                    <span id="vehicleCount">{{ resource_cards.vehicles.total }} {{ 'unit.vehicles'|trans }}</span>
+                                    <span id="vehicleAvailability">{{ resource_cards.vehicles.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
                         <button class="card-action" aria-label="Go to vehicles"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
                     </div>
-                    <div id="vehicleDesc" class="card-text">Reserve a company car for client visits, site visits, or team travel.</div>
+                    <div id="vehicleDesc" class="card-text">{{ 'resource.vehicle_description'|trans }}</div>
                 </article>
 
                 <article class="card">
@@ -105,14 +103,14 @@
                             <div class="text-block">
                                 <div id="projectorTitle" class="card-title">Projectors</div>
                                 <div class="card-meta">
-                                    <span id="projectorCount">{{ resource_cards.projectors.total }} units</span>
-                                    <span id="projectorAvailability">{{ resource_cards.projectors.available }} available</span>
+                                    <span id="projectorCount">{{ resource_cards.projectors.total }} {{ 'unit.units'|trans }}</span>
+                                    <span id="projectorAvailability">{{ resource_cards.projectors.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
                         <button class="card-action" aria-label="Go to projectors"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
                     </div>
-                    <div id="projectorDesc" class="card-text">Add a projector to your room booking for presentations and workshops.</div>
+                    <div id="projectorDesc" class="card-text">{{ 'resource.projector_description'|trans }}</div>
                 </article>
 
                 <article class="card">
@@ -122,114 +120,29 @@
                             <div class="text-block">
                                 <div id="equipmentTitle" class="card-title">Equipment</div>
                                 <div class="card-meta">
-                                    <span id="equipmentCount">{{ resource_cards.equipment.total }} items</span>
-                                    <span id="equipmentAvailability">{{ resource_cards.equipment.available }} available</span>
+                                    <span id="equipmentCount">{{ resource_cards.equipment.total }} {{ 'unit.items'|trans }}</span>
+                                    <span id="equipmentAvailability">{{ resource_cards.equipment.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
                         <button class="card-action" aria-label="Go to equipment"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></button>
                     </div>
-                    <div id="equipmentDesc" class="card-text">Reserve cameras, tripods, microphones, and other shared equipment.</div>
+                    <div id="equipmentDesc" class="card-text">{{ 'resource.equipment_description'|trans }}</div>
                 </article>
             </section>
 
             <div class="footer-brand">
-                <div id="footerTitle" class="brand-name">Reservation Center</div>
-                <div id="footerSubtitle" class="brand-sub">Company resource booking platform</div>
+                <div id="footerTitle" class="brand-name">{{ 'footer.title'|trans }}</div>
+                <div id="footerSubtitle" class="brand-sub">{{ 'footer.subtitle'|trans }}</div>
             </div>
         </main>
     </div>
 
-    <button id="scrollUp" class="scroll-up" type="button" aria-label="Scroll to top" title="Scroll to top"><img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt=""></button>
+    <button id="scrollUp" class="scroll-up" type="button" aria-label="{{ 'account.scroll_top'|trans }}" title="{{ 'account.scroll_top'|trans }}"><img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt=""></button>
 
     <script>
         const resourceStats = {{ resource_cards|json_encode|raw }};
-        const translations = {
-            fr: {
-                brandSubtitle: 'Gérez vos réservations et vos ressources',
-                navReservations: 'Réservations',
-                navResources: 'Ressources',
-                navCalendar: 'Calendrier',
-                navSettings: 'Paramètres',
-                signIn: 'Connexion',
-                profile: 'Profil',
-                signOut: 'Déconnexion',
-                spaces: 'espaces',
-                seats: 'places',
-                devices: 'appareils',
-                available: 'disponibles',
-                vehicles: 'véhicules',
-                units: 'unités',
-                items: 'articles',
-                scrollUp: 'Retour en haut',
-                heroTitle: 'Réservez la bonne ressource au bon moment',
-                heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
-                roomTitle: 'Salles de réunion',
-                roomCount: '6 espaces',
-                roomAvailability: 'disponibles',
-                roomDesc: 'Réservez une salle pour une réunion d’équipe, une séance client ou une assemblée générale.',
-                laptopTitle: 'Ordinateurs portables',
-                laptopCount: '24 appareils',
-                laptopAvailability: '18 disponibles',
-                laptopDesc: 'Empruntez un ordinateur portable pour le télétravail, une formation ou un poste temporaire.',
-                vehicleTitle: 'Véhicules',
-                vehicleCount: '8 véhicules',
-                vehicleAvailability: '4 disponibles',
-                vehicleDesc: 'Réservez une voiture de service pour des visites clients, des déplacements de chantier ou des trajets d’équipe.',
-                projectorTitle: 'Vidéoprojecteurs',
-                projectorCount: '6 unités',
-                projectorAvailability: '4 disponibles',
-                projectorDesc: 'Ajoutez un vidéoprojecteur à votre réservation de salle pour des présentations et des ateliers.',
-                equipmentTitle: 'Équipement',
-                equipmentCount: '12 articles',
-                equipmentAvailability: '9 disponibles',
-                equipmentDesc: 'Réservez des caméras, trépieds, microphones et autres équipements partagés.',
-                footerTitle: 'Centre de réservation',
-                footerSubtitle: 'Plateforme de réservation de ressources d’entreprise'
-            },
-            en: {
-                brandSubtitle: 'Manage your bookings and reservations',
-                navReservations: 'Reservations',
-                navResources: 'Resources',
-                navCalendar: 'Calendar',
-                navSettings: 'Settings',
-                signIn: 'Sign in',
-                profile: 'Profile',
-                signOut: 'Sign out',
-                spaces: 'spaces',
-                seats: 'seats',
-                devices: 'devices',
-                available: 'available',
-                vehicles: 'vehicles',
-                units: 'units',
-                items: 'items',
-                scrollUp: 'Scroll to top',
-                heroTitle: 'Book the right resource at the right time',
-                heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
-                roomTitle: 'Meeting Rooms',
-                roomCount: '6 spaces',
-                roomAvailability: 'available',
-                roomDesc: 'Book a room for a team sync, client session, or all-hands meeting.',
-                laptopTitle: 'Laptops',
-                laptopCount: '24 devices',
-                laptopAvailability: '18 available',
-                laptopDesc: 'Borrow a laptop for remote work, training, or a temporary workstation.',
-                vehicleTitle: 'Vehicles',
-                vehicleCount: '8 vehicles',
-                vehicleAvailability: '4 available',
-                vehicleDesc: 'Reserve a company car for client visits, site visits, or team travel.',
-                projectorTitle: 'Projectors',
-                projectorCount: '6 units',
-                projectorAvailability: '4 available',
-                projectorDesc: 'Add a projector to your room booking for presentations and workshops.',
-                equipmentTitle: 'Equipment',
-                equipmentCount: '12 items',
-                equipmentAvailability: '9 available',
-                equipmentDesc: 'Reserve cameras, tripods, microphones, and other shared equipment.',
-                footerTitle: 'Reservation Center',
-                footerSubtitle: 'Company resource booking platform'
-            }
-        };
+        const translations = {{ translations|json_encode|raw }};
 
         function detectInitialLanguage() {
             const browserLocale = navigator.language || navigator.languages?.[0] || 'en-US';
@@ -259,7 +172,7 @@
             document.getElementById('heroCopy').textContent = strings.heroCopy;
             document.getElementById('roomTitle').textContent = strings.roomTitle;
             document.getElementById('roomCount').textContent = `${resourceStats.rooms.total} ${strings.spaces}`;
-            document.getElementById('roomAvailability').textContent = `${resourceStats.rooms.available} ${strings.roomAvailability}`;
+            document.getElementById('roomAvailability').textContent = `${resourceStats.rooms.available} ${strings.available}`;
             document.getElementById('roomDesc').textContent = strings.roomDesc;
             document.getElementById('laptopTitle').textContent = strings.laptopTitle;
             document.getElementById('laptopCount').textContent = `${resourceStats.laptops.total} ${strings.devices}`;
