@@ -10,6 +10,10 @@
                 <h1 id="login-title">Sign in</h1>
                 <p class="account-intro">Access your company resources and reservations.</p>
 
+                {% if error %}
+                    <div class="account-error" role="alert">{{ error }}</div>
+                {% endif %}
+
                 <form class="account-form" method="post" action="{{ path('app_login') }}">
                     <div class="form-field">
                         <label for="email">Email</label>

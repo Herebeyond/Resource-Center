@@ -500,7 +500,9 @@ INSERT INTO resource_types (name, description)
 VALUES
   ('salle', 'Salle de réunion ou de formation'),
   ('vehicule', 'Véhicule de service'),
-  ('equipement', 'Matériel partagé: vidéoprojecteur, portable, étiqueteuse, etc.')
+  ('equipement', 'Matériel partagé: étiqueteuse, microphone, caméra, etc.'),
+  ('portable', 'Ordinateur portable partagé'),
+  ('audiovisuel', 'Vidéoprojecteur et matériel audiovisuel')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO resource_states (label, description)

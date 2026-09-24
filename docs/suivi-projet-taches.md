@@ -88,9 +88,11 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
 ### Développer le MVP
 
 - [ ] Développer l'authentification
-  - [ ] Créer la page de connexion
-  - [ ] Gérer la déconnexion
-  - [ ] Créer les utilisateurs de test
+  - [x] Créer la page de connexion
+  - [x] Gérer la déconnexion
+  - [x] Créer les utilisateurs de test
+  - [x] Vérifier les identifiants dans PostgreSQL
+  - [x] Afficher le profil selon la session
   - [ ] Ajouter les rôles
   - [ ] Protéger les pages privées
   - [ ] Refuser les actions non autorisées
@@ -104,6 +106,7 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [ ] Définir le type et la localisation
   - [ ] Définir la capacité
   - [ ] Gérer les états disponible, indisponible et maintenance
+  - [x] Alimenter les statistiques de la homepage depuis PostgreSQL
 
 - [ ] Développer la consultation des disponibilités
   - [ ] Sélectionner une date

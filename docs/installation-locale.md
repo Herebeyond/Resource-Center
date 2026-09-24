@@ -23,6 +23,15 @@ En développement, le code `app/` est monté dans le conteneur pour refléter le
 
 Symfony utilise Doctrine DBAL et la variable `DATABASE_URL`. Dans Docker, elle pointe vers le service `database`. En lancement local depuis `app/`, elle pointe vers `127.0.0.1`.
 
+## Compte de démonstration
+
+Les comptes sont créés par un administrateur via la base de données. Il n'y a pas d'inscription publique.
+
+- Email : `alice.martin@demo-cda.local`
+- Mot de passe de démonstration : `demo1234`
+
+La session est utilisée pour afficher le profil connecté dans le menu et dans la page `/profil`. La homepage récupère ses statistiques depuis les ressources actives de PostgreSQL.
+
 ## Réinitialisation de la base de démonstration
 
 Les scripts d'initialisation PostgreSQL ne sont exécutés automatiquement que lorsque le volume est créé. Pour repartir d'une base vide, supprimer le volume Docker de développement puis relancer la stack. Cette opération supprime les données locales de démonstration.

@@ -21,16 +21,20 @@
                     <div id="navCalendar" class="nav-item">Calendar</div>
                     <div id="navSettings" class="nav-item">Settings</div>
                 </nav>
+                {% if current_user %}
                 <div class="user-pill">
                     <button id="profileToggle" class="profile-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
                         <div class="avatar" aria-hidden="true"></div>
-                        <span id="profileName" class="user-name">Name123</span>
+                        <span id="profileName" class="user-name">{{ current_user.first_name }}</span>
                     </button>
                     <div id="profileMenu" class="profile-menu" role="menu" hidden>
                         <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">Profile</a>
-                        <a id="signInLink" href="{{ path('app_login') }}" role="menuitem">Sign in</a>
+                        <a id="logoutLink" href="{{ path('app_logout') }}" role="menuitem">Sign out</a>
                     </div>
                 </div>
+                {% else %}
+                    <a class="profile-toggle profile-guest" href="{{ path('app_login') }}" aria-label="Sign in">Sign in</a>
+                {% endif %}
             </div>
         </header>
 
@@ -50,8 +54,8 @@
                             <div class="text-block">
                                 <div id="roomTitle" class="card-title">Meeting Rooms</div>
                                 <div class="card-meta">
-                                    <span id="roomCount">6 spaces</span>
-                                    <span id="roomCapacity">12 seats</span>
+                                    <span id="roomCount">{{ resource_cards.rooms.total }} spaces</span>
+                                    <span id="roomCapacity">{{ resource_cards.rooms.capacity }} seats</span>
                                 </div>
                             </div>
                         </div>
@@ -67,8 +71,8 @@
                             <div class="text-block">
                                 <div id="laptopTitle" class="card-title">Laptops</div>
                                 <div class="card-meta">
-                                    <span id="laptopCount">24 devices</span>
-                                    <span id="laptopAvailability">18 available</span>
+                                    <span id="laptopCount">{{ resource_cards.laptops.total }} devices</span>
+                                    <span id="laptopAvailability">{{ resource_cards.laptops.available }} available</span>
                                 </div>
                             </div>
                         </div>
@@ -84,8 +88,8 @@
                             <div class="text-block">
                                 <div id="vehicleTitle" class="card-title">Vehicles</div>
                                 <div class="card-meta">
-                                    <span id="vehicleCount">8 vehicles</span>
-                                    <span id="vehicleAvailability">4 available</span>
+                                    <span id="vehicleCount">{{ resource_cards.vehicles.total }} vehicles</span>
+                                    <span id="vehicleAvailability">{{ resource_cards.vehicles.available }} available</span>
                                 </div>
                             </div>
                         </div>
@@ -101,8 +105,8 @@
                             <div class="text-block">
                                 <div id="projectorTitle" class="card-title">Projectors</div>
                                 <div class="card-meta">
-                                    <span id="projectorCount">6 units</span>
-                                    <span id="projectorAvailability">4 available</span>
+                                    <span id="projectorCount">{{ resource_cards.projectors.total }} units</span>
+                                    <span id="projectorAvailability">{{ resource_cards.projectors.available }} available</span>
                                 </div>
                             </div>
                         </div>
@@ -118,8 +122,8 @@
                             <div class="text-block">
                                 <div id="equipmentTitle" class="card-title">Equipment</div>
                                 <div class="card-meta">
-                                    <span id="equipmentCount">12 items</span>
-                                    <span id="equipmentAvailability">9 available</span>
+                                    <span id="equipmentCount">{{ resource_cards.equipment.total }} items</span>
+                                    <span id="equipmentAvailability">{{ resource_cards.equipment.available }} available</span>
                                 </div>
                             </div>
                         </div>
@@ -139,6 +143,7 @@
     <button id="scrollUp" class="scroll-up" type="button" aria-label="Scroll to top" title="Scroll to top"><img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt=""></button>
 
     <script>
+        const resourceStats = {{ resource_cards|json_encode|raw }};
         const translations = {
             fr: {
                 brandSubtitle: 'Gérez vos réservations et vos ressources',
@@ -148,6 +153,14 @@
                 navSettings: 'Paramètres',
                 signIn: 'Connexion',
                 profile: 'Profil',
+                signOut: 'Déconnexion',
+                spaces: 'espaces',
+                seats: 'places',
+                devices: 'appareils',
+                available: 'disponibles',
+                vehicles: 'véhicules',
+                units: 'unités',
+                items: 'articles',
                 scrollUp: 'Retour en haut',
                 heroTitle: 'Réservez la bonne ressource au bon moment',
                 heroCopy: 'Réservez des salles de réunion, des véhicules, des ordinateurs portables, des vidéoprojecteurs et du matériel en un seul endroit. Disponibilités claires, réservation rapide et vue d’ensemble pour chaque équipe.',
@@ -182,6 +195,14 @@
                 navSettings: 'Settings',
                 signIn: 'Sign in',
                 profile: 'Profile',
+                signOut: 'Sign out',
+                spaces: 'spaces',
+                seats: 'seats',
+                devices: 'devices',
+                available: 'available',
+                vehicles: 'vehicles',
+                units: 'units',
+                items: 'items',
                 scrollUp: 'Scroll to top',
                 heroTitle: 'Book the right resource at the right time',
                 heroCopy: 'Reserve meeting rooms, vehicles, laptops, projectors, and equipment in one place. Clear availability, fast booking, and a clean overview for every team.',
@@ -228,31 +249,33 @@
             document.getElementById('navResources').textContent = strings.navResources;
             document.getElementById('navCalendar').textContent = strings.navCalendar;
             document.getElementById('navSettings').textContent = strings.navSettings;
-            document.getElementById('profileLink').textContent = strings.profile;
-            document.getElementById('signInLink').textContent = strings.signIn;
+            const profileLink = document.getElementById('profileLink');
+            const logoutLink = document.getElementById('logoutLink');
+            if (profileLink) profileLink.textContent = strings.profile;
+            if (logoutLink) logoutLink.textContent = strings.signOut;
             document.getElementById('scrollUp').setAttribute('aria-label', strings.scrollUp);
             document.getElementById('scrollUp').setAttribute('title', strings.scrollUp);
             document.getElementById('heroTitle').textContent = strings.heroTitle;
             document.getElementById('heroCopy').textContent = strings.heroCopy;
             document.getElementById('roomTitle').textContent = strings.roomTitle;
-            document.getElementById('roomCount').textContent = strings.roomCount;
-            document.getElementById('roomCapacity').textContent = strings.roomCapacity;
+            document.getElementById('roomCount').textContent = `${resourceStats.rooms.total} ${strings.spaces}`;
+            document.getElementById('roomCapacity').textContent = `${resourceStats.rooms.capacity} ${strings.seats}`;
             document.getElementById('roomDesc').textContent = strings.roomDesc;
             document.getElementById('laptopTitle').textContent = strings.laptopTitle;
-            document.getElementById('laptopCount').textContent = strings.laptopCount;
-            document.getElementById('laptopAvailability').textContent = strings.laptopAvailability;
+            document.getElementById('laptopCount').textContent = `${resourceStats.laptops.total} ${strings.devices}`;
+            document.getElementById('laptopAvailability').textContent = `${resourceStats.laptops.available} ${strings.available}`;
             document.getElementById('laptopDesc').textContent = strings.laptopDesc;
             document.getElementById('vehicleTitle').textContent = strings.vehicleTitle;
-            document.getElementById('vehicleCount').textContent = strings.vehicleCount;
-            document.getElementById('vehicleAvailability').textContent = strings.vehicleAvailability;
+            document.getElementById('vehicleCount').textContent = `${resourceStats.vehicles.total} ${strings.vehicles}`;
+            document.getElementById('vehicleAvailability').textContent = `${resourceStats.vehicles.available} ${strings.available}`;
             document.getElementById('vehicleDesc').textContent = strings.vehicleDesc;
             document.getElementById('projectorTitle').textContent = strings.projectorTitle;
-            document.getElementById('projectorCount').textContent = strings.projectorCount;
-            document.getElementById('projectorAvailability').textContent = strings.projectorAvailability;
+            document.getElementById('projectorCount').textContent = `${resourceStats.projectors.total} ${strings.units}`;
+            document.getElementById('projectorAvailability').textContent = `${resourceStats.projectors.available} ${strings.available}`;
             document.getElementById('projectorDesc').textContent = strings.projectorDesc;
             document.getElementById('equipmentTitle').textContent = strings.equipmentTitle;
-            document.getElementById('equipmentCount').textContent = strings.equipmentCount;
-            document.getElementById('equipmentAvailability').textContent = strings.equipmentAvailability;
+            document.getElementById('equipmentCount').textContent = `${resourceStats.equipment.total} ${strings.items}`;
+            document.getElementById('equipmentAvailability').textContent = `${resourceStats.equipment.available} ${strings.available}`;
             document.getElementById('equipmentDesc').textContent = strings.equipmentDesc;
             document.getElementById('footerTitle').textContent = strings.footerTitle;
             document.getElementById('footerSubtitle').textContent = strings.footerSubtitle;
@@ -271,14 +294,14 @@
         const profileToggle = document.getElementById('profileToggle');
         const profileMenu = document.getElementById('profileMenu');
 
-        profileToggle.addEventListener('click', function () {
+        profileToggle?.addEventListener('click', function () {
             const isOpen = profileToggle.getAttribute('aria-expanded') === 'true';
             profileToggle.setAttribute('aria-expanded', String(!isOpen));
             profileMenu.hidden = isOpen;
         });
 
         document.addEventListener('click', function (event) {
-            if (!profileToggle.contains(event.target) && !profileMenu.contains(event.target)) {
+            if (profileToggle && profileMenu && !profileToggle.contains(event.target) && !profileMenu.contains(event.target)) {
                 profileToggle.setAttribute('aria-expanded', 'false');
                 profileMenu.hidden = true;
             }

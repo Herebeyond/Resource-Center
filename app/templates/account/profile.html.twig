@@ -7,18 +7,18 @@
         <main class="account-page">
             <section class="account-panel" aria-labelledby="profile-title">
                 <div class="account-label">User menu</div>
-                <h1 id="profile-title">Name123</h1>
+                <h1 id="profile-title">{{ current_user.first_name }} {{ current_user.last_name }}</h1>
                 <p class="account-intro">Manage your account and access your reservation area.</p>
 
                 <div class="profile-summary">
                     <div class="avatar" aria-hidden="true"></div>
                     <div>
-                        <strong>Name123</strong>
-                        <span>Company user account</span>
+                        <strong>{{ current_user.first_name }} {{ current_user.last_name }}</strong>
+                        <span>{{ current_user.email }}</span>
                     </div>
                 </div>
 
-                <a class="account-link" href="{{ path('app_login') }}">Sign in with another account</a>
+                <a class="account-link" href="{{ path('app_logout') }}">Sign out</a>
                 <br>
                 <a class="account-link" href="{{ path('app_home') }}">Back to home</a>
             </section>

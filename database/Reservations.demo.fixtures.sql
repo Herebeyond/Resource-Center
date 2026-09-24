@@ -22,19 +22,19 @@ ON CONFLICT (name) DO NOTHING;
 -- =========================
 
 INSERT INTO users (company_id, first_name, last_name, email, phone_number, password_hash, is_active)
-SELECT c.id, 'Alice', 'Martin', 'alice.martin@demo-cda.local', '0102030405', 'demo_hash_alice', TRUE
+SELECT c.id, 'Alice', 'Martin', 'alice.martin@demo-cda.local', '0102030405', '$2y$10$vMcqU/TZ74LJU0O7xeOA/OZo6Brn4xNeipgje3Q6f2G76zsenImm6', TRUE
 FROM companies c
 WHERE c.name = 'Entreprise Démo CDA'
 ON CONFLICT (company_id, email) DO NOTHING;
 
 INSERT INTO users (company_id, first_name, last_name, email, phone_number, password_hash, is_active)
-SELECT c.id, 'Benoit', 'Durand', 'benoit.durand@demo-cda.local', '0102030406', 'demo_hash_benoit', TRUE
+SELECT c.id, 'Benoit', 'Durand', 'benoit.durand@demo-cda.local', '0102030406', '$2y$10$vMcqU/TZ74LJU0O7xeOA/OZo6Brn4xNeipgje3Q6f2G76zsenImm6', TRUE
 FROM companies c
 WHERE c.name = 'Entreprise Démo CDA'
 ON CONFLICT (company_id, email) DO NOTHING;
 
 INSERT INTO users (company_id, first_name, last_name, email, phone_number, password_hash, is_active)
-SELECT c.id, 'Claire', 'Moreau', 'claire.moreau@demo-cda.local', '0102030407', 'demo_hash_claire', TRUE
+SELECT c.id, 'Claire', 'Moreau', 'claire.moreau@demo-cda.local', '0102030407', '$2y$10$vMcqU/TZ74LJU0O7xeOA/OZo6Brn4xNeipgje3Q6f2G76zsenImm6', TRUE
 FROM companies c
 WHERE c.name = 'Entreprise Démo CDA'
 ON CONFLICT (company_id, email) DO NOTHING;
@@ -78,6 +78,22 @@ INSERT INTO resources (company_id, type_id, state_id, name, code, location, capa
 SELECT c.id, rt.id, rs.id, 'Salle Orion', 'SALLE-ORION', 'Batiment A - 2e étage', 10, TRUE
 FROM companies c
 JOIN resource_types rt ON rt.name = 'salle'
+JOIN resource_states rs ON rs.label = 'disponible'
+WHERE c.name = 'Entreprise Démo CDA'
+ON CONFLICT (company_id, code) DO NOTHING;
+
+INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
+SELECT c.id, rt.id, rs.id, 'Ordinateur portable Dell 01', 'PORT-DELL-01', 'Armoire informatique - Etage 1', NULL, TRUE
+FROM companies c
+JOIN resource_types rt ON rt.name = 'portable'
+JOIN resource_states rs ON rs.label = 'disponible'
+WHERE c.name = 'Entreprise Démo CDA'
+ON CONFLICT (company_id, code) DO NOTHING;
+
+INSERT INTO resources (company_id, type_id, state_id, name, code, location, capacity, is_active)
+SELECT c.id, rt.id, rs.id, 'Vidéoprojecteur Epson X2', 'AV-EPS-02', 'Réserve audiovisuelle - Etage 1', NULL, TRUE
+FROM companies c
+JOIN resource_types rt ON rt.name = 'audiovisuel'
 JOIN resource_states rs ON rs.label = 'disponible'
 WHERE c.name = 'Entreprise Démo CDA'
 ON CONFLICT (company_id, code) DO NOTHING;
