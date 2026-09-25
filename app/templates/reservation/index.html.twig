@@ -3,7 +3,8 @@
 {% block title %}{{ type_label }} | Resource Center{% endblock %}
 
 {% block body %}
-    <div class="page-shell reservation-page">
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+    <div class="page-shell reservation-page" data-flash-success="{{ flash_success ? '1' : '0' }}">
         <header class="topbar">
             <div class="brand" aria-label="Resource Center brand">
                 <div class="brand-mark" aria-hidden="true"></div>
@@ -30,7 +31,7 @@
         <main class="reservation-layout">
             <aside class="reservation-sidebar">
                 <h1 data-type-label>{{ type_label }}</h1>
-                <p id="reservationHelp" class="reservation-help">{{ reservation_translations.en.chooseResource }}</p>
+                <p id="reservationHelp" class="reservation-help" data-i18n="chooseResource">{{ reservation_translations.en.chooseResource }}</p>
                 <label class="reservation-search">
                     <span class="visually-hidden">{{ search_placeholder }}</span>
                     <input type="search" placeholder="{{ search_placeholder }}" data-resource-filter>
@@ -38,7 +39,7 @@
                 </label>
 
                 <fieldset class="search-options">
-                    <legend id="searchOptionsLabel">{{ reservation_translations.en.searchOptions }}</legend>
+                    <legend id="searchOptionsLabel" data-i18n="searchOptions">{{ reservation_translations.en.searchOptions }}</legend>
                     <label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>
                     <label><input type="checkbox" data-feature="other"> <span data-i18n="other">{{ reservation_translations.en.other }}</span></label>
                     <label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>
@@ -46,7 +47,7 @@
                         <label><span data-i18n="minimumSeats">{{ reservation_translations.en.minimumSeats }}</span><input type="number" min="0" data-filter-min></label>
                         <label><span data-i18n="maximumSeats">{{ reservation_translations.en.maximumSeats }}</span><input type="number" min="0" data-filter-max></label>
                     </div>
-                    <label><span data-i18n="building">{{ reservation_translations.en.building }}</span><select data-filter-building><option data-i18n="allBuildings">{{ reservation_translations.en.allBuildings }}</option></select></label>
+                    <label><span data-i18n="building">{{ reservation_translations.en.building }}</span><select data-filter-building><option value="" data-i18n="allBuildings">{{ reservation_translations.en.allBuildings }}</option></select></label>
                 </fieldset>
 
                 <div class="resource-list" data-resource-list>
@@ -70,11 +71,14 @@
                             <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
                             <span class="resource-choice-content">
                                 <strong>{{ resource.name }}</strong>
-                                <small>{{ resource.location ?: reservation_translations.en.companyResource }} · {{ resource.places }} {{ reservation_translations.en.seats }}</small>
+                                <small>
+                                    <span data-resource-location>{% if resource.location %}{{ resource.location }}{% else %}<span data-i18n="companyResource">{{ reservation_translations.en.companyResource }}</span>{% endif %}</span>
+                                    · {{ resource.places }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span>
+                                </small>
                                 {% if resource.has_screen or resource.has_whiteboard %}
                                     <span class="resource-tags">
-                                        {% if resource.has_screen %}<em>{{ reservation_translations.en.videoTag }}</em>{% endif %}
-                                        {% if resource.has_whiteboard %}<em>{{ reservation_translations.en.whiteboardTag }}</em>{% endif %}
+                                        {% if resource.has_screen %}<em data-i18n="videoTag">{{ reservation_translations.en.videoTag }}</em>{% endif %}
+                                        {% if resource.has_whiteboard %}<em data-i18n="whiteboardTag">{{ reservation_translations.en.whiteboardTag }}</em>{% endif %}
                                     </span>
                                 {% endif %}
                             </span>
@@ -92,7 +96,8 @@
                         <div class="date-strip">
                             {% for offset in 0..6 %}
                                 {% set date = date(selected_date)|date_modify('+' ~ offset ~ ' day') %}
-                                <a class="date-cell{% if date|date('Y-m-d') == selected_date %} is-selected{% endif %}"
+                                          <a class="date-cell{% if date|date('Y-m-d') == selected_date %} is-selected{% endif %}"
+                                              data-date-link
                                    href="{{ path('app_reservation', {type: type, date: date|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">
                                     <small>{{ date|date('D') }}</small>
                                     <strong>{{ date|date('d') }}</strong>
@@ -101,7 +106,7 @@
                         </div>
                     </div>
                     <div class="date-actions">
-                        <a data-i18n="today" href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">{{ reservation_translations.en.today }}</a>
+                        <a data-date-link data-i18n="today" href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">{{ reservation_translations.en.today }}</a>
                         <input type="date" value="{{ selected_date }}" data-date-picker aria-label="{{ reservation_translations.en.selectDateLabel }}">
                     </div>
                 </div>
@@ -114,14 +119,13 @@
                         <label><span data-i18n="timeframe">{{ reservation_translations.en.timeframe }}</span><select name="timeframe" data-timeframe><option value="work"{% if timeframe == 'work' %} selected{% endif %}>{{ reservation_translations.en.workHours }}</option><option value="full"{% if timeframe == 'full' %} selected{% endif %}>{{ reservation_translations.en.fullDay }}</option></select></label>
                         <label><span data-i18n="start">{{ reservation_translations.en.start }}</span><input name="start_time" type="time" value="11:00" required></label>
                         <label><span data-i18n="end">{{ reservation_translations.en.end }}</span><input name="end_time" type="time" value="12:00" required></label>
-                        <label class="form-grow"><span data-i18n="name">{{ reservation_translations.en.name }}</span><input name="title" type="text" placeholder="{{ reservation_translations.en.reservationName }}" required></label>
+                        <label class="form-grow"><span data-i18n="name">{{ reservation_translations.en.name }}</span><input name="title" type="text" placeholder="{{ reservation_translations.en.reservationName }}" data-i18n-placeholder="reservationName" required></label>
                     </div>
-                    <label class="description-field"><span data-i18n="description">{{ reservation_translations.en.description }}</span><textarea name="notes" rows="2" placeholder="{{ reservation_translations.en.addDetails }}"></textarea></label>
+                    <label class="description-field"><span data-i18n="description">{{ reservation_translations.en.description }}</span><textarea name="notes" rows="2" placeholder="{{ reservation_translations.en.addDetails }}" data-i18n-placeholder="addDetails"></textarea></label>
                 </form>
 
-                {% if error %}<div class="reservation-alert reservation-alert-error" data-i18n="error">{{ error }}</div>{% endif %}
-                {% if warning %}<div class="reservation-alert reservation-alert-warning" data-i18n="warning">{{ warning }}</div>{% endif %}
-                {% if created %}<div class="reservation-alert reservation-alert-success" data-i18n="created">{{ reservation_translations.en.created }}</div>{% endif %}
+                {% if error %}<div class="reservation-alert reservation-alert-error">{{ error }}</div>{% endif %}
+                {% if warning %}<div class="reservation-alert reservation-alert-warning">{{ warning }}</div>{% endif %}
 
                 <section class="timeline-panel" aria-label="Availability timeline">
                     <div class="timeline-header"><span data-i18n="timeSlot">{{ reservation_translations.en.timeSlot }}</span><span data-i18n="availability">{{ reservation_translations.en.availability }}</span></div>
@@ -129,24 +133,27 @@
                         <div class="timeline-row"><time>{{ '%02d:00'|format(hour) }}</time><div></div></div>
                     {% endfor %}
                     {% for reservation in reservations %}
-                        <div class="reservation-block" data-reservation-resource-id="{{ reservation.resource_id }}" style="--reservation-start: {{ reservation.start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.end_at|date('U') - reservation.start_at|date('U')) / 3600) }};">
+                        <div class="reservation-block{% if reservation.continues_before %} continues-before{% endif %}{% if reservation.continues_after %} continues-after{% endif %}" data-reservation-resource-id="{{ reservation.resource_id }}" data-start="{{ reservation.start_at|date('H:i') }}" data-end="{{ reservation.end_at|date('H:i') }}" data-title="{{ reservation.title }}" data-resource-name="{{ reservation.resource_name }}" data-description="{{ reservation.notes|default('') }}" style="--reservation-start: {{ reservation.visual_start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.visual_end_at|date('U') - reservation.visual_start_at|date('U')) / 3600) }};">
                             <strong>{{ reservation.title }}</strong>
                             <span>{{ reservation.resource_name }} · {{ reservation.start_at|date('H:i') }} - {{ reservation.end_at|date('H:i') }}</span>
                         </div>
                     {% endfor %}
                 </section>
+                <div class="reservation-tooltip" role="tooltip" hidden></div>
 
                 <section class="reservation-summary">
                     <h2 id="summaryTitle" data-i18n="summary">{{ reservation_translations.en.summary }}</h2>
                     <p id="summaryReview" data-i18n="review">{{ reservation_translations.en.review }}</p>
+                    <ul id="reservationMessages" class="reservation-messages" aria-live="polite"></ul>
                     <dl>
                         <dt>{{ reservation_translations.en.resource }}</dt><dd id="summaryResource">{{ selected_resource ? selected_resource.name : reservation_translations.en.noResource }}</dd>
+                        <dt>{{ reservation_translations.en.name }}</dt><dd id="summaryName">—</dd>
                         <dt>{{ reservation_translations.en.date }}</dt><dd id="summaryDate">{{ selected_date|date('l, F d, Y') }}</dd>
                         <dt>{{ reservation_translations.en.time }}</dt><dd id="summaryTime">11:00 - 12:00</dd>
                     </dl>
                     <div class="summary-actions">
-                        <button type="button" class="secondary-button" data-clear-selection>{{ reservation_translations.en.cancel }}</button>
-                        <button id="confirmReservation" type="submit" class="account-button" form="reservation-form" disabled>{{ reservation_translations.en.confirm }}</button>
+                        <button type="button" class="secondary-button" data-i18n="cancel" data-clear-selection>{{ reservation_translations.en.cancel }}</button>
+                        <button id="confirmReservation" type="submit" class="account-button" data-i18n="confirm" form="reservation-form" disabled>{{ reservation_translations.en.confirm }}</button>
                     </div>
                 </section>
             </section>
@@ -167,9 +174,42 @@
         const datePicker = document.querySelector('[data-date-picker]');
         const selectedDate = document.querySelector('[data-selected-date]');
         const timeframeSelect = document.querySelector('[data-timeframe]');
+        const reservationTooltip = document.querySelector('.reservation-tooltip');
+        const dateLinks = [...document.querySelectorAll('[data-date-link]')];
         const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
         let reservationLanguage = localStorage.getItem('resource-center-lang') || browserLanguage;
         let confirmedByButton = false;
+
+        function filterParams() {
+            const params = new URLSearchParams();
+            if (filterInput.value.trim()) params.set('search', filterInput.value.trim());
+            if (minSeats.value) params.set('min_seats', minSeats.value);
+            if (maxSeats.value) params.set('max_seats', maxSeats.value);
+            if (buildingFilter.value) params.set('building', buildingFilter.value);
+            document.querySelectorAll('[data-feature]:checked').forEach((control) => params.append('feature', control.dataset.feature));
+            return params;
+        }
+
+        function restoreFilters() {
+            const params = new URLSearchParams(window.location.search);
+            filterInput.value = params.get('search') || '';
+            minSeats.value = params.get('min_seats') || '';
+            maxSeats.value = params.get('max_seats') || '';
+            buildingFilter.value = params.get('building') || '';
+            const features = params.getAll('feature');
+            document.querySelectorAll('[data-feature]').forEach((control) => {
+                control.checked = features.includes(control.dataset.feature);
+            });
+        }
+
+        function preserveFiltersOnDateLinks() {
+            const filters = filterParams();
+            dateLinks.forEach((link) => {
+                const url = new URL(link.href, window.location.href);
+                filters.forEach((value, key) => url.searchParams.append(key, value));
+                link.href = url.toString();
+            });
+        }
 
         function applyReservationLanguage(language) {
             const strings = reservationTranslations[language];
@@ -177,6 +217,10 @@
             document.querySelectorAll('[data-i18n]').forEach((element) => {
                 const key = element.dataset.i18n;
                 if (strings[key]) element.textContent = strings[key];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+                const key = element.dataset.i18nPlaceholder;
+                if (strings[key]) element.placeholder = strings[key];
             });
             document.querySelector('[data-type-label]').textContent = strings.typeLabel;
             filterInput.placeholder = strings.searchPlaceholder;
@@ -187,9 +231,6 @@
             document.querySelector('[data-selected-date]').closest('form').querySelector('[data-i18n="start"]')?.textContent;
             reservationLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
             reservationLanguageToggle.setAttribute('aria-label', strings.changeLanguage);
-            document.querySelectorAll('.resource-choice small').forEach((element) => {
-                element.textContent = element.textContent.replace(/(seats|places)$/, strings.seats);
-            });
             reservationLanguage = language;
             localStorage.setItem('resource-center-lang', language);
         }
@@ -202,6 +243,115 @@
                 option.textContent = building;
                 buildingFilter.appendChild(option);
             });
+        }
+
+        const toastContainer = document.getElementById('toastContainer');
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const text = document.createElement('span');
+            text.textContent = message;
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'toast-close';
+            closeButton.setAttribute('aria-label', 'Close');
+            closeButton.textContent = '×';
+            toast.append(text, closeButton);
+            toastContainer.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.add('is-visible'));
+
+            const dismiss = () => {
+                toast.classList.remove('is-visible');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            };
+
+            const timeoutId = setTimeout(dismiss, 15000);
+            closeButton.addEventListener('click', () => {
+                clearTimeout(timeoutId);
+                dismiss();
+            });
+        }
+
+        function moveReservationTooltip(event) {
+            const offset = 14;
+            const tooltipWidth = reservationTooltip.offsetWidth;
+            const tooltipHeight = reservationTooltip.offsetHeight;
+            const left = Math.min(event.clientX + offset, window.innerWidth - tooltipWidth - 12);
+            const top = Math.min(event.clientY + offset, window.innerHeight - tooltipHeight - 12);
+            reservationTooltip.style.left = `${Math.max(12, left)}px`;
+            reservationTooltip.style.top = `${Math.max(12, top)}px`;
+        }
+
+        function showReservationTooltip(block, event) {
+            const description = block.dataset.description.trim();
+            reservationTooltip.replaceChildren();
+            const title = document.createElement('strong');
+            title.textContent = block.dataset.title;
+            const details = document.createElement('span');
+            details.textContent = `${block.dataset.resourceName} · ${block.dataset.start} - ${block.dataset.end}`;
+            reservationTooltip.append(title, details);
+            if (description) {
+                const notes = document.createElement('p');
+                notes.textContent = description;
+                reservationTooltip.appendChild(notes);
+            }
+            reservationTooltip.hidden = false;
+            moveReservationTooltip(event);
+        }
+
+        function toMinutes(value) {
+            const [hours, minutes] = value.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        const reservationMessages = document.getElementById('reservationMessages');
+
+        function renderMessages(messages) {
+            reservationMessages.innerHTML = '';
+            messages.forEach(({ type, text }) => {
+                const item = document.createElement('li');
+                item.className = type === 'error' ? 'message-error' : 'message-warning';
+                item.textContent = text;
+                reservationMessages.appendChild(item);
+            });
+        }
+
+        function collectMessages(resourceId, title, start, end) {
+            const strings = reservationTranslations[reservationLanguage];
+            const messages = [];
+            if (!resourceId) messages.push({ type: 'error', text: strings.resourceRequired });
+            if (!title) messages.push({ type: 'error', text: strings.nameRequired });
+
+            if (resourceId && start && end && end !== start) {
+                const blocks = [...timeline.querySelectorAll('.reservation-block:not(.draft-reservation-block)')]
+                    .filter((block) => block.dataset.reservationResourceId === resourceId)
+                    .map((block) => ({ start: block.dataset.start, end: block.dataset.end }));
+                const startMin = toMinutes(start);
+                const endMin = toMinutes(end) < startMin ? toMinutes(end) + 1440 : toMinutes(end);
+                let overlap = false;
+                let adjacentAfterExisting = false;
+                let adjacentBeforeExisting = false;
+                blocks.forEach(({ start: blockStart, end: blockEnd }) => {
+                    const blockStartMin = toMinutes(blockStart);
+                    const blockEndMin = toMinutes(blockEnd);
+                    if (startMin < blockEndMin && endMin > blockStartMin) {
+                        overlap = true;
+                    } else {
+                        if (Math.abs(blockEndMin - startMin) < 5) adjacentAfterExisting = true;
+                        if (Math.abs(endMin - blockStartMin) < 5) adjacentBeforeExisting = true;
+                    }
+                });
+                if (overlap) {
+                    messages.push({ type: 'error', text: strings.conflict });
+                } else {
+                    if (adjacentAfterExisting) messages.push({ type: 'warning', text: strings.nearby });
+                    if (adjacentBeforeExisting) messages.push({ type: 'warning', text: strings.nearbyReverse });
+                }
+            }
+
+            return messages;
         }
 
         function applyFilters() {
@@ -229,26 +379,35 @@
             const title = reservationForm.querySelector('[name="title"]').value.trim();
             const start = reservationForm.querySelector('[name="start_time"]').value;
             const end = reservationForm.querySelector('[name="end_time"]').value;
+            const selectedId = reservationForm.querySelector('[name="resource_id"]').value;
             const selectedResource = document.querySelector('.resource-choice.is-selected strong');
             document.getElementById('summaryResource').textContent = selectedResource?.textContent || reservationTranslations[reservationLanguage].noResource;
+            document.getElementById('summaryName').textContent = title || '—';
             document.getElementById('summaryDate').textContent = new Date(`${selectedDate.value}T00:00:00`).toLocaleDateString(reservationLanguage === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('summaryTime').textContent = `${start || '--:--'} - ${end || '--:--'}`;
-            confirmButton.disabled = !(reservationForm.querySelector('[name="resource_id"]').value && title && start && end && end > start);
+
+            const messages = collectMessages(selectedId, title, start, end);
+            renderMessages(messages);
+            const hasError = messages.some((message) => message.type === 'error');
+            confirmButton.disabled = hasError || !(selectedId && title && start && end && end !== start);
 
             timeline.querySelector('.draft-reservation-block')?.remove();
-            if (start && end && end > start) {
+            if (start && end && end !== start) {
                 const draft = document.createElement('div');
                 const startHour = Number(start.split(':')[0]) + Number(start.split(':')[1]) / 60;
-                const duration = (Number(end.split(':')[0]) + Number(end.split(':')[1]) / 60) - startHour;
+                const endHour = Number(end.split(':')[0]) + Number(end.split(':')[1]) / 60;
+                const duration = (endHour < startHour ? endHour + 24 : endHour) - startHour;
                 const firstHour = Number(document.querySelector('.timeline-row time')?.textContent.split(':')[0] || 6);
+                const lastHour = Number([...document.querySelectorAll('.timeline-row time')].at(-1)?.textContent.split(':')[0] || 18);
                 draft.className = 'reservation-block draft-reservation-block';
+                if (startHour < firstHour) draft.classList.add('continues-before');
+                if ((endHour < startHour ? endHour + 24 : endHour) > lastHour + 1) draft.classList.add('continues-after');
                 draft.style.setProperty('--reservation-start', startHour - firstHour);
                 draft.style.setProperty('--reservation-duration', duration);
                 draft.innerHTML = `<strong>${title || reservationTranslations[reservationLanguage].reservationName}</strong><span>${start} - ${end}</span>`;
                 timeline.appendChild(draft);
             }
 
-            const selectedId = reservationForm.querySelector('[name="resource_id"]').value;
             timeline.querySelectorAll('[data-reservation-resource-id]').forEach((block) => {
                 block.hidden = block.dataset.reservationResourceId !== selectedId;
             });
@@ -265,6 +424,11 @@
         filterInput?.addEventListener('input', applyFilters);
         [minSeats, maxSeats, buildingFilter].forEach((control) => control?.addEventListener('input', applyFilters));
         document.querySelectorAll('[data-feature]').forEach((control) => control.addEventListener('change', applyFilters));
+        timeline.querySelectorAll('.reservation-block:not(.draft-reservation-block)').forEach((block) => {
+            block.addEventListener('mouseenter', (event) => showReservationTooltip(block, event));
+            block.addEventListener('mousemove', moveReservationTooltip);
+            block.addEventListener('mouseleave', () => { reservationTooltip.hidden = true; });
+        });
 
         timeframeSelect?.addEventListener('change', function () {
             const params = new URLSearchParams(window.location.search);
@@ -275,6 +439,8 @@
         datePicker?.addEventListener('change', function () {
             const params = new URLSearchParams(window.location.search);
             params.set('date', this.value);
+            ['search', 'min_seats', 'max_seats', 'building', 'feature'].forEach((key) => params.delete(key));
+            filterParams().forEach((value, key) => params.append(key, value));
             window.location.search = params.toString();
         });
 
@@ -296,8 +462,14 @@
         });
 
         populateBuildings();
+        restoreFilters();
+        preserveFiltersOnDateLinks();
         applyReservationLanguage(reservationLanguage);
         applyFilters();
         updateSummary();
+
+        if (document.querySelector('.page-shell').dataset.flashSuccess === '1') {
+            showToast(reservationTranslations[reservationLanguage].created);
+        }
     </script>
 {% endblock %}

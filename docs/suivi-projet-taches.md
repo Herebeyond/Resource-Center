@@ -241,6 +241,8 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
 - [ ] Ajouter les réservations récurrentes
 - [ ] Ajouter un workflow de validation par un responsable
 - [ ] Ajouter la gestion de plusieurs sites
+- [ ] Définir dans les conditions d'utilisation que le super administrateur peut, selon ses droits, accéder aux informations de toutes les entreprises
+- [ ] Ajouter dans les paramètres de l'entreprise une option activée par défaut permettant à son administrateur d'empêcher l'accès du super administrateur aux informations de cette entreprise
 - [ ] Synchroniser avec Google Calendar ou Outlook
 - [ ] Ajouter des statistiques avancées
 - [ ] Ajouter une application mobile

@@ -274,6 +274,8 @@ Les questions suivantes restent à préciser dans une phase ultérieure du proje
 - règle permettant ou non à un gestionnaire d'agir sur les réservations de ses supérieurs hiérarchiques ;
 - politique de protection des données métier accessible au super administrateur technique ;
 - stratégie de détection de pays précise en cas d’absence de données géolocalisées ou de blocage du navigateur ;
+- mention explicite dans les conditions d'utilisation de l'accès potentiel du super administrateur aux informations des entreprises ;
+- ajout d'un paramètre d'entreprise, activé par défaut, permettant à l'administrateur de l'entreprise d'empêcher le super administrateur d'accéder à ses informations ;
 - synchronisation avec des outils externes ;
 - fonctionnalités futures qui pourront être modifiées ou supprimées.
 

@@ -52,7 +52,7 @@ class ReservationController extends AbstractController
         $timeframe = $request->query->get('timeframe') === 'full' ? 'full' : 'work';
         $hours = range($timeframe === 'full' ? 0 : 6, $timeframe === 'full' ? 23 : 18);
         $resources = $this->getResources((int) $user['company_id'], self::TYPE_MAP[$type]);
-        $selectedResourceId = (int) ($request->query->get('resource') ?: ($resources[0]['id'] ?? 0));
+        $selectedResourceId = (int) $request->query->get('resource', 0);
         $selectedResource = $this->findResource($resources, $selectedResourceId);
         $error = null;
         $warning = null;
@@ -73,7 +73,10 @@ class ReservationController extends AbstractController
                 $error = 'reservation.invalid_form';
             } else {
                 $startAt = $selectedDate . ' ' . $startTime . ':00';
-                $endAt = $selectedDate . ' ' . $endTime . ':00';
+                $endDate = $endTime < $startTime
+                    ? (new \DateTimeImmutable($selectedDate))->modify('+1 day')->format('Y-m-d')
+                    : $selectedDate;
+                $endAt = $endDate . ' ' . $endTime . ':00';
                 $conflict = $this->connection->fetchOne(
                     "SELECT 1
                      FROM reservations r
@@ -113,12 +116,13 @@ class ReservationController extends AbstractController
                         'notes' => $notes ?: null,
                     ]);
 
+                    $this->addFlash('reservation_success', '1');
+
                     return $this->redirectToRoute('app_reservation', [
                         'type' => $type,
                         'date' => $selectedDate,
                         'resource' => $selectedResourceId,
                         'timeframe' => $timeframe,
-                        'created' => 1,
                     ]);
                 }
             }
@@ -137,7 +141,7 @@ class ReservationController extends AbstractController
             'reservations' => $this->getReservations((int) $user['company_id'], self::TYPE_MAP[$type], $selectedDate),
             'error' => $error ? $this->translator->trans($error, [], 'reservation', $request->getLocale()) : null,
             'warning' => $warning ? $this->translator->trans($warning, [], 'reservation', $request->getLocale()) : null,
-            'created' => (bool) $request->query->get('created'),
+            'flash_success' => (bool) $request->getSession()->getFlashBag()->get('reservation_success'),
             'reservation_translations' => $this->getTranslations($type),
         ]);
     }
@@ -174,7 +178,11 @@ class ReservationController extends AbstractController
     private function getReservations(int $companyId, string $type, string $date): array
     {
         return $this->connection->fetchAllAssociative(
-            "SELECT r.id, r.title, r.start_at, r.end_at, r.resource_id, res.name AS resource_name
+                "SELECT r.id, r.title, r.start_at, r.end_at, r.notes, r.resource_id, res.name AS resource_name,
+                    GREATEST(r.start_at, CAST(:date AS date)) AS visual_start_at,
+                    LEAST(r.end_at, CAST(:date AS date) + INTERVAL '1 day' - INTERVAL '1 second') AS visual_end_at,
+                    (r.start_at < CAST(:date AS date)) AS continues_before,
+                    (r.end_at >= CAST(:date AS date) + INTERVAL '1 day') AS continues_after
              FROM reservations r
              JOIN resources res ON res.id = r.resource_id
              JOIN resource_types rt ON rt.id = res.type_id
@@ -235,6 +243,9 @@ class ReservationController extends AbstractController
             'warning' => 'reservation.nearby', 'companyResource' => 'reservation.company_resource',
             'videoTag' => 'reservation.video_tag', 'whiteboardTag' => 'reservation.whiteboard_tag',
             'seats' => 'reservation.seats', 'changeLanguage' => 'account.change_language',
+            'conflict' => 'reservation.conflict', 'nearby' => 'reservation.nearby',
+            'nearbyReverse' => 'reservation.nearby_reverse',
+            'nameRequired' => 'reservation.name_required', 'resourceRequired' => 'reservation.resource_required',
         ];
 
         $translations = [
@@ -283,6 +294,6 @@ class ReservationController extends AbstractController
     {
         return preg_match('/^\d{2}:\d{2}$/', $start) === 1
             && preg_match('/^\d{2}:\d{2}$/', $end) === 1
-            && $end > $start;
+            && $end !== $start;
     }
 }
