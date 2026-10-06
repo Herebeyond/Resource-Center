@@ -4,11 +4,12 @@
 
 {% block body %}
     <div class="page-shell">
+        {% include 'shared/_header.html.twig' %}
         <main class="account-page">
             <section class="account-panel" aria-labelledby="profile-title">
-                <div class="account-label">{{ 'account.user_menu'|trans }}</div>
+                <div id="profileMenuLabel" class="account-label">{{ 'account.user_menu'|trans }}</div>
                 <h1 id="profile-title">{{ current_user.first_name }} {{ current_user.last_name }}</h1>
-                <p class="account-intro">{{ 'account.profile_intro'|trans }}</p>
+                <p id="profileIntro" class="account-intro">{{ 'account.profile_intro'|trans }}</p>
 
                 <div class="profile-summary">
                     <div class="avatar" aria-hidden="true"></div>
@@ -20,11 +21,34 @@
 
                 <form action="{{ path('app_logout') }}" method="post">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
-                    <button class="account-link account-link-button" type="submit">{{ 'account.sign_out_other'|trans }}</button>
+                    <button id="profileSignOut" class="account-link account-link-button" type="submit">{{ 'account.sign_out_other'|trans }}</button>
                 </form>
                 <br>
-                <a class="account-link" href="{{ path('app_home') }}">Back to home</a>
+                <a id="profileBackHome" class="account-link" href="{{ path('app_home') }}">{{ 'account.back_home'|trans }}</a>
             </section>
         </main>
+        {% include 'shared/_footer.html.twig' %}
     </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+    <script>
+        const profileTranslations = {{ profile_translations|json_encode|raw }};
+        const profileLanguageToggle = document.getElementById('langToggle');
+        const initialProfileLanguage = localStorage.getItem('resource-center-lang') || ((navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en');
+        let profileLanguage = initialProfileLanguage;
+
+        function applyProfileLanguage(language) {
+            const strings = profileTranslations[language];
+            document.getElementById('profileMenuLabel').textContent = strings.menu;
+            document.getElementById('profileIntro').textContent = strings.intro;
+            document.getElementById('profileSignOut').textContent = strings.signOut;
+            document.getElementById('profileBackHome').textContent = strings.backHome;
+            profileLanguage = language;
+            localStorage.setItem('resource-center-lang', language);
+        }
+
+        profileLanguageToggle.addEventListener('click', () => {
+            applyProfileLanguage(profileLanguage === 'fr' ? 'en' : 'fr');
+        });
+        applyProfileLanguage(profileLanguage);
+    </script>
 {% endblock %}

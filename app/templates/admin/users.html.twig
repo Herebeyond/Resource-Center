@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.users'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell admin-page">
+        {% include 'shared/_header.html.twig' %}
+        <main class="admin-layout">
+            <header class="admin-heading">
+                <a class="admin-back" href="{{ path('app_admin') }}">{{ 'admin.title'|trans }}</a>
+                <h1><img class="admin-title-icon" src="/assets/icons/User-Geometric-Action--Streamline-Nova.png" alt="" aria-hidden="true">{{ 'admin.user_management'|trans }}</h1>
+            </header>
+
+            {% for message in success %}<p class="admin-message is-success">{{ message|trans }}</p>{% endfor %}
+            {% for message in error %}<p class="admin-message is-error">{{ message|trans }}</p>{% endfor %}
+
+            <section class="admin-table-section">
+                <div class="admin-table-scroll">
+                    <table class="admin-table">
+                        <thead><tr><th>{{ 'account.user_menu'|trans }}</th><th>{{ 'admin.email'|trans }}</th><th>{{ 'admin.role'|trans }}</th><th>{{ 'admin.state'|trans }}</th><th>{{ 'admin.actions'|trans }}</th></tr></thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.first_name }} {{ user.last_name }}</td><td>{{ user.email }}</td>
+                                <td><form class="admin-inline-form" method="post" action="{{ path('app_admin_user_role', {id: user.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_user_role_' ~ user.id) }}">
+                                    <select name="role" aria-label="{{ 'admin.role'|trans }}">
+                                        {% for role in roles %}<option value="{{ role.name }}"{% if role.name in user.role_names|split(',') %} selected{% endif %}>{{ role.description }}</option>{% endfor %}
+                                    </select>
+                                    <button class="admin-text-button" type="submit">{{ 'admin.save_role'|trans }}</button>
+                                </form></td>
+                                <td>{{ user.is_active ? 'admin.active'|trans : 'admin.inactive'|trans }}</td>
+                                <td><form method="post" action="{{ path('app_admin_user_toggle', {id: user.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_user_' ~ user.id) }}">
+                                    <button class="admin-text-button" type="submit">{{ user.is_active ? 'admin.deactivate'|trans : 'admin.activate'|trans }}</button>
+                                </form></td>
+                            </tr>
+                        {% else %}<tr><td colspan="5">—</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+{% endblock %}

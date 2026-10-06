@@ -64,6 +64,12 @@ Les documents principaux à consulter en priorité sont :
 - Vérifier les cas limites : chevauchement de réservation, droits insuffisants, ressources indisponibles, erreurs de validation.
 - Garder les messages utilisateur compréhensibles et correctement accentués.
 
+### Templates et composants réutilisables
+- Factoriser les éléments d'interface communs dans des templates Twig partagés plutôt que de dupliquer leur HTML et leur comportement dans chaque page.
+- Réutiliser notamment l'en-tête, le pied de page, le bouton de retour en haut, les menus, les contrôles de langue et les autres éléments récurrents sur l'ensemble des pages concernées.
+- Lorsqu'un composant partagé est modifié, vérifier qu'il reste cohérent et fonctionnel sur toutes les pages qui l'incluent, y compris pour les traductions et les interactions JavaScript.
+- Pour une nouvelle interface réutilisée à plusieurs endroits, privilégier un partial Twig dans `app/templates/shared/` et lui transmettre explicitement les données propres à la page.
+
 ## À retenir pour les agents
 
 L’objectif principal de ce dépôt est de produire une application de réservation de ressources fiable et utilisable, avec des textes en français correctement accentués et une base de données qui conserve ces caractères sans corruption. Les agents doivent donc traiter les accents comme un élément fonctionnel important, pas comme un détail cosmétique.

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.title'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell admin-page">
+        {% include 'shared/_header.html.twig' %}
+        <main class="admin-layout">
+            <header class="admin-heading">
+                <h1>{{ 'admin.title'|trans }}</h1>
+                <p>{{ 'admin.subtitle'|trans }}</p>
+            </header>
+            <section class="admin-stats" aria-label="Company administration overview">
+                <a class="admin-stat" href="{{ path('app_admin_resources') }}">
+                    <span class="admin-stat-heading"><img src="/assets/icons/Tool-Box--Streamline-Ultimate.svg" alt="" aria-hidden="true">{{ 'admin.active_resources'|trans }}</span><strong>{{ active_resource_count }}</strong>
+                </a>
+                <a class="admin-stat" href="{{ path('app_admin_resources') }}">
+                    <span class="admin-stat-heading"><img src="/assets/icons/Screen-Curved--Streamline-Ultimate.svg" alt="" aria-hidden="true">{{ 'admin.total_resources'|trans }}</span><strong>{{ resource_count }}</strong>
+                </a>
+                <a class="admin-stat" href="{{ path('app_admin_users') }}">
+                    <span class="admin-stat-heading"><img src="/assets/icons/User-Geometric-Action--Streamline-Nova.png" alt="" aria-hidden="true">{{ 'admin.total_users'|trans }}</span><strong>{{ user_count }}</strong>
+                </a>
+                <a class="admin-stat" href="{{ path('app_notifications') }}">
+                    <span class="admin-stat-heading"><img src="/assets/icons/Bell-Notification--Streamline-Nova.png" alt="" aria-hidden="true">{{ 'notifications.title'|trans }}</span><strong>{{ unread_notifications }}</strong>
+                </a>
+            </section>
+            <nav class="admin-links" aria-label="Administration pages">
+                <a href="{{ path('app_admin_resources') }}"><img src="/assets/icons/Tool-Box--Streamline-Ultimate.svg" alt="" aria-hidden="true">{{ 'admin.resources'|trans }} <img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate.svg" aria-hidden="true"></img></a>
+                <a href="{{ path('app_admin_users') }}"><img src="/assets/icons/User-Geometric-Action--Streamline-Nova.png" alt="" aria-hidden="true">{{ 'admin.users'|trans }} <img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate.svg" aria-hidden="true"></img></a>
+            </nav>
+        </main>
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+{% endblock %}

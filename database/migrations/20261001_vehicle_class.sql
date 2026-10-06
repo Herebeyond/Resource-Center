@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE vehicle_details ADD COLUMN IF NOT EXISTS vehicle_class VARCHAR(80);
+
+COMMIT;

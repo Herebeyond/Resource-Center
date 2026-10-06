@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'notifications.title'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell admin-page">
+        {% include 'shared/_header.html.twig' %}
+        <main class="admin-layout">
+            <header class="admin-heading">
+                <h1><img class="admin-title-icon" src="/assets/icons/Drawer-Upload--Streamline-Ultimate.svg" alt="" aria-hidden="true">{{ 'notifications.title'|trans }}</h1>
+                <p>{{ 'notifications.subtitle'|trans }}</p>
+            </header>
+            {% if notifications %}
+                <section class="notification-list" aria-label="{{ 'notifications.title'|trans }}">
+                    {% for notification in notifications %}
+                        <article class="notification-row{% if not notification.is_read %} is-unread{% endif %}">
+                            <div>
+                                <strong>{{ notification.type|replace({'_': ' '})|title }}</strong>
+                                <p>{{ notification.message }}</p>
+                                {% if notification.reservation_title %}<span>{{ 'notifications.reservation'|trans }}: {{ notification.reservation_title }}</span>{% endif %}
+                                <time>{{ notification.sent_at|date('Y-m-d H:i') }}</time>
+                            </div>
+                            {% if not notification.is_read %}
+                                <form method="post" action="{{ path('app_notification_read', {id: notification.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('notification_read_' ~ notification.id) }}">
+                                    <button class="admin-text-button" type="submit">{{ 'notifications.mark_read'|trans }}</button>
+                                </form>
+                            {% else %}<span class="notification-read-state">{{ 'notifications.read'|trans }}</span>{% endif %}
+                        </article>
+                    {% endfor %}
+                </section>
+            {% else %}
+                <p class="admin-empty">{{ 'notifications.empty'|trans }}</p>
+            {% endif %}
+        </main>
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+{% endblock %}

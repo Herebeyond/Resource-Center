@@ -76,7 +76,10 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        return $this->render('account/profile.html.twig', ['current_user' => $user]);
+        return $this->render('account/profile.html.twig', [
+            'current_user' => $user,
+            'profile_translations' => $this->getProfileTranslations(),
+        ]);
     }
 
     #[Route('/deconnexion', name: 'app_logout', methods: ['POST'])]
@@ -99,7 +102,9 @@ class HomeController extends AbstractController
         }
 
         $user = $this->connection->fetchAssociative(
-            'SELECT id, company_id, first_name, last_name, email FROM users WHERE id = :id AND is_active = TRUE',
+            "SELECT u.id, u.company_id, u.first_name, u.last_name, u.email,
+                    EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = u.id AND r.name = 'administrateur') AS is_admin
+             FROM users u WHERE u.id = :id AND u.is_active = TRUE",
             ['id' => $userId]
         );
 
@@ -128,27 +133,23 @@ class HomeController extends AbstractController
 
         $cards = [
             'rooms' => ['total' => 0, 'available' => 0, 'capacity' => 0],
-            'laptops' => ['total' => 0, 'available' => 0, 'capacity' => 0],
             'vehicles' => ['total' => 0, 'available' => 0, 'capacity' => 0],
-            'projectors' => ['total' => 0, 'available' => 0, 'capacity' => 0],
             'equipment' => ['total' => 0, 'available' => 0, 'capacity' => 0],
         ];
         $typeMap = [
             'salle' => 'rooms',
-            'portable' => 'laptops',
             'vehicule' => 'vehicles',
-            'audiovisuel' => 'projectors',
+            'portable' => 'equipment',
+            'audiovisuel' => 'equipment',
             'equipement' => 'equipment',
         ];
 
         foreach ($rows as $row) {
             $card = $typeMap[$row['type_name']] ?? null;
             if ($card) {
-                $cards[$card] = [
-                    'total' => (int) $row['total'],
-                    'available' => (int) $row['available'],
-                    'capacity' => (int) $row['capacity'],
-                ];
+                $cards[$card]['total'] += (int) $row['total'];
+                $cards[$card]['available'] += (int) $row['available'];
+                $cards[$card]['capacity'] += (int) $row['capacity'];
             }
         }
 
@@ -161,16 +162,14 @@ class HomeController extends AbstractController
             'fr' => $this->translateKeys([
                 'brandSubtitle' => 'brand.subtitle', 'navReservations' => 'nav.reservations',
                 'navResources' => 'nav.resources', 'navCalendar' => 'nav.calendar',
-                'navSettings' => 'nav.settings', 'signIn' => 'nav.sign_in',
+                'signIn' => 'nav.sign_in',
                 'signOut' => 'nav.sign_out', 'profile' => 'nav.profile',
                 'heroTitle' => 'hero.title', 'heroCopy' => 'hero.copy',
-                'roomTitle' => 'resource.meeting_rooms', 'laptopTitle' => 'resource.laptops',
-                'vehicleTitle' => 'resource.vehicles', 'projectorTitle' => 'resource.projectors',
+                'roomTitle' => 'resource.rooms',
+                'vehicleTitle' => 'resource.vehicles',
                 'equipmentTitle' => 'resource.equipment', 'spaces' => 'unit.spaces',
-                'seats' => 'unit.seats', 'devices' => 'unit.devices', 'available' => 'unit.available',
-                'vehicles' => 'unit.vehicles', 'units' => 'unit.units', 'items' => 'unit.items',
-                'roomDesc' => 'resource.room_description', 'laptopDesc' => 'resource.laptop_description',
-                'vehicleDesc' => 'resource.vehicle_description', 'projectorDesc' => 'resource.projector_description',
+                'available' => 'unit.available', 'vehicles' => 'unit.vehicles', 'items' => 'unit.items',
+                'roomDesc' => 'resource.room_description', 'vehicleDesc' => 'resource.vehicle_description',
                 'equipmentDesc' => 'resource.equipment_description', 'footerTitle' => 'footer.title',
                 'footerSubtitle' => 'footer.subtitle', 'scrollUp' => 'account.scroll_top',
                 'changeLanguage' => 'account.change_language',
@@ -178,16 +177,14 @@ class HomeController extends AbstractController
             'en' => $this->translateKeys([
                 'brandSubtitle' => 'brand.subtitle', 'navReservations' => 'nav.reservations',
                 'navResources' => 'nav.resources', 'navCalendar' => 'nav.calendar',
-                'navSettings' => 'nav.settings', 'signIn' => 'nav.sign_in',
+                'signIn' => 'nav.sign_in',
                 'signOut' => 'nav.sign_out', 'profile' => 'nav.profile',
                 'heroTitle' => 'hero.title', 'heroCopy' => 'hero.copy',
-                'roomTitle' => 'resource.meeting_rooms', 'laptopTitle' => 'resource.laptops',
-                'vehicleTitle' => 'resource.vehicles', 'projectorTitle' => 'resource.projectors',
+                'roomTitle' => 'resource.rooms',
+                'vehicleTitle' => 'resource.vehicles',
                 'equipmentTitle' => 'resource.equipment', 'spaces' => 'unit.spaces',
-                'seats' => 'unit.seats', 'devices' => 'unit.devices', 'available' => 'unit.available',
-                'vehicles' => 'unit.vehicles', 'units' => 'unit.units', 'items' => 'unit.items',
-                'roomDesc' => 'resource.room_description', 'laptopDesc' => 'resource.laptop_description',
-                'vehicleDesc' => 'resource.vehicle_description', 'projectorDesc' => 'resource.projector_description',
+                'available' => 'unit.available', 'vehicles' => 'unit.vehicles', 'items' => 'unit.items',
+                'roomDesc' => 'resource.room_description', 'vehicleDesc' => 'resource.vehicle_description',
                 'equipmentDesc' => 'resource.equipment_description', 'footerTitle' => 'footer.title',
                 'footerSubtitle' => 'footer.subtitle', 'scrollUp' => 'account.scroll_top',
                 'changeLanguage' => 'account.change_language',
@@ -201,6 +198,18 @@ class HomeController extends AbstractController
             'title' => 'account.sign_in', 'intro' => 'account.intro', 'email' => 'account.email',
             'password' => 'account.password', 'submit' => 'account.sign_in', 'note' => 'account.note',
             'error' => 'account.invalid_credentials', 'toggle' => 'account.change_language',
+        ];
+
+        return ['fr' => $this->translateKeys($keys, 'fr'), 'en' => $this->translateKeys($keys, 'en')];
+    }
+
+    private function getProfileTranslations(): array
+    {
+        $keys = [
+            'menu' => 'account.user_menu',
+            'intro' => 'account.profile_intro',
+            'signOut' => 'account.sign_out_other',
+            'backHome' => 'account.back_home',
         ];
 
         return ['fr' => $this->translateKeys($keys, 'fr'), 'en' => $this->translateKeys($keys, 'en')];

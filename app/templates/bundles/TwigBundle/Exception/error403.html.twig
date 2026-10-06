@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'errors.access_denied_title'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <main class="site-error-page">
+        <section class="site-error-content" aria-labelledby="error-title">
+            <img src="/assets/icons/User-Geometric-Action--Streamline-Nova.png" alt="" aria-hidden="true">
+            <p class="site-error-code">403</p>
+            <h1 id="error-title">{{ 'errors.access_denied_title'|trans }}</h1>
+            <p>{{ 'errors.access_denied_message'|trans }}</p>
+            <a class="site-error-link" href="{{ path('app_home') }}">{{ 'errors.back_home'|trans }}</a>
+        </section>
+    </main>
+{% endblock %}

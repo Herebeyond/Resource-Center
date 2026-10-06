@@ -52,6 +52,7 @@ La première version (MVP) comprendra :
 - la détection des conflits ;
 - les avertissements pour les réservations adjacentes ou très rapprochées ;
 - le calendrier journalier et hebdomadaire ;
+- le suivi opérationnel des véhicules (prise en charge, retour, retard, incident et remplacement) ;
 - l'historique des actions et des réservations.
 
 Les fonctionnalités indiquées comme évolutions futures pourront être modifiées ou supprimées selon le temps disponible et les besoins validés.
@@ -85,6 +86,27 @@ Le système devra permettre :
 - la gestion de son état (disponible, réservé, indisponible, en maintenance) ;
 - la catégorisation par type (salle, véhicule, informatique, audiovisuel, etc.) ;
 - la gestion des informations associées à chaque ressource (code, libellé, localisation, capacité, disponibilité, règles de réservation, etc.).
+
+#### Ressources de type véhicule
+
+Un véhicule physique est une ressource réservable à part entière. Ses informations comprennent notamment la marque, le modèle, la classe de carrosserie, la motorisation, la capacité, l'immatriculation et la localisation de stationnement.
+
+Dans le sélecteur, l'exemplaire est identifié par son lieu de stationnement et son immatriculation. Dans le résumé et les blocs de calendrier, il est identifié par sa marque, son modèle et son immatriculation, et non par son numéro interne de ressource.
+
+Pour faciliter la sélection d'une flotte importante, les véhicules présentant les mêmes caractéristiques de regroupement sont présentés sous une entrée commune. Le système indique la disponibilité agrégée du groupe pour le créneau choisi, puis permet de sélectionner un véhicule physique précis. Les conflits et l'enregistrement de la réservation portent toujours sur l'identifiant de ce véhicule physique, jamais uniquement sur le groupe ou le modèle.
+
+La recherche textuelle retire de la liste les véhicules qui ne correspondent pas à la saisie. Les autres critères (localisation, marque, motorisation, classe et capacité) laissent visibles les véhicules non conformes avec un style atténué, sans les confondre avec une indisponibilité horaire. Les véhicules ne pouvant pas être réservés sur le créneau restent identifiables comme indisponibles et apparaissent après ceux qui sont disponibles. Les disponibilités peuvent être rechargées explicitement et sont recalculées après une réservation.
+
+#### Suivi opérationnel de la flotte
+
+Le suivi de flotte permet, pour une réservation autorisée :
+- d'enregistrer l'heure de prise en charge du véhicule, à partir de 30 minutes avant le début prévu ;
+- d'enregistrer l'heure de retour et de détecter un retour après la fin prévue ;
+- de signaler un incident avec une description obligatoire ; le véhicule concerné passe alors en maintenance et ne peut plus être choisi pour une nouvelle réservation ;
+- de résoudre un incident et de remettre le véhicule en service, action réservée à un gestionnaire de flotte ou à un administrateur ;
+- de remplacer, lorsque c'est nécessaire, le véhicule d'une réservation par un véhicule actif de même marque et modèle, disponible sur l'intégralité du créneau.
+
+Les actions sont réservées au propriétaire de la réservation et aux gestionnaires habilités de son entreprise. La résolution d'incident et le remplacement sont soumis à un contrôle d'autorisation et à une protection CSRF. Les alertes automatiques aux réservataires affectés par un incident ou un retard restent à définir et ne sont pas incluses dans ce périmètre.
 
 ### 5.2 Gestion des utilisateurs et des droits
 Le système devra permettre :
@@ -121,7 +143,8 @@ Le système devra :
 - afficher les créneaux déjà réservés ;
 - indiquer les ressources indisponibles ou en maintenance ;
 - prévenir l’utilisateur si une réservation est impossible en raison d’un conflit ;
-- filtrer les ressources par type, lieu, capacité ou service.
+- filtrer les ressources par type, lieu, capacité ou service ;
+- recalculer les disponibilités après la création d'une réservation et permettre une actualisation explicite de la liste.
 
 ### 5.5 Calendrier
 Le système devra proposer :
@@ -133,6 +156,8 @@ Le système devra proposer :
 - une visualisation claire des créneaux libres et occupés.
 
 L'utilisateur pourra sélectionner directement un créneau libre dans le calendrier horaire.
+
+Le contenu d'un bloc de réservation est limité à la place disponible dans le calendrier. Si nécessaire, le texte visible est tronqué avec une ellipse; le survol du bloc révèle une infobulle contenant le titre, la ressource, les horaires et la description lorsqu'elle existe.
 
 ### 5.6 Internationalisation et langue
 Le site web devra être disponible en français et en anglais.
@@ -171,6 +196,11 @@ Le système devra respecter les règles suivantes :
 - la session doit être renouvelée après une authentification réussie ;
 - une ressource ne peut pas être réservée deux fois sur le même créneau ;
 - une ressource indisponible ou en maintenance ne peut pas être réservée ;
+- une réservation de véhicule porte sur un véhicule physique précis et respecte ses indisponibilités ainsi que les réservations bloquantes ;
+- un véhicule en maintenance ne peut pas être sélectionné pour une nouvelle réservation ;
+- un incident signalé doit être décrit et son véhicule ne peut être remis en service que par un gestionnaire habilité ;
+- un remplacement ne peut utiliser qu'un véhicule de même marque et modèle, actif et disponible sur toute la durée de la réservation concernée ;
+- les prises en charge, retours, retards, signalements et résolutions d'incident sont associés au véhicule et à la réservation concernés ;
 - un utilisateur ne peut effectuer que les actions autorisées par son rôle et ses permissions activées ;
 - un utilisateur ne peut pas réserver tant qu'un administrateur n'a pas activé sa permission de réservation ;
 - une réservation annulée doit rester dans l’historique ;
@@ -204,7 +234,16 @@ Un gestionnaire ou un administrateur d'entreprise modifie les caractéristiques 
 ### Cas d’utilisation 6 : consultation de l’historique
 Un gestionnaire consulte les réservations passées et les actions effectuées sur une ressource.
 
-### Cas d’utilisation 7 : appel API
+### Cas d’utilisation 7 : prise en charge et retour d’un véhicule
+Une personne autorisée enregistre la prise en charge puis le retour du véhicule réservé. Le système conserve les horaires et signale un retour après l'heure de fin prévue.
+
+### Cas d’utilisation 8 : incident sur un véhicule
+Une personne autorisée signale un incident en fournissant une description. Le véhicule passe en maintenance et un gestionnaire habilité peut résoudre l'incident et le remettre en service.
+
+### Cas d’utilisation 9 : remplacement d’un véhicule
+Lorsqu'un véhicule ne peut plus honorer une réservation, une personne autorisée peut choisir un véhicule de même marque et modèle si celui-ci est disponible pendant tout le créneau.
+
+### Cas d’utilisation 10 : appel API
 Une application externe pourra demander les disponibilités d’une ressource sur une période lorsque le périmètre et la sécurité de l’API auront été définis.
 
 ## 8. Exigences fonctionnelles
@@ -299,6 +338,10 @@ Le projet sera considéré comme satisfaisant si :
 - les ressources ne peuvent être réservées en conflit ;
 - les droits d’accès sont correctement appliqués ;
 - le calendrier affiche les disponibilités de façon fiable ;
+- deux réservations conflictuelles d'un même véhicule physique ne peuvent pas être validées ;
+- les prises en charge, retours, retards et incidents sont enregistrés sur le bon véhicule ;
+- un véhicule en maintenance est exclu de la sélection et un remplacement respecte la compatibilité et la disponibilité requises ;
+- les blocs de calendrier ne débordent pas de leur hauteur et leur infobulle restitue les informations complètes ;
 - l’historique est exploitable ;
 - les cas de non-conformité sont clairement signalés à l’utilisateur.
 
@@ -309,10 +352,13 @@ Le projet sera considéré comme satisfaisant si :
 - gestion des disponibilités ;
 - droits d’accès et rôles ;
 - calendrier ;
-- notifications ;
+- suivi opérationnel de la flotte de véhicules ;
 - historique ;
-- API de consultation ;
 - administration des ressources.
+
+### Évolutions futures identifiées
+- notifications (canaux, événements déclencheurs et périmètre à définir) ;
+- API de consultation (endpoints, authentification et périmètre à définir).
 
 ### Exclu
 - gestion comptable complexe ;

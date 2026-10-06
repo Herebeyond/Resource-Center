@@ -159,6 +159,113 @@
     gap: 10px;
 }
 
+.vehicle-selection-views {
+    display: grid;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 7px;
+    background: white;
+}
+
+.vehicle-type-list,
+.vehicle-physical-panel {
+    grid-area: 1 / 1;
+    align-self: start;
+    min-width: 0;
+}
+
+.vehicle-type-list {
+    max-height: min(52vh, 420px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+    scrollbar-gutter: stable;
+}
+
+.vehicle-type-list::-webkit-scrollbar {
+    width: 7px;
+}
+
+.vehicle-type-list::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: #bfc1c5;
+}
+
+.is-entering-from-right {
+    animation: vehicle-list-enter-from-right 220ms ease both;
+}
+
+.is-entering-from-left {
+    animation: vehicle-list-enter-from-left 220ms ease both;
+}
+
+.is-leaving-left,
+.is-leaving-right {
+    pointer-events: none;
+}
+
+.is-leaving-left {
+    animation: vehicle-list-leave-left 220ms ease both;
+}
+
+.is-leaving-right {
+    animation: vehicle-list-leave-right 220ms ease both;
+}
+
+@keyframes vehicle-list-enter-from-right {
+    from { opacity: 0; transform: translateX(18px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes vehicle-list-enter-from-left {
+    from { opacity: 0; transform: translateX(-18px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes vehicle-list-leave-left {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-18px); }
+}
+
+@keyframes vehicle-list-leave-right {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(18px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .is-entering-from-left,
+    .is-entering-from-right,
+    .is-leaving-left,
+    .is-leaving-right {
+        animation-duration: 1ms;
+    }
+}
+
+.vehicle-operations-link {
+    display: inline-flex;
+    margin: 0 0 10px;
+    color: #315f8e;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vehicle-operations-link:hover {
+    text-decoration: underline;
+}
+
+.vehicle-physical-panel {
+    display: grid;
+    gap: 6px;
+}
+
+.vehicle-group-availability {
+    color: #287240;
+    font-size: 0.57rem;
+    font-weight: 700;
+}
+
 .resource-choice {
     display: flex;
     gap: 10px;
@@ -169,6 +276,9 @@
     background: white;
     color: inherit;
     text-decoration: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 .resource-choice.is-selected {
@@ -178,6 +288,79 @@
 
 .resource-choice[hidden] {
     display: none;
+}
+
+.vehicle-physical-panel[hidden],
+.vehicle-type-list[hidden] {
+    display: none;
+}
+
+.vehicle-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #485467;
+    font: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vehicle-back-button span:first-child {
+    font-size: 1rem;
+}
+
+.vehicle-physical-panel h2 {
+    margin: 0 0 10px;
+    font-size: 0.85rem;
+}
+
+.vehicle-list-filter {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 8px;
+    color: #59616d;
+    font-size: 0.62rem;
+    font-weight: 700;
+}
+
+.vehicle-list-filter select {
+    width: 100%;
+    min-width: 0;
+    height: 27px;
+    padding: 3px 6px;
+    border: 1px solid #bfc1c5;
+    border-radius: 5px;
+    background: white;
+    color: #303844;
+    font: inherit;
+}
+
+.vehicle-list-filter select option:disabled {
+    color: #8a919c;
+}
+
+.vehicle-group-choice.is-filtered-out {
+    opacity: 0.52;
+}
+
+.reservation-reload-button {
+    border: 1px solid #bfc1c5;
+    border-radius: 5px;
+    padding: 7px 9px;
+    background: white;
+    color: #303844;
+    font: inherit;
+    font-size: 0.65rem;
+    cursor: pointer;
+}
+
+.reservation-reload-button:hover {
+    background: #f1f1f0;
 }
 
 .resource-thumbnail {
@@ -403,6 +586,25 @@
     display: none;
 }
 
+.reservation-block-content {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-align: center;
+    line-height: 12px;
+}
+
+.reservation-block-content strong,
+.reservation-block-content span {
+    display: block;
+}
+
+.reservation-block-content [hidden] {
+    display: none;
+}
+
 .reservation-block.continues-before {
     border-top: 0;
     border-top-left-radius: 0;
@@ -435,6 +637,7 @@
     box-shadow: 0 8px 20px rgba(35, 42, 86, 0.25);
     pointer-events: none;
     font-size: 0.64rem;
+    overflow-wrap: anywhere;
 }
 
 .reservation-tooltip strong,
@@ -453,6 +656,7 @@
     margin: 7px 0 0;
     color: #ffffff;
     line-height: 1.35;
+    white-space: pre-wrap;
 }
 
 .reservation-summary {

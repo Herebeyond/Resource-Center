@@ -97,34 +97,50 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Ajouter la protection CSRF
   - [x] Régénérer la session après connexion
   - [x] Limiter les statistiques aux ressources de l'entreprise connectée
-  - [ ] Ajouter les rôles
-  - [ ] Protéger les pages privées
-  - [ ] Refuser les actions non autorisées
-  - [ ] Afficher un message en cas d'accès interdit
+  - [x] Ajouter les rôles
+  - [x] Protéger les pages privées
+  - [x] Refuser les actions non autorisées
+  - [x] Afficher un message en cas d'accès interdit
+
+- [x] Créer les pages d'erreur
+  - [x] Créer une page 404 pour les pages ou ressources introuvables
+  - [x] Créer une page « Accès refusé » pour les ressources dont l'existence peut être révélée
+  - [x] Utiliser une réponse 404 à la place d'une réponse 403 pour les pages d'administration cachées
+  - [x] Vérifier que les pages d'erreur ne divulguent aucune donnée ni information technique sensible
 
 - [ ] Développer la gestion des ressources
-  - [ ] Afficher la liste des ressources
-  - [ ] Ajouter une ressource
+  - [x] Afficher la liste des ressources dans l'espace administrateur
+  - [x] Ajouter une ressource
   - [ ] Modifier une ressource
-  - [ ] Désactiver une ressource
-  - [ ] Définir le type et la localisation
-  - [ ] Définir la capacité
+  - [x] Désactiver une ressource
+  - [x] Définir le type et la localisation lors de la création
+  - [x] Définir la capacité lors de la création
   - [ ] Gérer les états disponible, indisponible et maintenance
   - [x] Alimenter les statistiques de la homepage depuis PostgreSQL
   - [x] Afficher le total et la disponibilité des salles depuis PostgreSQL
+
+- [x] Créer l'espace d'administration de l'entreprise
+  - [x] Afficher un tableau de bord réservé aux administrateurs
+  - [x] Afficher la liste des utilisateurs de l'entreprise
+  - [x] Gérer les rôles des utilisateurs de l'entreprise
+  - [x] Activer et désactiver les comptes utilisateurs
+  - [x] Empêcher la désactivation ou la rétrogradation du dernier administrateur
+  - [x] Créer, lister et désactiver les ressources de l'entreprise
+  - [x] Limiter les opérations administrateur à l'entreprise de l'administrateur
 
 - [x] Organiser les styles frontend
   - [x] Extraire les styles inline des templates Twig
   - [x] Créer la feuille `app/public/css/app.css`
 
 - [ ] Développer la consultation des disponibilités
-  - [ ] Sélectionner une date
-  - [ ] Sélectionner une heure de début et de fin
-  - [ ] Filtrer par type de ressource
-  - [ ] Filtrer par capacité ou localisation
-  - [ ] Afficher les créneaux occupés
+  - [x] Sélectionner une date
+  - [x] Sélectionner une heure de début et de fin
+  - [x] Filtrer par type de ressource
+  - [x] Filtrer par capacité ou localisation
+  - [x] Afficher les créneaux occupés
   - [ ] Afficher les ressources indisponibles
   - [ ] Afficher un message lorsqu'aucun résultat n'est trouvé
+  - [x] Filtrer les équipements par marque, catégorie et localisation
 
 - [ ] Développer la création d'une réservation
   - [x] Sélectionner une ressource
@@ -152,34 +168,43 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Actualiser la timeline et le résumé lors du changement de salle
 
 - [ ] Gérer les conflits et les réservations rapprochées
-  - [ ] Détecter les chevauchements de réservation
-  - [ ] Bloquer une réservation qui chevauche une autre
-  - [ ] Afficher un message d'erreur explicite en cas de conflit
-  - [ ] Détecter les réservations directement adjacentes
-  - [ ] Détecter un écart inférieur à cinq minutes
-  - [ ] Afficher un avertissement non bloquant
+  - [x] Détecter les chevauchements de réservation
+  - [x] Bloquer une réservation qui chevauche une autre
+  - [x] Afficher un message d'erreur explicite en cas de conflit
+  - [x] Détecter les réservations directement adjacentes
+  - [x] Détecter un écart inférieur à cinq minutes
+  - [x] Afficher un avertissement non bloquant
   - [ ] Proposer un décalage du créneau
-  - [ ] Permettre de confirmer malgré l'avertissement
+  - [x] Permettre de confirmer malgré l'avertissement
   - [ ] Tester les chevauchements et les créneaux adjacents
 
 - [ ] Gérer la modification et l'annulation
-  - [ ] Afficher les réservations de l'utilisateur
+  - [x] Afficher les réservations de l'utilisateur
   - [ ] Modifier une réservation
   - [ ] Vérifier les conflits après modification
-  - [ ] Annuler une réservation
-  - [ ] Conserver la réservation dans l'historique
-  - [ ] Libérer le créneau après annulation
+  - [x] Annuler une réservation depuis son détail dans le calendrier, après confirmation temporisée de trois secondes
+  - [x] Conserver la réservation annulée dans la base et l'historique d'audit
+  - [x] Libérer le créneau après annulation
 
 - [ ] Développer le calendrier
-  - [ ] Créer une vue journalière
-  - [ ] Créer une vue hebdomadaire
-  - [ ] Afficher les ressources réservées
+  - [x] Créer une vue mensuelle avec navigation entre les mois
+  - [x] Afficher l'agenda du jour sélectionné
+  - [x] Créer une vue hebdomadaire
+  - [x] Afficher les réservations de l'utilisateur connecté et les ressources associées
+  - [x] Afficher le détail d'une réservation sélectionnée
+  - [x] Naviguer entre les jours sans recharger la page
+  - [x] Afficher les chevauchements côte à côte avec une largeur adaptée
+  - [x] Distinguer visuellement salles, véhicules et autres équipements
+  - [x] Permettre l'annulation sécurisée d'une réservation depuis son détail
   - [ ] Afficher les créneaux libres
   - [ ] Filtrer par ressource
-  - [ ] Filtrer par utilisateur
-  - [ ] Adapter l'affichage aux petits écrans
+  - [x] Filtrer les réservations par utilisateur connecté
+  - [x] Adapter l'affichage aux petits écrans
 
 - [ ] Ajouter l'historique et les notifications
+  - [x] Afficher les notifications personnelles
+  - [x] Marquer une notification comme lue
+  - [x] Ajouter la page Notifications à la navigation principale
   - [ ] Afficher l'historique des réservations
   - [ ] Afficher les annulations
   - [ ] Afficher les modifications
@@ -215,7 +240,7 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
   - [x] Vérifier l'audit Composer
 
 - [ ] Préparer la démonstration finale
-  - [ ] Créer les données de démonstration
+  - [x] Créer les données de démonstration, dont de nombreux matériels et des réservations qui se chevauchent
   - [ ] Préparer un scénario utilisateur
   - [ ] Préparer un scénario administrateur
   - [ ] Préparer un scénario de conflit
@@ -248,6 +273,26 @@ Ce fichier centralise les tâches du projet et leur état d'avancement.
 - [ ] Ajouter une application mobile
 - [ ] Ajouter des intégrations externes avancées
 - [ ] Ajouter les notifications SMS
+
+- [ ] Concevoir la gestion avancée des flottes de véhicules
+  - [x] Regrouper dans la première liste les véhicules strictement identiques afin de n'afficher qu'une seule entrée par marque et modèle
+  - [x] Calculer la disponibilité agrégée d'un groupe depuis les créneaux de ses véhicules physiques, sans les afficher dans la première liste
+  - [x] Au clic sur un groupe, afficher ses véhicules physiques et leur disponibilité sur le créneau sélectionné
+  - [x] Trier les véhicules physiques disponibles en premier pour le créneau sélectionné
+  - [x] Conserver le filtre de localisation de la première recherche dans la seconde liste et le reprendre comme valeur initiale
+  - [x] Masquer les véhicules physiques situés hors de la localisation sélectionnée
+  - [x] Afficher les créneaux de réservation et la place de parking du véhicule physique
+  - [x] Vérifier les conflits sur l'identifiant de chaque véhicule physique
+  - [x] Classer les véhicules par carrosserie et générer les options de filtre depuis les classes présentes en base
+  - [x] Ajouter 200 véhicules de démonstration couvrant citadines, SUV, pick-up, camionnettes, autobus, semi-remorques et autres catégories
+  - [x] Fournir une interface web responsive pour signaler la prise en charge et le retour d'un véhicule
+  - [x] Enregistrer et afficher les retards de retour
+  - [x] Déclarer un problème technique avec une description
+  - [x] Retirer des choix de réservation les véhicules en maintenance
+  - [ ] Étudier une application mobile native pour les opérations de flotte
+  - [ ] Alerter toutes les personnes dont une réservation est affectée par l'indisponibilité technique d'un véhicule
+  - [ ] Lorsqu'un véhicule est rendu en retard et qu'une réservation suivante approche, prévenir la personne concernée
+  - [x] Proposer un autre véhicule de même marque et modèle lorsqu'un véhicule compatible est disponible sur le créneau
 
 ---
 

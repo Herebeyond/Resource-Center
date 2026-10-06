@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'fleet.title'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell fleet-page">
+        {% include 'shared/_header.html.twig' %}
+        <main class="fleet-layout">
+            <header class="fleet-heading">
+                <div>
+                    <a class="fleet-back" href="{{ path('app_reservation', {type: 'vehicle'}) }}">{{ 'reservation.select_vehicle'|trans({}, 'reservation') }}</a>
+                    <h1><img src="/assets/icons/Vehicle-Car-Personal-4--Streamline-Nova.png" alt="" aria-hidden="true">{{ 'fleet.title'|trans }}</h1>
+                    <p>{{ 'fleet.subtitle'|trans }}</p>
+                </div>
+            </header>
+
+            {% if reservations %}
+                <section class="fleet-list" aria-label="{{ 'fleet.title'|trans }}">
+                    {% for reservation in reservations %}
+                        {% set hasOpenIssue = reservation.issue_description and not reservation.issue_resolved_at %}
+                        <article class="fleet-reservation{% if hasOpenIssue %} has-issue{% elseif reservation.is_late or reservation.was_late %} has-delay{% endif %}">
+                            <header class="fleet-reservation-heading">
+                                <div>
+                                    <strong>{{ reservation.vehicle_name }}</strong>
+                                    <span>{{ reservation.brand }} {{ reservation.model }} · {{ reservation.license_plate }}</span>
+                                </div>
+                                {% if hasOpenIssue %}
+                                    <span class="fleet-status is-unavailable">{{ 'fleet.issue_open'|trans }}</span>
+                                {% elseif reservation.is_late or reservation.was_late %}
+                                    <span class="fleet-status is-late">{{ 'fleet.overdue'|trans }}</span>
+                                {% else %}
+                                    <span class="fleet-status">{{ reservation.vehicle_state }}</span>
+                                {% endif %}
+                            </header>
+
+                            <dl class="fleet-booking-details">
+                                <dt>{{ 'reservation.date'|trans({}, 'reservation') }}</dt><dd>{{ reservation.start_at|date('Y-m-d') }}</dd>
+                                <dt>{{ 'reservation.time'|trans({}, 'reservation') }}</dt><dd>{{ reservation.start_at|date('H:i') }} – {{ reservation.end_at|date('H:i') }}</dd>
+                                <dt>{{ 'fleet.parking_location'|trans }}</dt><dd>{{ reservation.parking_location|default('—') }}</dd>
+                                <dt>{{ 'reservation.name'|trans({}, 'reservation') }}</dt><dd>{{ reservation.title }}</dd>
+                            </dl>
+
+                            {% if reservation.checked_out_at %}
+                                <p class="fleet-operation-time"><span>{{ 'fleet.pickup_time'|trans }}:</span> {{ reservation.checked_out_at|date('Y-m-d H:i') }}</p>
+                            {% endif %}
+                            {% if reservation.returned_at %}
+                                <p class="fleet-operation-time"><span>{{ 'fleet.return_time'|trans }}:</span> {{ reservation.returned_at|date('Y-m-d H:i') }}</p>
+                            {% endif %}
+                            {% if reservation.issue_description %}<p class="fleet-issue-description">{{ reservation.issue_description }}</p>{% endif %}
+
+                            <div class="fleet-actions">
+                                {% if not reservation.checked_out_at and reservation.can_pickup %}
+                                    <form method="post" action="{{ path('app_vehicle_pickup', {id: reservation.id}) }}">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_use_' ~ reservation.id) }}">
+                                        <button class="account-button" type="submit">{{ 'fleet.pickup'|trans }}</button>
+                                    </form>
+                                {% elseif not reservation.returned_at %}
+                                    <form method="post" action="{{ path('app_vehicle_return', {id: reservation.id}) }}">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_use_' ~ reservation.id) }}">
+                                        <button class="account-button" type="submit">{{ 'fleet.return'|trans }}</button>
+                                    </form>
+                                {% endif %}
+
+                                {% if hasOpenIssue and can_manage_fleet %}
+                                    <form method="post" action="{{ path('app_vehicle_resolve_issue', {id: reservation.vehicle_id}) }}">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_resolve_' ~ reservation.vehicle_id) }}">
+                                        <button class="fleet-secondary-button" type="submit">{{ 'fleet.resolve_issue'|trans }}</button>
+                                    </form>
+                                {% elseif not hasOpenIssue %}
+                                    <form class="fleet-issue-form" method="post" action="{{ path('app_vehicle_issue', {id: reservation.id}) }}">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_issue_' ~ reservation.id) }}">
+                                        <label class="visually-hidden" for="issue-{{ reservation.id }}">{{ 'fleet.issue_placeholder'|trans }}</label>
+                                        <input id="issue-{{ reservation.id }}" name="issue_description" maxlength="2000" placeholder="{{ 'fleet.issue_placeholder'|trans }}" required>
+                                        <button class="fleet-secondary-button" type="submit">{{ 'fleet.report_issue'|trans }}</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                            {% if reservation.needs_replacement %}
+                                <section class="fleet-replacements">
+                                    <h3>{{ 'fleet.affected_reservations'|trans }}</h3>
+                                    {% if reservation.alternatives %}
+                                        {% for alternative in reservation.alternatives %}
+                                            <form method="post" action="{{ path('app_vehicle_replace', {id: reservation.id}) }}">
+                                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_replace_' ~ reservation.id) }}">
+                                                <input type="hidden" name="replacement_id" value="{{ alternative.id }}">
+                                                <span>{{ alternative.name }} · {{ alternative.location|default('—') }}</span>
+                                                <button class="admin-text-button" type="submit">{{ 'fleet.replace'|trans }}</button>
+                                            </form>
+                                        {% endfor %}
+                                    {% else %}<p>{{ 'fleet.no_replacement'|trans }}</p>{% endif %}
+                                </section>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </section>
+            {% else %}
+                <p class="fleet-empty">{{ 'fleet.no_operations'|trans }}</p>
+            {% endif %}
+
+            {% if can_manage_fleet and open_issues %}
+                <section class="fleet-open-issues">
+                    <h2>{{ 'fleet.open_issues'|trans }}</h2>
+                    {% for issue in open_issues %}
+                        <article class="fleet-open-issue">
+                            <div>
+                                <strong>{{ issue.brand }} {{ issue.model }} · {{ issue.license_plate }}</strong>
+                                <span>{{ 'fleet.parking_location'|trans }}: {{ issue.location|default('—') }}</span>
+                                {% if issue.related_reservation %}<span>{{ issue.related_reservation }}</span>{% endif %}
+                                <p>{{ issue.issue_description }}</p>
+                            </div>
+                            <form method="post" action="{{ path('app_vehicle_resolve_issue', {id: issue.id}) }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('vehicle_resolve_' ~ issue.id) }}">
+                                <button class="fleet-secondary-button" type="submit">{{ 'fleet.resolve_issue'|trans }}</button>
+                            </form>
+                        </article>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        </main>
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+{% endblock %}

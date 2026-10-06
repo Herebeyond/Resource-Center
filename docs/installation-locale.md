@@ -15,6 +15,8 @@ Les scripts sont exécutés dans cet ordre lors de la première création du vol
 1. `database/Reservations.sql` : tables, contraintes, index, triggers et données de référence.
 2. `database/Reservations.demo.fixtures.sql` : entreprise, utilisateurs, ressources et réservations de démonstration.
 
+Le schéma de flotte ajoute `vehicle_details.vehicle_class` et `vehicle_usage` pour les classes de véhicules, prises en charge, retours et incidents. Les fixtures appliquent ces ajouts de façon idempotente aux volumes existants. Une migration autonome est également fournie dans `database/migrations/20261001_vehicle_class.sql` et `database/migrations/20261001_vehicle_usage.sql`.
+
 L'application est disponible sur `http://127.0.0.1:8000`.
 
 En développement, le code `app/` est monté dans le conteneur pour refléter les modifications immédiatement. Les dossiers `vendor/` et `var/` utilisent des volumes Docker dédiés afin d'éviter les lenteurs liées à un montage depuis OneDrive. Le projet n'utilise pas de police distante : les ressources de la homepage restent locales.

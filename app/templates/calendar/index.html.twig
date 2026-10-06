@@ -1,0 +1,272 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ translations.en.title }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell calendar-page">
+        {% include 'shared/_header.html.twig' %}
+
+        <main class="calendar-layout">
+            <p class="calendar-cancel-feedback" data-cancel-feedback role="status" hidden></p>
+            <section class="calendar-heading">
+                <div>
+                    <h1 data-calendar-key="title">{{ translations.en.title }}</h1>
+                    <p data-calendar-key="subtitle">{{ translations.en.subtitle }}</p>
+                </div>
+                <a class="calendar-today" href="{{ path('app_calendar') }}" data-calendar-async data-calendar-key="today">{{ translations.en.today }}</a>
+            </section>
+
+            <div class="calendar-columns">
+                <aside class="calendar-mini-panel" aria-label="Calendar day selection">
+                    <div class="calendar-mini-heading">
+                        <a href="{{ path('app_calendar', {date: month|date_modify('-1 month')|date('Y-m-01')}) }}" data-calendar-async aria-label="{{ translations.en.previousMonth }}">‹</a>
+                        <strong data-calendar-month="{{ month|date('Y-m-d') }}"></strong>
+                        <a href="{{ path('app_calendar', {date: month|date_modify('+1 month')|date('Y-m-01')}) }}" data-calendar-async aria-label="{{ translations.en.nextMonth }}">›</a>
+                    </div>
+                    <div class="calendar-mini-weekdays">
+                        {% for weekday in translations.en.weekdays %}<span data-weekday-index="{{ loop.index0 }}">{{ weekday }}</span>{% endfor %}
+                    </div>
+                    <div class="calendar-mini-days">
+                        {% for day in days %}
+                            <a class="calendar-mini-day{% if not day.in_month %} is-outside{% endif %}{% if day.is_today %} is-today{% endif %}{% if day.date == selected_date|date('Y-m-d') %} is-selected{% endif %}{% if day.has_reservations %} has-reservations{% endif %}"
+                               href="{{ path('app_calendar', {date: day.date}) }}"
+                                         data-calendar-async
+                               aria-label="{{ day.date }}{% if day.has_reservations %}, {{ day.reservations|length }} reservations{% endif %}">
+                                <span>{{ day.number }}</span>
+                                {% if day.has_reservations %}<i aria-hidden="true"></i>{% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </aside>
+
+                <section class="calendar-week-panel" aria-label="Weekly reservations schedule">
+                    <div class="calendar-week-scroll">
+                        <div class="calendar-week-grid">
+                            <div class="calendar-time-axis">
+                                <span class="calendar-axis-spacer"></span>
+                                <div class="calendar-axis-hours">
+                                    {% for hour in 0..23 %}<span style="--hour-index: {{ hour }}">{{ '%02d:00'|format(hour) }}</span>{% endfor %}
+                                </div>
+                            </div>
+                            {% for day in week_days %}
+                                <section class="calendar-week-day{% if day.is_weekend %} is-weekend{% endif %}{% if day.is_today %} is-today{% endif %}{% if day.is_selected %} is-selected{% endif %}">
+                                    <a class="calendar-week-day-heading" href="{{ path('app_calendar', {date: day.date}) }}" data-calendar-async>
+                                        <span data-weekday-index="{{ day.weekday_index }}">{{ translations.en.weekdays[day.weekday_index] }}</span>
+                                        <strong>{{ day.number }}</strong>
+                                    </a>
+                                    <div class="calendar-day-timeline">
+                                        {% for event in day.events %}
+                                            {% set eventColor = event.resource_type == 'salle' ? 'is-room' : (event.resource_type == 'vehicule' ? 'is-vehicle' : 'is-object') %}
+                                            <button class="calendar-timeline-event {{ eventColor }} status-{{ event.status }}{% if event.continues_before %} continues-before{% endif %}{% if event.continues_after %} continues-after{% endif %}"
+                                                    type="button"
+                                                    style="--event-top: {{ event.start_minutes }}; --event-duration: {{ event.duration_minutes }}; --event-left: {{ ((event.lane / event.lane_count) * 100)|number_format(3, '.', '') }}%; --event-width: {{ (100 / event.lane_count)|number_format(3, '.', '') }}%;"
+                                                    data-event-title="{{ event.title }}"
+                                                    data-event-resource="{{ event.resource }}"
+                                                    data-event-start="{{ event.start }}"
+                                                    data-event-end="{{ event.end }}"
+                                                    data-event-notes="{{ event.notes|default('') }}"
+                                                    data-event-status="{{ event.status }}"
+                                                    data-event-can-cancel="{{ event.can_cancel ? '1' : '0' }}"
+                                                    data-event-csrf="{{ csrf_token('calendar_cancel_' ~ event.id) }}"
+                                                    data-event-id="{{ event.id }}">
+                                                <strong>{{ event.title }}</strong>
+                                                <span>{{ event.resource }}</span>
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+                                </section>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="calendar-agenda" aria-live="polite">
+                    <h2><span data-calendar-key="selectedDay">{{ translations.en.selectedDay }}</span> <time data-calendar-selected-date="{{ selected_date|date('Y-m-d') }}"></time></h2>
+                    {% if selected_reservations %}
+                        <ul>
+                            {% for reservation in selected_reservations %}
+                                {% set eventColor = reservation.resource_type == 'salle' ? 'is-room' : (reservation.resource_type == 'vehicule' ? 'is-vehicle' : 'is-object') %}
+                                <li class="calendar-event {{ eventColor }}">
+                                    <span class="calendar-event-time">{% if reservation.starts_today %}{{ reservation.start }}{% else %}←{% endif %} – {% if reservation.ends_today %}{{ reservation.end }}{% else %}→{% endif %}</span>
+                                    <button class="calendar-event-select" type="button"
+                                            data-event-title="{{ reservation.title }}"
+                                            data-event-resource="{{ reservation.resource }}"
+                                            data-event-start="{{ reservation.start }}"
+                                            data-event-end="{{ reservation.end }}"
+                                            data-event-notes="{{ reservation.notes|default('') }}"
+                                            data-event-status="{{ reservation.status }}"
+                                            data-event-can-cancel="{{ reservation.can_cancel ? '1' : '0' }}"
+                                            data-event-csrf="{{ csrf_token('calendar_cancel_' ~ reservation.id) }}"
+                                            data-event-id="{{ reservation.id }}">
+                                        <span class="calendar-event-content">
+                                            <strong>{{ reservation.title }}</strong>
+                                            <span>{{ reservation.resource_type }} · {{ reservation.resource }}</span>
+                                            {% if reservation.notes %}<span>{{ reservation.notes }}</span>{% endif %}
+                                        </span>
+                                    </button>
+                                    <span class="calendar-status status-{{ reservation.status }}" data-status-key="{{ reservation.status }}">{{ attribute(translations.en, reservation.status)|default(reservation.status) }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="calendar-empty" data-calendar-key="noReservations">{{ translations.en.noReservations }}</p>
+                    {% endif %}
+                </section>
+            </div>
+        </main>
+
+        <dialog class="calendar-event-dialog" id="calendarEventDialog">
+            <form method="dialog" class="calendar-dialog-close-row">
+                <button class="calendar-dialog-close" data-calendar-key="close" aria-label="{{ translations.en.close }}">{{ translations.en.close }}</button>
+            </form>
+            <h2 data-dialog-title></h2>
+            <dl class="calendar-dialog-details">
+                <dt data-calendar-key="resource">{{ translations.en.resource }}</dt><dd data-dialog-resource></dd>
+                <dt data-calendar-key="time">{{ translations.en.time }}</dt><dd data-dialog-time></dd>
+                <dt data-calendar-key="status">{{ translations.en.status }}</dt><dd data-dialog-status></dd>
+                <dt data-calendar-key="notes">{{ translations.en.notes }}</dt><dd data-dialog-notes></dd>
+            </dl>
+            <p class="calendar-cancel-countdown" data-calendar-key="cancelWait">{{ translations.en.cancelWait }}</p>
+            <button class="calendar-cancel-button" type="button" data-calendar-key="cancel" disabled>{{ translations.en.cancel }}</button>
+        </dialog>
+
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+
+    <script>
+        const calendarTranslations = {{ translations|json_encode|raw }};
+        const calendarLanguageToggle = document.getElementById('langToggle');
+        const calendarDialog = document.getElementById('calendarEventDialog');
+        const cancelButton = calendarDialog.querySelector('.calendar-cancel-button');
+        let selectedEventId = null;
+        let selectedEventToken = null;
+        let cancelCountdown = null;
+        let calendarLanguage = localStorage.getItem('resource-center-lang') || ((navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en');
+
+        function applyCalendarLanguage(language) {
+            const strings = calendarTranslations[language];
+            document.documentElement.lang = language;
+            document.querySelectorAll('[data-calendar-key]').forEach((element) => {
+                element.textContent = strings[element.dataset.calendarKey];
+            });
+            document.querySelectorAll('[data-weekday-index]').forEach((element) => {
+                element.textContent = strings.weekdays[Number(element.dataset.weekdayIndex)];
+            });
+            document.querySelectorAll('[data-status-key]').forEach((element) => {
+                element.textContent = strings[element.dataset.statusKey] || element.dataset.statusKey;
+            });
+            const monthElement = document.querySelector('[data-calendar-month]');
+            const monthDate = new Date(`${monthElement.dataset.calendarMonth}T00:00:00`);
+            monthElement.textContent = new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'long', year: 'numeric' }).format(monthDate);
+            const selectedDateElement = document.querySelector('[data-calendar-selected-date]');
+            const selectedDate = new Date(`${selectedDateElement.dataset.calendarSelectedDate}T00:00:00`);
+            selectedDateElement.textContent = new Intl.DateTimeFormat(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(selectedDate);
+            calendarLanguage = language;
+        }
+
+        calendarLanguageToggle.addEventListener('click', () => {
+            applyCalendarLanguage(calendarLanguage === 'fr' ? 'en' : 'fr');
+        });
+
+        function loadCalendar(url, addHistory = true) {
+            return fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then((response) => {
+                    if (!response.ok) throw new Error('Calendar request failed');
+                    return response.text();
+                })
+                .then((html) => {
+                    const parsed = new DOMParser().parseFromString(html, 'text/html');
+                    const updatedCalendar = parsed.querySelector('.calendar-layout');
+                    const currentCalendar = document.querySelector('.calendar-layout');
+                    if (!updatedCalendar || !currentCalendar) throw new Error('Calendar content missing');
+                    currentCalendar.replaceWith(updatedCalendar);
+                    if (addHistory) history.pushState({}, '', url);
+                    applyCalendarLanguage(calendarLanguage);
+                })
+                .catch(() => { window.location.href = url; });
+        }
+
+        document.addEventListener('click', (event) => {
+            const calendarLink = event.target.closest('a[data-calendar-async]');
+            if (calendarLink) {
+                event.preventDefault();
+                loadCalendar(calendarLink.href);
+                return;
+            }
+
+            const eventDetails = event.target.closest('[data-event-title]');
+            if (eventDetails) openEventDetails(eventDetails.dataset);
+        });
+
+        function openEventDetails(eventData) {
+            clearInterval(cancelCountdown);
+            selectedEventId = eventData.eventId || null;
+            selectedEventToken = eventData.eventCsrf || null;
+            calendarDialog.querySelector('[data-dialog-title]').textContent = eventData.eventTitle;
+            calendarDialog.querySelector('[data-dialog-resource]').textContent = eventData.eventResource;
+            calendarDialog.querySelector('[data-dialog-time]').textContent = `${eventData.eventStart} – ${eventData.eventEnd}`;
+            calendarDialog.querySelector('[data-dialog-status]').textContent = calendarTranslations[calendarLanguage][eventData.eventStatus] || eventData.eventStatus;
+            calendarDialog.querySelector('[data-dialog-notes]').textContent = eventData.eventNotes || '—';
+            const canCancel = eventData.eventCanCancel === '1' && selectedEventId && selectedEventToken;
+            cancelButton.hidden = !canCancel;
+            calendarDialog.querySelector('.calendar-cancel-countdown').hidden = !canCancel;
+            cancelButton.disabled = true;
+            if (canCancel) {
+                const formData = new FormData();
+                formData.set('_csrf_token', selectedEventToken);
+                fetch(`/calendrier/reservations/${selectedEventId}/annulation/demarrer`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                }).then((response) => {
+                    if (!response.ok) throw new Error('Cancellation confirmation failed');
+                    let secondsRemaining = 3;
+                    const countdown = calendarDialog.querySelector('.calendar-cancel-countdown');
+                    countdown.textContent = `${calendarTranslations[calendarLanguage].cancelWait} (${secondsRemaining})`;
+                    cancelCountdown = setInterval(() => {
+                        secondsRemaining -= 1;
+                        if (secondsRemaining <= 0) {
+                            clearInterval(cancelCountdown);
+                            countdown.textContent = calendarTranslations[calendarLanguage].cancel;
+                            cancelButton.disabled = false;
+                        } else {
+                            countdown.textContent = `${calendarTranslations[calendarLanguage].cancelWait} (${secondsRemaining})`;
+                        }
+                    }, 1000);
+                }).catch(() => {
+                    calendarDialog.querySelector('.calendar-cancel-countdown').textContent = calendarTranslations[calendarLanguage].cancelError;
+                    cancelButton.hidden = true;
+                });
+            }
+            calendarDialog.showModal();
+        }
+
+        cancelButton.addEventListener('click', () => {
+            if (cancelButton.disabled || !selectedEventId || !selectedEventToken) return;
+            cancelButton.disabled = true;
+            const formData = new FormData();
+            formData.set('_csrf_token', selectedEventToken);
+            fetch(`/calendrier/reservations/${selectedEventId}/annuler`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            }).then((response) => {
+                if (!response.ok) throw new Error('Cancellation failed');
+                const currentUrl = new URL(window.location.href);
+                calendarDialog.close();
+                loadCalendar(currentUrl.toString(), false).then(() => {
+                    const feedback = document.querySelector('[data-cancel-feedback]');
+                    feedback.textContent = calendarTranslations[calendarLanguage].cancelSuccess;
+                    feedback.hidden = false;
+                });
+            }).catch(() => {
+                cancelButton.disabled = false;
+                calendarDialog.querySelector('.calendar-cancel-countdown').textContent = calendarTranslations[calendarLanguage].cancelError;
+            });
+        });
+
+        window.addEventListener('popstate', () => loadCalendar(window.location.href, false));
+        applyCalendarLanguage(calendarLanguage);
+    </script>
+{% endblock %}

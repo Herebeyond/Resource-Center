@@ -4,42 +4,7 @@
 
 {% block body %}
     <div class="page-shell">
-        <header class="topbar">
-            <div class="brand" aria-label="Resource Center brand">
-                <div class="brand-mark" aria-hidden="true"></div>
-                <div class="brand-text">
-                    <div id="brandName" class="brand-name">Resource Center</div>
-                    <div id="brandSubtitle" class="brand-sub">{{ 'brand.subtitle'|trans }}</div>
-                </div>
-            </div>
-
-            <div class="top-actions">
-                <button id="langToggle" class="lang-switch" aria-label="Switch language">FR</button>
-                <nav class="nav" aria-label="Main navigation">
-                    <div id="navReservations" class="nav-item">{{ 'nav.reservations'|trans }}</div>
-                    <div id="navResources" class="nav-item">{{ 'nav.resources'|trans }}</div>
-                    <div id="navCalendar" class="nav-item">{{ 'nav.calendar'|trans }}</div>
-                    <div id="navSettings" class="nav-item">{{ 'nav.settings'|trans }}</div>
-                </nav>
-                {% if current_user %}
-                <div class="user-pill">
-                    <button id="profileToggle" class="profile-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
-                        <div class="avatar" aria-hidden="true"></div>
-                        <span id="profileName" class="user-name">{{ current_user.first_name }}</span>
-                    </button>
-                    <div id="profileMenu" class="profile-menu" role="menu" hidden>
-                        <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem">{{ 'nav.profile'|trans }}</a>
-                        <form action="{{ path('app_logout') }}" method="post" role="menuitem">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
-                            <button id="logoutLink" type="submit">{{ 'nav.sign_out'|trans }}</button>
-                        </form>
-                    </div>
-                </div>
-                {% else %}
-                    <a class="profile-toggle profile-guest" href="{{ path('app_login') }}" aria-label="{{ 'nav.sign_in'|trans }}">{{ 'nav.sign_in'|trans }}</a>
-                {% endif %}
-            </div>
-        </header>
+        {% include 'shared/_header.html.twig' %}
 
         <main class="main">
             <section class="hero">
@@ -47,20 +12,20 @@
                 <div id="heroCopy" class="hero-copy">{{ 'hero.copy'|trans }}</div>
             </section>
 
-            <section class="cards" aria-label="Resource categories">
+            <section id="resources" class="cards resource-cards" aria-label="Resource categories">
                 <article class="card">
                     <div class="card-top">
                         <div class="card-main">
                             <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Screen-Curved--Streamline-Ultimate.svg" alt=""></div>
                             <div class="text-block">
-                                <div id="roomTitle" class="card-title">Meeting Rooms</div>
+                                <div id="roomTitle" class="card-title">{{ 'resource.rooms'|trans }}</div>
                                 <div class="card-meta">
                                     <span id="roomCount">{{ resource_cards.rooms.total }} {{ 'unit.spaces'|trans }}</span>
                                     <span id="roomAvailability">{{ resource_cards.rooms.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
-                        <a class="card-action" href="{{ path('app_reservation', {type: 'room'}) }}" aria-label="Go to meeting rooms"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'room'}) }}" aria-label="{{ 'resource.rooms'|trans }}"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="roomDesc" class="card-text">{{ 'resource.room_description'|trans }}</div>
                 </article>
@@ -68,33 +33,16 @@
                 <article class="card">
                     <div class="card-top">
                         <div class="card-main">
-                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Laptop--Streamline-Ultimate.svg" alt=""></div>
-                            <div class="text-block">
-                                <div id="laptopTitle" class="card-title">Laptops</div>
-                                <div class="card-meta">
-                                    <span id="laptopCount">{{ resource_cards.laptops.total }} {{ 'unit.devices'|trans }}</span>
-                                    <span id="laptopAvailability">{{ resource_cards.laptops.available }} {{ 'unit.available'|trans }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <a class="card-action" href="{{ path('app_reservation', {type: 'laptop'}) }}" aria-label="Go to laptops"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
-                    </div>
-                    <div id="laptopDesc" class="card-text">{{ 'resource.laptop_description'|trans }}</div>
-                </article>
-
-                <article class="card">
-                    <div class="card-top">
-                        <div class="card-main">
                             <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Vehicle-Car-Personal-4--Streamline-Nova.png" alt=""></div>
                             <div class="text-block">
-                                <div id="vehicleTitle" class="card-title">Vehicles</div>
+                                <div id="vehicleTitle" class="card-title">{{ 'resource.vehicles'|trans }}</div>
                                 <div class="card-meta">
                                     <span id="vehicleCount">{{ resource_cards.vehicles.total }} {{ 'unit.vehicles'|trans }}</span>
                                     <span id="vehicleAvailability">{{ resource_cards.vehicles.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
-                        <a class="card-action" href="{{ path('app_reservation', {type: 'vehicle'}) }}" aria-label="Go to vehicles"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'vehicle'}) }}" aria-label="{{ 'resource.vehicles'|trans }}"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="vehicleDesc" class="card-text">{{ 'resource.vehicle_description'|trans }}</div>
                 </article>
@@ -102,46 +50,25 @@
                 <article class="card">
                     <div class="card-top">
                         <div class="card-main">
-                            <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Video-Camera--Streamline-Nova.png" alt=""></div>
-                            <div class="text-block">
-                                <div id="projectorTitle" class="card-title">Projectors</div>
-                                <div class="card-meta">
-                                    <span id="projectorCount">{{ resource_cards.projectors.total }} {{ 'unit.units'|trans }}</span>
-                                    <span id="projectorAvailability">{{ resource_cards.projectors.available }} {{ 'unit.available'|trans }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <a class="card-action" href="{{ path('app_reservation', {type: 'projector'}) }}" aria-label="Go to projectors"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
-                    </div>
-                    <div id="projectorDesc" class="card-text">{{ 'resource.projector_description'|trans }}</div>
-                </article>
-
-                <article class="card">
-                    <div class="card-top">
-                        <div class="card-main">
                             <div class="resource-icon" aria-hidden="true"><img src="/assets/icons/Tool-Box--Streamline-Ultimate.svg" alt=""></div>
                             <div class="text-block">
-                                <div id="equipmentTitle" class="card-title">Equipment</div>
+                                <div id="equipmentTitle" class="card-title">{{ 'resource.equipment'|trans }}</div>
                                 <div class="card-meta">
                                     <span id="equipmentCount">{{ resource_cards.equipment.total }} {{ 'unit.items'|trans }}</span>
                                     <span id="equipmentAvailability">{{ resource_cards.equipment.available }} {{ 'unit.available'|trans }}</span>
                                 </div>
                             </div>
                         </div>
-                        <a class="card-action" href="{{ path('app_reservation', {type: 'equipment'}) }}" aria-label="Go to equipment"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
+                        <a class="card-action" href="{{ path('app_reservation', {type: 'equipment'}) }}" aria-label="{{ 'resource.equipment'|trans }}"><img src="/assets/icons/Arrow-Button-Right-1--Streamline-Ultimate%20(1).svg" alt=""></a>
                     </div>
                     <div id="equipmentDesc" class="card-text">{{ 'resource.equipment_description'|trans }}</div>
                 </article>
             </section>
 
-            <div class="footer-brand">
-                <div id="footerTitle" class="brand-name">{{ 'footer.title'|trans }}</div>
-                <div id="footerSubtitle" class="brand-sub">{{ 'footer.subtitle'|trans }}</div>
-            </div>
+            {% include 'shared/_footer.html.twig' %}
         </main>
     </div>
-
-    <button id="scrollUp" class="scroll-up" type="button" aria-label="{{ 'account.scroll_top'|trans }}" title="{{ 'account.scroll_top'|trans }}"><img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt=""></button>
+    {% include 'shared/_scroll_to_top.html.twig' %}
 
     <script>
         const resourceStats = {{ resource_cards|json_encode|raw }};
@@ -164,7 +91,6 @@
             document.getElementById('navReservations').textContent = strings.navReservations;
             document.getElementById('navResources').textContent = strings.navResources;
             document.getElementById('navCalendar').textContent = strings.navCalendar;
-            document.getElementById('navSettings').textContent = strings.navSettings;
             const profileLink = document.getElementById('profileLink');
             const logoutLink = document.getElementById('logoutLink');
             if (profileLink) profileLink.textContent = strings.profile;
@@ -177,18 +103,10 @@
             document.getElementById('roomCount').textContent = `${resourceStats.rooms.total} ${strings.spaces}`;
             document.getElementById('roomAvailability').textContent = `${resourceStats.rooms.available} ${strings.available}`;
             document.getElementById('roomDesc').textContent = strings.roomDesc;
-            document.getElementById('laptopTitle').textContent = strings.laptopTitle;
-            document.getElementById('laptopCount').textContent = `${resourceStats.laptops.total} ${strings.devices}`;
-            document.getElementById('laptopAvailability').textContent = `${resourceStats.laptops.available} ${strings.available}`;
-            document.getElementById('laptopDesc').textContent = strings.laptopDesc;
             document.getElementById('vehicleTitle').textContent = strings.vehicleTitle;
             document.getElementById('vehicleCount').textContent = `${resourceStats.vehicles.total} ${strings.vehicles}`;
             document.getElementById('vehicleAvailability').textContent = `${resourceStats.vehicles.available} ${strings.available}`;
             document.getElementById('vehicleDesc').textContent = strings.vehicleDesc;
-            document.getElementById('projectorTitle').textContent = strings.projectorTitle;
-            document.getElementById('projectorCount').textContent = `${resourceStats.projectors.total} ${strings.units}`;
-            document.getElementById('projectorAvailability').textContent = `${resourceStats.projectors.available} ${strings.available}`;
-            document.getElementById('projectorDesc').textContent = strings.projectorDesc;
             document.getElementById('equipmentTitle').textContent = strings.equipmentTitle;
             document.getElementById('equipmentCount').textContent = `${resourceStats.equipment.total} ${strings.items}`;
             document.getElementById('equipmentAvailability').textContent = `${resourceStats.equipment.available} ${strings.available}`;
@@ -205,32 +123,6 @@
         languageToggle.addEventListener('click', function () {
             const nextLang = currentLanguage === 'fr' ? 'en' : 'fr';
             applyLanguage(nextLang);
-        });
-
-        const profileToggle = document.getElementById('profileToggle');
-        const profileMenu = document.getElementById('profileMenu');
-
-        profileToggle?.addEventListener('click', function () {
-            const isOpen = profileToggle.getAttribute('aria-expanded') === 'true';
-            profileToggle.setAttribute('aria-expanded', String(!isOpen));
-            profileMenu.hidden = isOpen;
-        });
-
-        document.addEventListener('click', function (event) {
-            if (profileToggle && profileMenu && !profileToggle.contains(event.target) && !profileMenu.contains(event.target)) {
-                profileToggle.setAttribute('aria-expanded', 'false');
-                profileMenu.hidden = true;
-            }
-        });
-
-        const scrollUp = document.getElementById('scrollUp');
-
-        window.addEventListener('scroll', function () {
-            scrollUp.classList.toggle('is-visible', window.scrollY > 320);
-        }, { passive: true });
-
-        scrollUp.addEventListener('click', function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         applyLanguage(currentLanguage);

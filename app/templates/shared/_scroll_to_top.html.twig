@@ -1,0 +1,23 @@
+<button id="scrollUp" class="scroll-up" type="button"
+        aria-label="{{ 'account.scroll_top'|trans }}"
+        title="{{ 'account.scroll_top'|trans }}"
+        data-scroll-en="{{ 'account.scroll_top'|trans({}, 'messages', 'en') }}"
+        data-scroll-fr="{{ 'account.scroll_top'|trans({}, 'messages', 'fr') }}">
+    <img src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate%20(1).svg" alt="">
+</button>
+<script>
+    const sharedScrollUp = document.getElementById('scrollUp');
+    function updateSharedScrollLabel() {
+        const label = sharedLanguage === 'fr' ? sharedScrollUp.dataset.scrollFr : sharedScrollUp.dataset.scrollEn;
+        sharedScrollUp.setAttribute('aria-label', label);
+        sharedScrollUp.title = label;
+    }
+    function updateSharedScrollButton() {
+        sharedScrollUp.classList.toggle('is-visible', window.scrollY > 320);
+    }
+    sharedLanguageToggle.addEventListener('click', updateSharedScrollLabel);
+    window.addEventListener('scroll', updateSharedScrollButton, { passive: true });
+    sharedScrollUp.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    updateSharedScrollLabel();
+    updateSharedScrollButton();
+</script>

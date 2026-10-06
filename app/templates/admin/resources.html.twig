@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.resources'|trans }} | Resource Center{% endblock %}
+
+{% block body %}
+    <div class="page-shell admin-page">
+        {% include 'shared/_header.html.twig' %}
+        <main class="admin-layout">
+            <header class="admin-heading">
+                <a class="admin-back" href="{{ path('app_admin') }}">{{ 'admin.title'|trans }}</a>
+                <h1><img class="admin-title-icon" src="/assets/icons/Tool-Box--Streamline-Ultimate.svg" alt="" aria-hidden="true">{{ 'admin.resource_management'|trans }}</h1>
+            </header>
+
+            {% for message in success %}<p class="admin-message is-success">{{ message|trans }}</p>{% endfor %}
+            {% if error %}<p class="admin-message is-error">{{ error|trans }}</p>{% endif %}
+
+            <section class="admin-form-section">
+                <h2>{{ 'admin.add_resource'|trans }}</h2>
+                <form class="admin-resource-form" method="post" action="{{ path('app_admin_resources') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_resource_create') }}">
+                    <label>{{ 'admin.resource_name'|trans }}<input name="name" required maxlength="255"></label>
+                    <label>{{ 'admin.resource_code'|trans }}<input name="code" required maxlength="80"></label>
+                    <label>{{ 'admin.resource_type'|trans }}<select name="type_id" required>
+                        {% for type in resource_types %}<option value="{{ type.id }}">{{ type.description }}</option>{% endfor %}
+                    </select></label>
+                    <label>{{ 'admin.location'|trans }}<input name="location" maxlength="255"></label>
+                    <label>{{ 'admin.capacity'|trans }}<input name="capacity" type="number" min="0"></label>
+                    <button class="account-button" type="submit">{{ 'admin.create'|trans }}</button>
+                </form>
+            </section>
+
+            <section class="admin-table-section">
+                <h2>{{ 'admin.resources'|trans }} <span class="admin-count">{{ resources|length }}</span></h2>
+                <div class="admin-table-scroll">
+                    <table class="admin-table">
+                        <thead><tr><th>{{ 'admin.resource_name'|trans }}</th><th>{{ 'admin.resource_code'|trans }}</th><th>{{ 'admin.resource_type'|trans }}</th><th>{{ 'admin.location'|trans }}</th><th>{{ 'admin.capacity'|trans }}</th><th>{{ 'admin.state'|trans }}</th><th>{{ 'admin.actions'|trans }}</th></tr></thead>
+                        <tbody>
+                        {% for resource in resources %}
+                            <tr>
+                                <td>{{ resource.name }}</td><td>{{ resource.code }}</td><td>{{ resource.type_label }}</td>
+                                <td>{{ resource.location|default('—') }}</td><td>{{ resource.capacity|default('—') }}</td>
+                                <td>{{ resource.is_active ? 'admin.active'|trans : 'admin.inactive'|trans }}</td>
+                                <td><form method="post" action="{{ path('app_admin_resource_toggle', {id: resource.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_resource_' ~ resource.id) }}">
+                                    <button class="admin-text-button" type="submit">{{ resource.is_active ? 'admin.deactivate'|trans : 'admin.activate'|trans }}</button>
+                                </form></td>
+                            </tr>
+                        {% else %}<tr><td colspan="7">{{ 'reservation.no_resources'|trans({}, 'reservation') }}</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        {% include 'shared/_footer.html.twig' %}
+    </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
+{% endblock %}
+

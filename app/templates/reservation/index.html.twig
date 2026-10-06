@@ -5,33 +5,13 @@
 {% block body %}
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
     <div class="page-shell reservation-page" data-flash-success="{{ flash_success ? '1' : '0' }}">
-        <header class="topbar">
-            <div class="brand" aria-label="Resource Center brand">
-                <div class="brand-mark" aria-hidden="true"></div>
-                <div class="brand-text">
-                    <div class="brand-name">Resource Center</div>
-                    <div class="brand-sub" data-i18n="brandSubtitle">{{ reservation_translations.en.brandSubtitle }}</div>
-                </div>
-            </div>
-            <div class="top-actions">
-                <button id="reservationLangToggle" class="lang-switch" type="button" aria-label="{{ reservation_translations.en.changeLanguage }}">FR</button>
-                <nav class="nav" aria-label="Main navigation">
-                    <a class="nav-item nav-item-active" data-i18n="navReservations" href="{{ path('app_reservation', {type: 'room'}) }}">{{ reservation_translations.en.navReservations }}</a>
-                    <a class="nav-item" data-i18n="navResources" href="{{ path('app_home') }}">{{ reservation_translations.en.navResources }}</a>
-                    <span class="nav-item" data-i18n="navCalendar">{{ reservation_translations.en.navCalendar }}</span>
-                    <span class="nav-item" data-i18n="navSettings">{{ reservation_translations.en.navSettings }}</span>
-                </nav>
-                <div class="user-pill">
-                    <span class="avatar" aria-hidden="true"></span>
-                    <span class="user-name">{{ current_user.first_name }}</span>
-                </div>
-            </div>
-        </header>
+        {% include 'shared/_header.html.twig' %}
 
         <main class="reservation-layout">
             <aside class="reservation-sidebar">
                 <h1 data-type-label>{{ type_label }}</h1>
                 <p id="reservationHelp" class="reservation-help" data-i18n="chooseResource">{{ reservation_translations.en.chooseResource }}</p>
+                {% if type == 'vehicle' %}<a class="vehicle-operations-link" href="{{ path('app_vehicle_operations') }}">{{ 'fleet.open_operations'|trans }}</a>{% endif %}
                 <label class="reservation-search">
                     <span class="visually-hidden">{{ search_placeholder }}</span>
                     <input type="search" placeholder="{{ search_placeholder }}" data-resource-filter>
@@ -40,53 +20,124 @@
 
                 <fieldset class="search-options">
                     <legend id="searchOptionsLabel" data-i18n="searchOptions">{{ reservation_translations.en.searchOptions }}</legend>
-                    <label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>
-                    <label><input type="checkbox" data-feature="other"> <span data-i18n="other">{{ reservation_translations.en.other }}</span></label>
-                    <label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>
-                    <div class="number-filters">
-                        <label><span data-i18n="minimumSeats">{{ reservation_translations.en.minimumSeats }}</span><input type="number" min="0" data-filter-min></label>
-                        <label><span data-i18n="maximumSeats">{{ reservation_translations.en.maximumSeats }}</span><input type="number" min="0" data-filter-max></label>
-                    </div>
-                    <label><span data-i18n="building">{{ reservation_translations.en.building }}</span><select data-filter-building><option value="" data-i18n="allBuildings">{{ reservation_translations.en.allBuildings }}</option></select></label>
+                    {% if type == 'room' %}
+                        <label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>
+                        <label><input type="checkbox" data-feature="other"> <span data-i18n="other">{{ reservation_translations.en.other }}</span></label>
+                        <label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>
+                    {% endif %}
+                    {% if type == 'vehicle' %}
+                        <div class="number-filters">
+                            <label><span data-i18n="minimumSeats">{{ reservation_translations.en.minimumSeats }}</span><input type="number" min="0" aria-valuemin="1" data-filter-min></label>
+                            <label><span data-i18n="maximumSeats">{{ reservation_translations.en.maximumSeats }}</span><input type="number" min="0" aria-valuemin="1" data-filter-max></label>
+                        </div>
+                        <label><span data-i18n="brand">{{ reservation_translations.en.brand }}</span><select data-filter-brand><option value="" data-i18n="allBrands">{{ reservation_translations.en.allBrands }}</option></select></label>
+                        <label><span data-i18n="fuelType">{{ reservation_translations.en.fuelType }}</span><select data-filter-fuel><option value="" data-i18n="allFuelTypes">{{ reservation_translations.en.allFuelTypes }}</option></select></label>
+                        <label><span data-i18n="vehicleClass">{{ reservation_translations.en.vehicleClass }}</span><select data-filter-vehicle-class><option value="" data-i18n="allVehicleClasses">{{ reservation_translations.en.allVehicleClasses }}</option>{% for vehicleClass in vehicle_classes %}<option value="{{ vehicleClass|lower }}">{{ vehicleClass }}</option>{% endfor %}</select></label>
+                        <label><span data-i18n="location">{{ reservation_translations.en.location }}</span><select data-filter-building data-first-location-filter><option value="" data-i18n="allLocations">{{ reservation_translations.en.allLocations }}</option></select></label>
+                    {% elseif type in ['equipment', 'laptop', 'projector'] %}
+                        <label><span data-i18n="brand">{{ reservation_translations.en.brand }}</span><select data-filter-brand><option value="" data-i18n="allBrands">{{ reservation_translations.en.allBrands }}</option></select></label>
+                        <label><span data-i18n="category">{{ reservation_translations.en.category }}</span><select data-filter-category><option value="" data-i18n="allCategories">{{ reservation_translations.en.allCategories }}</option></select></label>
+                        <label><span data-i18n="location">{{ reservation_translations.en.location }}</span><select data-filter-building><option value="" data-i18n="allLocations">{{ reservation_translations.en.allLocations }}</option></select></label>
+                    {% else %}
+                        <div class="number-filters">
+                            <label><span data-i18n="minimumSeats">{{ reservation_translations.en.minimumSeats }}</span><input type="number" min="0" aria-valuemin="1" data-filter-min></label>
+                            <label><span data-i18n="maximumSeats">{{ reservation_translations.en.maximumSeats }}</span><input type="number" min="0" aria-valuemin="1" data-filter-max></label>
+                        </div>
+                        <label><span data-i18n="building">{{ reservation_translations.en.building }}</span><select data-filter-building><option value="" data-i18n="allBuildings">{{ reservation_translations.en.allBuildings }}</option></select></label>
+                    {% endif %}
                 </fieldset>
 
-                <div class="resource-list" data-resource-list>
-                    {% for resource in resources %}
-                        <a class="resource-choice{% if selected_resource and selected_resource.id == resource.id %} is-selected{% endif %}"
-                           href="{{ path('app_reservation', {type: type, date: selected_date, resource: resource.id}) }}"
-                           data-resource-card
-                           data-reservation-resource-id="{{ resource.id }}"
-                           data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }}"
-                           data-resource-capacity="{{ resource.places }}"
-                           data-resource-building="{{ resource.location|default('')|lower }}"
-                           data-resource-screen="{{ resource.has_screen ? 'true' : 'false' }}"
-                           data-resource-whiteboard="{{ resource.has_whiteboard ? 'true' : 'false' }}">
-                            {% set resourceIcon = {
-                                room: 'Screen-Curved--Streamline-Ultimate.svg',
-                                vehicle: 'Vehicle-Car-Personal-4--Streamline-Nova.png',
-                                laptop: 'Laptop--Streamline-Ultimate.svg',
-                                projector: 'Video-Camera--Streamline-Nova.png',
-                                equipment: 'Tool-Box--Streamline-Ultimate.svg'
-                            }[type] %}
-                            <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
-                            <span class="resource-choice-content">
-                                <strong>{{ resource.name }}</strong>
-                                <small>
-                                    <span data-resource-location>{% if resource.location %}{{ resource.location }}{% else %}<span data-i18n="companyResource">{{ reservation_translations.en.companyResource }}</span>{% endif %}</span>
-                                    · {{ resource.places }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span>
-                                </small>
-                                {% if resource.has_screen or resource.has_whiteboard %}
-                                    <span class="resource-tags">
-                                        {% if resource.has_screen %}<em data-i18n="videoTag">{{ reservation_translations.en.videoTag }}</em>{% endif %}
-                                        {% if resource.has_whiteboard %}<em data-i18n="whiteboardTag">{{ reservation_translations.en.whiteboardTag }}</em>{% endif %}
+                {% set resourceIcons = {
+                    room: 'Screen-Curved--Streamline-Ultimate.svg',
+                    vehicle: 'Vehicle-Car-Personal-4--Streamline-Nova.png',
+                    laptop: 'Laptop--Streamline-Ultimate.svg',
+                    projector: 'Video-Camera--Streamline-Nova.png',
+                    equipment: 'Tool-Box--Streamline-Ultimate.svg'
+                } %}
+                {% set resourceIcon = resourceIcons[type]|default('Tool-Box--Streamline-Ultimate.svg') %}
+                {% if type == 'vehicle' %}
+                    <div class="vehicle-selection-views" data-vehicle-selection-views>
+                        <div class="resource-list vehicle-type-list" data-vehicle-type-list>
+                            {% for group in vehicle_groups %}
+                                <button class="resource-choice vehicle-group-choice" type="button"
+                                        data-vehicle-group-choice
+                                        data-vehicle-group-key="{{ group.key }}"
+                                        data-vehicle-resource-ids="{{ group.resource_ids|join(',') }}"
+                                        data-resource-name="{{ group.name|lower }} {{ group.search_location }}"
+                                        data-resource-capacity="{{ group.capacity }}"
+                                        data-resource-building="{{ group.search_location }}"
+                                        data-resource-brand="{{ group.brand|lower }}"
+                                        data-resource-fuel="{{ group.fuel_type|lower }}"
+                                        data-resource-vehicle-class="{{ group.vehicle_class|lower }}">
+                                    <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
+                                    <span class="resource-choice-content">
+                                        <strong>{{ group.name }}</strong>
+                                        <small>{{ group.count }} <span data-i18n="physicalVehicles">{{ reservation_translations.en.physicalVehicles }}</span> · {{ group.capacity }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span></small>
+                                        <span class="vehicle-group-availability" data-group-availability>{{ group.count }} / {{ group.count }} {{ reservation_translations.en.slotAvailable }}</span>
+                                        <span class="resource-tags"><em>{{ group.vehicle_class }}</em><em>{{ group.fuel_type }}</em></span>
                                     </span>
-                                {% endif %}
-                            </span>
-                        </a>
-                    {% else %}
-                        <p class="empty-state" data-i18n="noResources">{{ reservation_translations.en.noResources }}</p>
-                    {% endfor %}
-                </div>
+                                </button>
+                            {% else %}
+                                <p class="empty-state" data-i18n="noResources">{{ reservation_translations.en.noResources }}</p>
+                            {% endfor %}
+                        </div>
+                        <section class="vehicle-physical-panel" data-vehicle-physical-panel hidden>
+                            <button class="vehicle-back-button" type="button" data-vehicle-back>
+                                <span aria-hidden="true">‹</span><span data-i18n="backToVehicles">{{ reservation_translations.en.backToVehicles }}</span>
+                            </button>
+                            <h2 data-vehicle-group-title></h2>
+                            <label class="vehicle-list-filter"><span data-i18n="resource">{{ reservation_translations.en.resource }}</span>
+                                <select data-vehicle-physical-select>
+                                    <option value="" data-i18n="selectVehicle">{{ reservation_translations.en.selectVehicle }}</option>
+                                    {% for resource in resources %}
+                                        {% set registration = resource.license_plate|default('') %}
+                                        {% set displayedRegistration = registration|slice(0, 6) == 'FLEET-' ? '—' : (registration|default('—')) %}
+                                        <option value="{{ resource.id }}" data-resource-card data-vehicle-physical
+                                                data-vehicle-group-key="{{ resource.vehicle_group_key }}"
+                                                data-reservation-resource-id="{{ resource.id }}"
+                                                data-resource-label="{{ (resource.vehicle_brand|default('') ~ ' ' ~ resource.vehicle_model|default(''))|trim|default(resource.name) }} · {{ displayedRegistration }}"
+                                                data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }} {{ resource.license_plate|default('')|lower }}"
+                                                data-resource-capacity="{{ resource.places }}"
+                                                data-resource-building="{{ resource.location|default('')|lower }}"
+                                                data-resource-brand="{{ resource.vehicle_brand|default('')|lower }}"
+                                                data-resource-fuel="{{ resource.fuel_type|default('')|lower }}"
+                                                data-resource-vehicle-class="{{ resource.vehicle_class|default('')|lower }}"
+                                                data-resource-screen="false" data-resource-whiteboard="false"
+                                                {% if selected_resource and selected_resource.id == resource.id %}selected{% endif %}>{{ resource.location|default('—') }} · {{ displayedRegistration }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                        </section>
+                    </div>
+                {% else %}
+                    <div class="resource-list" data-resource-list>
+                        {% for resource in resources %}
+                            <a class="resource-choice{% if selected_resource and selected_resource.id == resource.id %} is-selected{% endif %}"
+                               href="{{ path('app_reservation', {type: type, date: selected_date, resource: resource.id}) }}"
+                               data-resource-card data-reservation-resource-id="{{ resource.id }}"
+                               data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }} {{ resource.vehicle_brand|default('')|lower }} {{ resource.vehicle_model|default('')|lower }} {{ resource.license_plate|default('')|lower }} {{ resource.equipment_brand|default('')|lower }} {{ resource.equipment_category|default('')|lower }}"
+                               data-resource-capacity="{{ resource.places }}"
+                               data-resource-building="{{ resource.location|default('')|lower }}"
+                               data-resource-brand="{{ (resource.vehicle_brand|default(resource.equipment_brand|default('')))|lower }}"
+                               data-resource-fuel="{{ resource.fuel_type|default('')|lower }}"
+                               data-resource-category="{{ resource.equipment_category|default('')|lower }}"
+                               data-resource-screen="{{ resource.has_screen ? 'true' : 'false' }}"
+                               data-resource-whiteboard="{{ resource.has_whiteboard ? 'true' : 'false' }}">
+                                <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
+                                <span class="resource-choice-content">
+                                    <strong>{{ resource.name }}</strong>
+                                    <small><span data-resource-location>{% if resource.location %}{{ resource.location }}{% else %}<span data-i18n="companyResource">{{ reservation_translations.en.companyResource }}</span>{% endif %}</span>{% if type == 'room' %} · {{ resource.places }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span>{% endif %}</small>
+                                    {% if type in ['equipment', 'laptop', 'projector'] and (resource.equipment_brand or resource.equipment_category) %}
+                                        <span class="resource-tags">{% if resource.equipment_brand %}<em>{{ resource.equipment_brand }}</em>{% endif %}{% if resource.equipment_category %}<em>{{ resource.equipment_category }}</em>{% endif %}</span>
+                                    {% endif %}
+                                    {% if resource.has_screen or resource.has_whiteboard %}
+                                        <span class="resource-tags">{% if resource.has_screen %}<em data-i18n="videoTag">{{ reservation_translations.en.videoTag }}</em>{% endif %}{% if resource.has_whiteboard %}<em data-i18n="whiteboardTag">{{ reservation_translations.en.whiteboardTag }}</em>{% endif %}</span>
+                                    {% endif %}
+                                </span>
+                            </a>
+                        {% else %}<p class="empty-state" data-i18n="noResources">{{ reservation_translations.en.noResources }}</p>{% endfor %}
+                    </div>
+                {% endif %}
             </aside>
 
             <section class="reservation-content">
@@ -108,6 +159,7 @@
                     <div class="date-actions">
                         <a data-date-link data-i18n="today" href="{{ path('app_reservation', {type: type, date: 'now'|date('Y-m-d'), resource: selected_resource ? selected_resource.id : null}) }}">{{ reservation_translations.en.today }}</a>
                         <input type="date" value="{{ selected_date }}" data-date-picker aria-label="{{ reservation_translations.en.selectDateLabel }}">
+                        <button class="reservation-reload-button" type="button" data-reload-availability data-i18n="reloadAvailability">{{ reservation_translations.en.reloadAvailability }}</button>
                     </div>
                 </div>
 
@@ -133,7 +185,7 @@
                         <div class="timeline-row"><time>{{ '%02d:00'|format(hour) }}</time><div></div></div>
                     {% endfor %}
                     {% for reservation in reservations %}
-                        <div class="reservation-block{% if reservation.continues_before %} continues-before{% endif %}{% if reservation.continues_after %} continues-after{% endif %}" data-reservation-resource-id="{{ reservation.resource_id }}" data-start="{{ reservation.start_at|date('H:i') }}" data-end="{{ reservation.end_at|date('H:i') }}" data-title="{{ reservation.title }}" data-resource-name="{{ reservation.resource_name }}" data-description="{{ reservation.notes|default('') }}" style="--reservation-start: {{ reservation.visual_start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.visual_end_at|date('U') - reservation.visual_start_at|date('U')) / 3600) }};">
+                        <div class="reservation-block{% if reservation.continues_before %} continues-before{% endif %}{% if reservation.continues_after %} continues-after{% endif %}" data-reservation-resource-id="{{ reservation.resource_id }}" data-start="{{ reservation.start_at|date('H:i') }}" data-end="{{ reservation.end_at|date('H:i') }}" data-visual-start="{{ reservation.visual_start_at|date('H:i') }}" data-visual-end="{{ reservation.visual_end_at|date('H:i') }}" data-title="{{ reservation.title }}" data-resource-name="{{ reservation.resource_name }}" data-description="{{ reservation.notes|default('') }}" style="--reservation-start: {{ reservation.visual_start_at|date('G') - (hours|first) }}; --reservation-duration: {{ ((reservation.visual_end_at|date('U') - reservation.visual_start_at|date('U')) / 3600) }};">
                             <strong>{{ reservation.title }}</strong>
                             <span>{{ reservation.resource_name }} · {{ reservation.start_at|date('H:i') }} - {{ reservation.end_at|date('H:i') }}</span>
                         </div>
@@ -158,12 +210,16 @@
                 </section>
             </section>
         </main>
+        {% include 'shared/_footer.html.twig' %}
     </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
 
     <script>
         const reservationTranslations = {{ reservation_translations|json_encode|raw }};
-        const reservationLanguageToggle = document.getElementById('reservationLangToggle');
+        const reservationType = {{ type|json_encode|raw }};
+        const reservationLanguageToggle = document.getElementById('langToggle');
         const resourceCards = [...document.querySelectorAll('[data-resource-card]')];
+        const physicalVehicleOptions = [...document.querySelectorAll('[data-vehicle-physical]')];
         const reservationForm = document.getElementById('reservation-form');
         const confirmButton = document.getElementById('confirmReservation');
         const timeline = document.querySelector('.timeline-panel');
@@ -171,21 +227,36 @@
         const minSeats = document.querySelector('[data-filter-min]');
         const maxSeats = document.querySelector('[data-filter-max]');
         const buildingFilter = document.querySelector('[data-filter-building]');
+        const brandFilter = document.querySelector('[data-filter-brand]');
+        const fuelFilter = document.querySelector('[data-filter-fuel]');
+        const vehicleClassFilter = document.querySelector('[data-filter-vehicle-class]');
+        const categoryFilter = document.querySelector('[data-filter-category]');
+        const vehicleTypeList = document.querySelector('[data-vehicle-type-list]');
+        const vehiclePhysicalPanel = document.querySelector('[data-vehicle-physical-panel]');
+        const physicalVehicleSelect = document.querySelector('[data-vehicle-physical-select]');
+        const vehicleGroupTitle = document.querySelector('[data-vehicle-group-title]');
         const datePicker = document.querySelector('[data-date-picker]');
         const selectedDate = document.querySelector('[data-selected-date]');
         const timeframeSelect = document.querySelector('[data-timeframe]');
         const reservationTooltip = document.querySelector('.reservation-tooltip');
+        const reloadAvailabilityButton = document.querySelector('[data-reload-availability]');
         const dateLinks = [...document.querySelectorAll('[data-date-link]')];
         const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
         let reservationLanguage = localStorage.getItem('resource-center-lang') || browserLanguage;
         let confirmedByButton = false;
+        let activeVehicleGroup = '';
+        let activeVehicleResourceIds = new Set();
 
         function filterParams() {
             const params = new URLSearchParams();
             if (filterInput.value.trim()) params.set('search', filterInput.value.trim());
-            if (minSeats.value) params.set('min_seats', minSeats.value);
-            if (maxSeats.value) params.set('max_seats', maxSeats.value);
-            if (buildingFilter.value) params.set('building', buildingFilter.value);
+            if (minSeats?.value) params.set('min_seats', minSeats.value);
+            if (maxSeats?.value) params.set('max_seats', maxSeats.value);
+            if (buildingFilter?.value) params.set('building', buildingFilter.value);
+            if (brandFilter?.value) params.set('brand', brandFilter.value);
+            if (fuelFilter?.value) params.set('fuel', fuelFilter.value);
+            if (vehicleClassFilter?.value) params.set('vehicle_class', vehicleClassFilter.value);
+            if (categoryFilter?.value) params.set('category', categoryFilter.value);
             document.querySelectorAll('[data-feature]:checked').forEach((control) => params.append('feature', control.dataset.feature));
             return params;
         }
@@ -193,9 +264,13 @@
         function restoreFilters() {
             const params = new URLSearchParams(window.location.search);
             filterInput.value = params.get('search') || '';
-            minSeats.value = params.get('min_seats') || '';
-            maxSeats.value = params.get('max_seats') || '';
-            buildingFilter.value = params.get('building') || '';
+            if (minSeats) minSeats.value = params.get('min_seats') || '';
+            if (maxSeats) maxSeats.value = params.get('max_seats') || '';
+            if (buildingFilter) buildingFilter.value = params.get('building') || '';
+            if (brandFilter) brandFilter.value = params.get('brand') || '';
+            if (fuelFilter) fuelFilter.value = params.get('fuel') || '';
+            if (vehicleClassFilter) vehicleClassFilter.value = params.get('vehicle_class') || '';
+            if (categoryFilter) categoryFilter.value = params.get('category') || '';
             const features = params.getAll('feature');
             document.querySelectorAll('[data-feature]').forEach((control) => {
                 control.checked = features.includes(control.dataset.feature);
@@ -224,7 +299,13 @@
             });
             document.querySelector('[data-type-label]').textContent = strings.typeLabel;
             filterInput.placeholder = strings.searchPlaceholder;
-            document.querySelector('[data-filter-building] option').textContent = strings.allBuildings;
+            document.querySelector('[data-filter-building] option').textContent = strings[reservationType === 'vehicle' || ['equipment', 'laptop', 'projector'].includes(reservationType) ? 'allLocations' : 'allBuildings'];
+            const categoryOption = document.querySelector('[data-filter-category] option');
+            if (categoryOption) categoryOption.textContent = strings.allCategories;
+            const vehiclePlaceholder = document.querySelector('[data-vehicle-physical-select] option[value=""]');
+            if (vehiclePlaceholder) vehiclePlaceholder.textContent = strings.selectVehicle;
+            const vehicleClassOption = document.querySelector('[data-filter-vehicle-class] option');
+            if (vehicleClassOption) vehicleClassOption.textContent = strings.allVehicleClasses;
             document.querySelector('[data-date-picker]').setAttribute('aria-label', strings.selectDateLabel);
             document.querySelector('[data-timeframe] option[value="work"]').textContent = strings.workHours;
             document.querySelector('[data-timeframe] option[value="full"]').textContent = strings.fullDay;
@@ -243,6 +324,136 @@
                 option.textContent = building;
                 buildingFilter.appendChild(option);
             });
+            [[brandFilter, 'resourceBrand'], [fuelFilter, 'resourceFuel']].forEach(([select, datasetKey]) => {
+                if (!select) return;
+                [...new Set(resourceCards.map((card) => card.dataset[datasetKey]).filter(Boolean))].forEach((value) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
+            });
+            if (categoryFilter) {
+                [...new Set(resourceCards.map((card) => card.dataset.resourceCategory).filter(Boolean))].forEach((category) => {
+                    const option = document.createElement('option');
+                    option.value = category.toLowerCase();
+                    option.textContent = category;
+                    categoryFilter.appendChild(option);
+                });
+            }
+        }
+
+        function vehicleIntervalIsAvailable(card) {
+            const start = reservationForm.querySelector('[name="start_time"]').value;
+            const end = reservationForm.querySelector('[name="end_time"]').value;
+            if (!start || !end || start === end) return false;
+            const startMinutes = toMinutes(start);
+            const endMinutes = toMinutes(end) < startMinutes ? toMinutes(end) + 1440 : toMinutes(end);
+            return ![...timeline.querySelectorAll('.reservation-block:not(.draft-reservation-block)')]
+                .filter((block) => block.dataset.reservationResourceId === card.dataset.reservationResourceId)
+                .some((block) => {
+                    const bookedStart = toMinutes(block.dataset.visualStart || block.dataset.start);
+                    const bookedEnd = toMinutes(block.dataset.visualEnd || block.dataset.end);
+                    return startMinutes < bookedEnd && endMinutes > bookedStart;
+                });
+        }
+
+        function updateVehicleAvailability() {
+            if (reservationType !== 'vehicle') return;
+            const query = filterInput.value.toLowerCase().trim();
+            const brand = brandFilter?.value.toLowerCase() || '';
+            const fuel = fuelFilter?.value.toLowerCase() || '';
+            const vehicleClass = vehicleClassFilter?.value.toLowerCase() || '';
+            const minimum = Number(minSeats?.value || 0);
+            const maximum = Number(maxSeats?.value || Number.MAX_SAFE_INTEGER);
+            const firstLocation = buildingFilter?.value.toLowerCase() || '';
+            const cards = physicalVehicleOptions;
+
+            cards.forEach((card) => {
+                const available = vehicleIntervalIsAvailable(card);
+                const matchesSearch = query === '' || card.dataset.resourceName.includes(query);
+                const matchesFilters = Number(card.dataset.resourceCapacity || 0) >= minimum
+                    && Number(card.dataset.resourceCapacity || 0) <= maximum
+                    && (!brand || card.dataset.resourceBrand === brand)
+                    && (!fuel || card.dataset.resourceFuel === fuel)
+                    && (!vehicleClass || card.dataset.resourceVehicleClass === vehicleClass)
+                    && (!firstLocation || card.dataset.resourceBuilding === firstLocation);
+                card.dataset.matchesCriteria = matchesSearch && matchesFilters ? '1' : '0';
+                card.hidden = !matchesSearch || Boolean(activeVehicleGroup && !activeVehicleResourceIds.has(card.dataset.reservationResourceId));
+                card.disabled = !matchesFilters || !available;
+                card.dataset.slotAvailable = available ? '1' : '0';
+            });
+
+            [...cards].sort((left, right) => Number(left.disabled) - Number(right.disabled)
+                || left.dataset.resourceName.localeCompare(right.dataset.resourceName))
+                .forEach((option) => physicalVehicleSelect.appendChild(option));
+
+            document.querySelectorAll('[data-vehicle-group-choice]').forEach((groupCard) => {
+                const resourceIds = new Set(groupCard.dataset.vehicleResourceIds.split(',').filter(Boolean));
+                const groupResources = cards.filter((card) => resourceIds.has(card.dataset.reservationResourceId));
+                const matchingSearchResources = groupResources.filter((card) => query === '' || card.dataset.resourceName.includes(query));
+                const matchingResources = matchingSearchResources.filter((card) => !card.disabled);
+                const count = matchingResources.length;
+                const availability = groupCard.querySelector('[data-group-availability]');
+                if (availability) availability.textContent = `${count} / ${groupResources.length} ${reservationTranslations[reservationLanguage].slotAvailable}`;
+                groupCard.dataset.slotAvailable = count > 0 ? '1' : '0';
+                groupCard.hidden = matchingSearchResources.length === 0;
+                groupCard.classList.toggle('is-filtered-out', matchingSearchResources.length > 0 && count === 0);
+            });
+
+            if (vehicleTypeList) {
+                const groups = [...vehicleTypeList.querySelectorAll('[data-vehicle-group-choice]')];
+                groups.sort((left, right) => Number(right.dataset.slotAvailable) - Number(left.dataset.slotAvailable)
+                    || left.dataset.resourceName.localeCompare(right.dataset.resourceName));
+                groups.forEach((group) => vehicleTypeList.appendChild(group));
+            }
+
+        }
+
+        let vehicleListTransitionTimeout;
+
+        function transitionVehicleLists(showPhysicalList) {
+            const incoming = showPhysicalList ? vehiclePhysicalPanel : vehicleTypeList;
+            const outgoing = showPhysicalList ? vehicleTypeList : vehiclePhysicalPanel;
+            const animationClasses = ['is-entering-from-left', 'is-entering-from-right', 'is-leaving-left', 'is-leaving-right'];
+            clearTimeout(vehicleListTransitionTimeout);
+            [vehicleTypeList, vehiclePhysicalPanel].forEach((list) => list.classList.remove(...animationClasses));
+            incoming.hidden = false;
+            incoming.classList.add(showPhysicalList ? 'is-entering-from-right' : 'is-entering-from-left');
+            outgoing.classList.add(showPhysicalList ? 'is-leaving-left' : 'is-leaving-right');
+            vehicleListTransitionTimeout = window.setTimeout(() => {
+                outgoing.hidden = true;
+                [vehicleTypeList, vehiclePhysicalPanel].forEach((list) => list.classList.remove(...animationClasses));
+            }, 240);
+        }
+
+        function openVehicleGroup(groupKey) {
+            const group = [...document.querySelectorAll('[data-vehicle-group-choice]')]
+                .find((candidate) => candidate.dataset.vehicleGroupKey === groupKey);
+            if (!group) return;
+            activeVehicleGroup = groupKey;
+            activeVehicleResourceIds = new Set(group.dataset.vehicleResourceIds.split(',').filter(Boolean));
+            transitionVehicleLists(true);
+            vehicleGroupTitle.textContent = group.querySelector('strong').textContent;
+            if (physicalVehicleSelect) {
+                const selectedVehicleId = reservationForm.querySelector('[name="resource_id"]').value;
+                const selectedVehicle = physicalVehicleOptions.find((option) => activeVehicleResourceIds.has(option.dataset.reservationResourceId)
+                    && option.value === selectedVehicleId);
+                physicalVehicleSelect.value = selectedVehicle ? selectedVehicleId : '';
+                if (!selectedVehicle) reservationForm.querySelector('[name="resource_id"]').value = '';
+            }
+            updateSummary();
+        }
+
+        function returnToVehicleGroups() {
+            activeVehicleGroup = '';
+            activeVehicleResourceIds = new Set();
+            transitionVehicleLists(false);
+            resourceCards.forEach((card) => card.classList.remove('is-selected'));
+            reservationForm.querySelector('[name="resource_id"]').value = '';
+            if (physicalVehicleSelect) physicalVehicleSelect.value = '';
+            updateSummary();
+            applyFilters();
         }
 
         const toastContainer = document.getElementById('toastContainer');
@@ -285,7 +496,7 @@
         }
 
         function showReservationTooltip(block, event) {
-            const description = block.dataset.description.trim();
+            const description = (block.dataset.description || '').trim();
             reservationTooltip.replaceChildren();
             const title = document.createElement('strong');
             title.textContent = block.dataset.title;
@@ -299,6 +510,54 @@
             }
             reservationTooltip.hidden = false;
             moveReservationTooltip(event);
+        }
+
+        const reservationBlockContents = new WeakMap();
+        const reservationBlockObserver = new ResizeObserver((entries) => {
+            entries.forEach(({ target }) => fitReservationBlockText(target));
+        });
+
+        function fitReservationBlockText(block) {
+            if (block.hidden || !block.clientHeight) return;
+            let content = block.querySelector('.reservation-block-content');
+            if (!content) {
+                content = document.createElement('div');
+                content.className = 'reservation-block-content';
+                content.append(...block.childNodes);
+                block.appendChild(content);
+                reservationBlockContents.set(block, [...content.children].map((element) => element.textContent));
+            }
+            const texts = reservationBlockContents.get(block);
+            const elements = [...content.children];
+            const totalLength = texts.reduce((length, text) => length + Array.from(text).length, 0);
+            const render = (length, truncated) => {
+                let remaining = length;
+                let lastVisible = null;
+                elements.forEach((element, index) => {
+                    const characters = Array.from(texts[index]);
+                    const count = Math.min(remaining, characters.length);
+                    element.textContent = characters.slice(0, count).join('');
+                    element.hidden = count === 0;
+                    remaining -= count;
+                    if (count) lastVisible = element;
+                });
+                if (truncated) {
+                    lastVisible ||= elements[0];
+                    lastVisible.hidden = false;
+                    lastVisible.textContent = lastVisible.textContent.trimEnd() + '...';
+                }
+            };
+            render(totalLength, false);
+            if (content.scrollHeight <= content.clientHeight) return;
+            let minimum = 0;
+            let maximum = totalLength;
+            while (minimum < maximum) {
+                const middle = Math.ceil((minimum + maximum) / 2);
+                render(middle, true);
+                if (content.scrollHeight <= content.clientHeight) minimum = middle;
+                else maximum = middle - 1;
+            }
+            render(minimum, true);
         }
 
         function toMinutes(value) {
@@ -321,10 +580,21 @@
         function collectMessages(resourceId, title, start, end) {
             const strings = reservationTranslations[reservationLanguage];
             const messages = [];
+            let vehicleSelectionValid = true;
             if (!resourceId) messages.push({ type: 'error', text: strings.resourceRequired });
             if (!title) messages.push({ type: 'error', text: strings.nameRequired });
+            if (reservationType === 'vehicle' && resourceId) {
+                const selectedVehicle = resourceCards.find((card) => card.dataset.reservationResourceId === resourceId);
+                if (selectedVehicle?.dataset.matchesCriteria !== '1') {
+                    messages.push({ type: 'error', text: strings.criteriaNotMet });
+                    vehicleSelectionValid = false;
+                } else if (selectedVehicle?.dataset.slotAvailable !== '1') {
+                    messages.push({ type: 'error', text: strings.slotUnavailable });
+                    vehicleSelectionValid = false;
+                }
+            }
 
-            if (resourceId && start && end && end !== start) {
+            if (resourceId && start && end && end !== start && vehicleSelectionValid) {
                 const blocks = [...timeline.querySelectorAll('.reservation-block:not(.draft-reservation-block)')]
                     .filter((block) => block.dataset.reservationResourceId === resourceId)
                     .map((block) => ({ start: block.dataset.start, end: block.dataset.end }));
@@ -356,18 +626,47 @@
 
         function applyFilters() {
             const query = filterInput.value.toLowerCase().trim();
-            const minimum = Number(minSeats.value || 0);
-            const maximum = Number(maxSeats.value || Number.MAX_SAFE_INTEGER);
-            const building = buildingFilter.value.toLowerCase();
-            const screenRequired = document.querySelector('[data-feature="screen"]').checked;
-            const whiteboardRequired = document.querySelector('[data-feature="whiteboard"]').checked;
-            const otherRequired = document.querySelector('[data-feature="other"]').checked;
+            const minimum = Number(minSeats?.value || 0);
+            const maximum = Number(maxSeats?.value || Number.MAX_SAFE_INTEGER);
+            const building = buildingFilter?.value.toLowerCase() || '';
+            const brand = brandFilter?.value.toLowerCase() || '';
+            const fuel = fuelFilter?.value.toLowerCase() || '';
+            const vehicleClass = vehicleClassFilter?.value.toLowerCase() || '';
+            const category = categoryFilter?.value.toLowerCase() || '';
+            const screenRequired = document.querySelector('[data-feature="screen"]')?.checked || false;
+            const whiteboardRequired = document.querySelector('[data-feature="whiteboard"]')?.checked || false;
+            const otherRequired = document.querySelector('[data-feature="other"]')?.checked || false;
+
+            if (reservationType === 'vehicle') {
+                if (activeVehicleGroup) {
+                    updateSummary();
+                    return;
+                }
+                document.querySelectorAll('[data-vehicle-group-choice]').forEach((group) => {
+                    const resourceIds = new Set(group.dataset.vehicleResourceIds.split(',').filter(Boolean));
+                    const groupVehicles = resourceCards.filter((card) => resourceIds.has(card.dataset.reservationResourceId));
+                    const matchesSearch = groupVehicles.some((card) => card.dataset.resourceName.includes(query));
+                    const matchesFilters = Number(group.dataset.resourceCapacity || 0) >= minimum
+                        && Number(group.dataset.resourceCapacity || 0) <= maximum
+                        && (building === '' || group.dataset.resourceBuilding.includes(building))
+                        && (brand === '' || group.dataset.resourceBrand === brand)
+                        && (fuel === '' || group.dataset.resourceFuel === fuel)
+                        && (!vehicleClass || group.dataset.resourceVehicleClass === vehicleClass);
+                    group.hidden = !matchesSearch;
+                    group.classList.toggle('is-filtered-out', matchesSearch && !matchesFilters);
+                });
+                updateSummary();
+                return;
+            }
 
             resourceCards.forEach((card) => {
                 const matches = card.dataset.resourceName.includes(query)
                     && Number(card.dataset.resourceCapacity || 0) >= minimum
                     && Number(card.dataset.resourceCapacity || 0) <= maximum
                     && (building === '' || card.dataset.resourceBuilding.includes(building))
+                    && (brand === '' || card.dataset.resourceBrand === brand)
+                    && (fuel === '' || card.dataset.resourceFuel === fuel)
+                    && (category === '' || card.dataset.resourceCategory.toLowerCase() === category)
                     && (!screenRequired || card.dataset.resourceScreen === 'true')
                     && (!whiteboardRequired || card.dataset.resourceWhiteboard === 'true')
                     && (!otherRequired || (card.dataset.resourceScreen === 'false' && card.dataset.resourceWhiteboard === 'false'));
@@ -376,12 +675,14 @@
         }
 
         function updateSummary() {
+            updateVehicleAvailability();
             const title = reservationForm.querySelector('[name="title"]').value.trim();
             const start = reservationForm.querySelector('[name="start_time"]').value;
             const end = reservationForm.querySelector('[name="end_time"]').value;
             const selectedId = reservationForm.querySelector('[name="resource_id"]').value;
+            const selectedVehicle = physicalVehicleSelect?.selectedOptions[0];
             const selectedResource = document.querySelector('.resource-choice.is-selected strong');
-            document.getElementById('summaryResource').textContent = selectedResource?.textContent || reservationTranslations[reservationLanguage].noResource;
+            document.getElementById('summaryResource').textContent = selectedVehicle?.dataset.resourceLabel || selectedResource?.textContent || reservationTranslations[reservationLanguage].noResource;
             document.getElementById('summaryName').textContent = title || '—';
             document.getElementById('summaryDate').textContent = new Date(`${selectedDate.value}T00:00:00`).toLocaleDateString(reservationLanguage === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('summaryTime').textContent = `${start || '--:--'} - ${end || '--:--'}`;
@@ -391,7 +692,12 @@
             const hasError = messages.some((message) => message.type === 'error');
             confirmButton.disabled = hasError || !(selectedId && title && start && end && end !== start);
 
-            timeline.querySelector('.draft-reservation-block')?.remove();
+            const previousDraft = timeline.querySelector('.draft-reservation-block');
+            if (previousDraft) {
+                reservationBlockObserver.unobserve(previousDraft);
+                previousDraft.remove();
+            }
+            reservationTooltip.hidden = true;
             if (start && end && end !== start) {
                 const draft = document.createElement('div');
                 const startHour = Number(start.split(':')[0]) + Number(start.split(':')[1]) / 60;
@@ -404,8 +710,19 @@
                 if ((endHour < startHour ? endHour + 24 : endHour) > lastHour + 1) draft.classList.add('continues-after');
                 draft.style.setProperty('--reservation-start', startHour - firstHour);
                 draft.style.setProperty('--reservation-duration', duration);
-                draft.innerHTML = `<strong>${title || reservationTranslations[reservationLanguage].reservationName}</strong><span>${start} - ${end}</span>`;
+                draft.dataset.title = title || reservationTranslations[reservationLanguage].reservationName;
+                draft.dataset.resourceName = document.getElementById('summaryResource').textContent;
+                draft.dataset.start = start;
+                draft.dataset.end = end;
+                draft.dataset.description = reservationForm.querySelector('[name="notes"]').value;
+                const draftTitle = document.createElement('strong');
+                draftTitle.textContent = draft.dataset.title;
+                const draftTime = document.createElement('span');
+                draftTime.textContent = `${start} - ${end}`;
+                draft.append(draftTitle, draftTime);
                 timeline.appendChild(draft);
+                reservationBlockObserver.observe(draft);
+                fitReservationBlockText(draft);
             }
 
             timeline.querySelectorAll('[data-reservation-resource-id]').forEach((block) => {
@@ -413,21 +730,47 @@
             });
         }
 
-        resourceCards.forEach((card) => card.addEventListener('click', function (event) {
-            event.preventDefault();
-            resourceCards.forEach((item) => item.classList.remove('is-selected'));
-            this.classList.add('is-selected');
-            reservationForm.querySelector('[name="resource_id"]').value = this.dataset.reservationResourceId;
+        document.querySelectorAll('[data-vehicle-group-choice]').forEach((group) => {
+            group.addEventListener('click', () => openVehicleGroup(group.dataset.vehicleGroupKey));
+        });
+        document.querySelector('[data-vehicle-back]')?.addEventListener('click', returnToVehicleGroups);
+
+        physicalVehicleSelect?.addEventListener('change', function () {
+            if (this.selectedOptions[0]?.disabled) return;
+            reservationForm.querySelector('[name="resource_id"]').value = this.value;
             updateSummary();
-        }));
+        });
 
         filterInput?.addEventListener('input', applyFilters);
-        [minSeats, maxSeats, buildingFilter].forEach((control) => control?.addEventListener('input', applyFilters));
+        [buildingFilter, brandFilter, fuelFilter, categoryFilter, vehicleClassFilter].forEach((control) => control?.addEventListener('input', applyFilters));
+        [buildingFilter, brandFilter, fuelFilter, categoryFilter, vehicleClassFilter].forEach((control) => control?.addEventListener('change', applyFilters));
+        [minSeats, maxSeats].filter(Boolean).forEach((control) => {
+            control.addEventListener('input', () => {
+                if (Number(control.value) <= 0) control.value = '';
+                applyFilters();
+            });
+            control.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowDown' && control.value === '1') {
+                    event.preventDefault();
+                    control.value = '';
+                    applyFilters();
+                }
+            });
+        });
         document.querySelectorAll('[data-feature]').forEach((control) => control.addEventListener('change', applyFilters));
         timeline.querySelectorAll('.reservation-block:not(.draft-reservation-block)').forEach((block) => {
-            block.addEventListener('mouseenter', (event) => showReservationTooltip(block, event));
-            block.addEventListener('mousemove', moveReservationTooltip);
-            block.addEventListener('mouseleave', () => { reservationTooltip.hidden = true; });
+            reservationBlockObserver.observe(block);
+        });
+        timeline.addEventListener('mouseover', (event) => {
+            const block = event.target.closest('.reservation-block');
+            if (block && !block.contains(event.relatedTarget)) showReservationTooltip(block, event);
+        });
+        timeline.addEventListener('mousemove', (event) => {
+            if (!reservationTooltip.hidden) moveReservationTooltip(event);
+        });
+        timeline.addEventListener('mouseout', (event) => {
+            const block = event.target.closest('.reservation-block');
+            if (block && !block.contains(event.relatedTarget)) reservationTooltip.hidden = true;
         });
 
         timeframeSelect?.addEventListener('change', function () {
@@ -439,9 +782,19 @@
         datePicker?.addEventListener('change', function () {
             const params = new URLSearchParams(window.location.search);
             params.set('date', this.value);
-            ['search', 'min_seats', 'max_seats', 'building', 'feature'].forEach((key) => params.delete(key));
+            ['search', 'min_seats', 'max_seats', 'building', 'brand', 'fuel', 'category', 'vehicle_class', 'feature'].forEach((key) => params.delete(key));
             filterParams().forEach((value, key) => params.append(key, value));
             window.location.search = params.toString();
+        });
+
+        reloadAvailabilityButton?.addEventListener('click', function () {
+            const url = new URL(window.location.href);
+            ['search', 'min_seats', 'max_seats', 'building', 'brand', 'fuel', 'category', 'vehicle_class', 'feature', 'resource', 'date', 'timeframe'].forEach((key) => url.searchParams.delete(key));
+            filterParams().forEach((value, key) => url.searchParams.append(key, value));
+            if (reservationForm.querySelector('[name="resource_id"]').value) url.searchParams.set('resource', reservationForm.querySelector('[name="resource_id"]').value);
+            if (selectedDate.value) url.searchParams.set('date', selectedDate.value);
+            if (timeframeSelect?.value) url.searchParams.set('timeframe', timeframeSelect.value);
+            window.location.assign(url.toString());
         });
 
         reservationForm?.addEventListener('input', updateSummary);
@@ -463,6 +816,13 @@
 
         populateBuildings();
         restoreFilters();
+        if (reservationType === 'vehicle') {
+            const initiallySelectedVehicle = resourceCards.find((card) => card.dataset.reservationResourceId === reservationForm.querySelector('[name="resource_id"]').value);
+            const initiallySelectedGroup = initiallySelectedVehicle
+                ? [...document.querySelectorAll('[data-vehicle-group-choice]')].find((group) => group.dataset.vehicleResourceIds.split(',').includes(initiallySelectedVehicle.dataset.reservationResourceId))
+                : null;
+            if (initiallySelectedGroup) openVehicleGroup(initiallySelectedGroup.dataset.vehicleGroupKey);
+        }
         preserveFiltersOnDateLinks();
         applyReservationLanguage(reservationLanguage);
         applyFilters();

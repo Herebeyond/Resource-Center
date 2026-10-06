@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\ResourceTypeCatalog;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,26 +14,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ReservationController extends AbstractController
 {
-    private const TYPE_MAP = [
-        'room' => 'salle',
-        'vehicle' => 'vehicule',
-        'laptop' => 'portable',
-        'projector' => 'audiovisuel',
-        'equipment' => 'equipement',
-    ];
-
-    private const LABELS = [
-        'room' => ['title' => 'Select Room', 'search' => 'Search a room here'],
-        'vehicle' => ['title' => 'Select Vehicle', 'search' => 'Search a vehicle here'],
-        'laptop' => ['title' => 'Select Laptop', 'search' => 'Search a laptop here'],
-        'projector' => ['title' => 'Select Projector', 'search' => 'Search a projector here'],
-        'equipment' => ['title' => 'Select Equipment', 'search' => 'Search equipment here'],
-    ];
-
     public function __construct(
         private readonly Connection $connection,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly TranslatorInterface $translator,
+        private readonly ResourceTypeCatalog $resourceTypeCatalog,
     ) {
     }
 
@@ -44,14 +30,19 @@ class ReservationController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        if (!isset(self::TYPE_MAP[$type])) {
+        $resourceTypeName = $this->resourceTypeCatalog->resolveName($type);
+        if ($resourceTypeName === null) {
             throw $this->createNotFoundException();
         }
+        $resourceTypeNames = $type === 'equipment'
+            ? ['equipement', 'portable', 'audiovisuel']
+            : [$resourceTypeName];
 
         $selectedDate = $this->normalizeDate($request->query->get('date'));
         $timeframe = $request->query->get('timeframe') === 'full' ? 'full' : 'work';
         $hours = range($timeframe === 'full' ? 0 : 6, $timeframe === 'full' ? 23 : 18);
-        $resources = $this->getResources((int) $user['company_id'], self::TYPE_MAP[$type]);
+        $resources = $this->getResources((int) $user['company_id'], $resourceTypeNames);
+        $vehicleGroups = $type === 'vehicle' ? $this->groupVehicles($resources) : [];
         $selectedResourceId = (int) $request->query->get('resource', 0);
         $selectedResource = $this->findResource($resources, $selectedResourceId);
         $error = null;
@@ -134,11 +125,23 @@ class ReservationController extends AbstractController
             'type_label' => $this->translator->trans($this->typeLabelKey($type), [], 'reservation', $request->getLocale()),
             'search_placeholder' => $this->translator->trans($this->searchKey($type), [], 'reservation', $request->getLocale()),
             'resources' => $resources,
+            'vehicle_groups' => $vehicleGroups,
+            'vehicle_classes' => $type === 'vehicle'
+                ? $this->connection->fetchFirstColumn(
+                    "SELECT DISTINCT vd.vehicle_class
+                     FROM vehicle_details vd
+                     JOIN resources r ON r.id = vd.resource_id
+                     JOIN resource_types rt ON rt.id = r.type_id AND rt.name = 'vehicule'
+                     WHERE r.company_id = :company AND vd.vehicle_class IS NOT NULL
+                     ORDER BY vd.vehicle_class",
+                    ['company' => $user['company_id']]
+                )
+                : [],
             'selected_resource' => $selectedResource,
             'selected_date' => $selectedDate,
             'timeframe' => $timeframe,
             'hours' => $hours,
-            'reservations' => $this->getReservations((int) $user['company_id'], self::TYPE_MAP[$type], $selectedDate),
+            'reservations' => $this->getReservations((int) $user['company_id'], $resourceTypeNames, $selectedDate),
             'error' => $error ? $this->translator->trans($error, [], 'reservation', $request->getLocale()) : null,
             'warning' => $warning ? $this->translator->trans($warning, [], 'reservation', $request->getLocale()) : null,
             'flash_success' => (bool) $request->getSession()->getFlashBag()->get('reservation_success'),
@@ -154,31 +157,43 @@ class ReservationController extends AbstractController
         }
 
         return $this->connection->fetchAssociative(
-            'SELECT id, company_id, first_name, last_name, email FROM users WHERE id = :id AND is_active = TRUE',
+            "SELECT u.id, u.company_id, u.first_name, u.last_name, u.email,
+                    EXISTS (SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = u.id AND r.name = 'administrateur') AS is_admin
+             FROM users u WHERE u.id = :id AND u.is_active = TRUE",
             ['id' => $userId]
         ) ?: null;
     }
 
-    private function getResources(int $companyId, string $type): array
+    private function getResources(int $companyId, array $types): array
     {
+        [$typePlaceholders, $typeParameters] = $this->typeQueryParameters($types, 'resource_type');
         return $this->connection->fetchAllAssociative(
             "SELECT r.id, r.name, r.code, r.location, r.capacity, rs.label AS state,
                     COALESCE(rd.available_places, r.capacity, 0) AS places,
-                    rd.has_screen, rd.has_whiteboard
+                    rd.has_screen, rd.has_whiteboard,
+                    vd.license_plate, vd.brand AS vehicle_brand, vd.model AS vehicle_model, vd.fuel_type, vd.vehicle_class,
+                    ed.brand AS equipment_brand, ed.category AS equipment_category
              FROM resources r
              JOIN resource_types rt ON rt.id = r.type_id
              JOIN resource_states rs ON rs.id = r.state_id
              LEFT JOIN room_details rd ON rd.resource_id = r.id
-             WHERE r.company_id = :company_id AND r.is_active = TRUE AND rt.name = :type
+             LEFT JOIN vehicle_details vd ON vd.resource_id = r.id
+             LEFT JOIN equipment_details ed ON ed.resource_id = r.id
+                         WHERE r.company_id = :company_id AND r.is_active = TRUE AND rs.label = 'disponible'
+                             AND rt.name IN ($typePlaceholders)
              ORDER BY r.name",
-            ['company_id' => $companyId, 'type' => $type]
+            ['company_id' => $companyId] + $typeParameters
         );
     }
 
-    private function getReservations(int $companyId, string $type, string $date): array
+    private function getReservations(int $companyId, array $types, string $date): array
     {
+        [$typePlaceholders, $typeParameters] = $this->typeQueryParameters($types, 'reservation_type');
         return $this->connection->fetchAllAssociative(
-                "SELECT r.id, r.title, r.start_at, r.end_at, r.notes, r.resource_id, res.name AS resource_name,
+                "SELECT r.id, r.title, r.start_at, r.end_at, r.notes, r.resource_id,
+                    CASE WHEN rt.name = 'vehicule' THEN CONCAT_WS(' · ',
+                        COALESCE(NULLIF(TRIM(CONCAT_WS(' ', vd.brand, vd.model)), ''), res.name),
+                        NULLIF(vd.license_plate, '')) ELSE res.name END AS resource_name,
                     GREATEST(r.start_at, CAST(:date AS date)) AS visual_start_at,
                     LEAST(r.end_at, CAST(:date AS date) + INTERVAL '1 day' - INTERVAL '1 second') AS visual_end_at,
                     (r.start_at < CAST(:date AS date)) AS continues_before,
@@ -186,14 +201,75 @@ class ReservationController extends AbstractController
              FROM reservations r
              JOIN resources res ON res.id = r.resource_id
              JOIN resource_types rt ON rt.id = res.type_id
+             LEFT JOIN vehicle_details vd ON vd.resource_id = res.id
              JOIN reservation_status rs ON rs.id = r.status_id
-             WHERE r.company_id = :company_id AND rt.name = :type
+             WHERE r.company_id = :company_id AND rt.name IN ($typePlaceholders)
                AND rs.is_blocking = TRUE
                AND r.start_at < CAST(:date AS date) + INTERVAL '1 day'
                AND r.end_at > CAST(:date AS date)
              ORDER BY r.start_at",
-            ['company_id' => $companyId, 'type' => $type, 'date' => $date]
+            ['company_id' => $companyId, 'date' => $date] + $typeParameters
         );
+    }
+
+    private function groupVehicles(array &$resources): array
+    {
+        $groups = [];
+        foreach ($resources as &$resource) {
+            $brand = trim((string) ($resource['vehicle_brand'] ?? ''));
+            $model = trim((string) ($resource['vehicle_model'] ?? ''));
+            $vehicleClass = trim((string) ($resource['vehicle_class'] ?? ''));
+            $fuelType = trim((string) ($resource['fuel_type'] ?? ''));
+            $capacity = (int) $resource['places'];
+            $groupKey = $brand !== '' && $model !== ''
+                ? hash('sha256', mb_strtolower($vehicleClass . '|' . $brand . '|' . $model . '|' . $fuelType . '|' . $capacity))
+                : 'resource-' . $resource['id'];
+            $resource['vehicle_group_key'] = $groupKey;
+
+            if (!isset($groups[$groupKey])) {
+                $groups[$groupKey] = [
+                    'key' => $groupKey,
+                    'brand' => $brand,
+                    'model' => $model,
+                    'vehicle_class' => $vehicleClass,
+                    'name' => trim($brand . ' ' . $model) ?: $resource['name'],
+                    'capacity' => $capacity,
+                    'fuel_type' => $fuelType,
+                    'locations' => [],
+                    'resource_ids' => [],
+                    'resources' => [],
+                ];
+            }
+
+            $groups[$groupKey]['resources'][] = $resource;
+            $groups[$groupKey]['resource_ids'][] = (string) $resource['id'];
+            if ($resource['location']) {
+                $groups[$groupKey]['locations'][$resource['location']] = $resource['location'];
+            }
+        }
+        unset($resource);
+
+        foreach ($groups as &$group) {
+            $group['count'] = count($group['resources']);
+            $group['locations'] = array_values($group['locations']);
+            $group['search_location'] = mb_strtolower(implode(' ', $group['locations']));
+        }
+        unset($group);
+
+        return array_values($groups);
+    }
+
+    private function typeQueryParameters(array $types, string $prefix): array
+    {
+        $placeholders = [];
+        $parameters = [];
+        foreach (array_values($types) as $index => $type) {
+            $name = $prefix . $index;
+            $placeholders[] = ':' . $name;
+            $parameters[$name] = $type;
+        }
+
+        return [implode(', ', $placeholders), $parameters];
     }
 
     private function typeLabelKey(string $type): string
@@ -203,7 +279,8 @@ class ReservationController extends AbstractController
             'vehicle' => 'reservation.select_vehicle',
             'laptop' => 'reservation.select_laptop',
             'projector' => 'reservation.select_projector',
-            default => 'reservation.select_equipment',
+            'equipment' => 'reservation.select_equipment',
+            default => 'reservation.select_resource',
         };
     }
 
@@ -214,7 +291,8 @@ class ReservationController extends AbstractController
             'vehicle' => 'reservation.search_vehicle',
             'laptop' => 'reservation.search_laptop',
             'projector' => 'reservation.search_projector',
-            default => 'reservation.search_equipment',
+            'equipment' => 'reservation.search_equipment',
+            default => 'reservation.search_resource',
         };
     }
 
@@ -228,7 +306,17 @@ class ReservationController extends AbstractController
             'videoConferencing' => 'reservation.video_conferencing', 'other' => 'reservation.other',
             'whiteboard' => 'reservation.whiteboard', 'minimumSeats' => 'reservation.minimum_seats',
             'maximumSeats' => 'reservation.maximum_seats', 'building' => 'reservation.building',
-            'allBuildings' => 'reservation.all_buildings', 'selectDate' => 'reservation.select_date',
+            'allBuildings' => 'reservation.all_buildings', 'brand' => 'reservation.brand',
+            'allBrands' => 'reservation.all_brands', 'fuelType' => 'reservation.fuel_type',
+            'allFuelTypes' => 'reservation.all_fuel_types', 'vehicleClass' => 'reservation.vehicle_class',
+            'allVehicleClasses' => 'reservation.all_vehicle_classes', 'location' => 'reservation.location',
+            'allLocations' => 'reservation.all_locations', 'category' => 'reservation.category',
+            'allCategories' => 'reservation.all_categories', 'physicalVehicles' => 'reservation.physical_vehicles',
+            'backToVehicles' => 'reservation.back_to_vehicles', 'sortVehicles' => 'reservation.sort_vehicles',
+            'sortAvailability' => 'reservation.sort_availability', 'sortName' => 'reservation.sort_name',
+            'parkingLocation' => 'reservation.parking_location', 'slotAvailable' => 'reservation.slot_available',
+            'slotUnavailable' => 'reservation.slot_unavailable', 'criteriaNotMet' => 'reservation.criteria_not_met',
+            'selectDate' => 'reservation.select_date',
             'today' => 'reservation.today', 'next7Days' => 'reservation.next_7_days',
             'selectDateLabel' => 'reservation.select_date_label', 'selectTime' => 'reservation.select_time',
             'timeframe' => 'reservation.timeframe', 'workHours' => 'reservation.work_hours',
@@ -246,6 +334,7 @@ class ReservationController extends AbstractController
             'conflict' => 'reservation.conflict', 'nearby' => 'reservation.nearby',
             'nearbyReverse' => 'reservation.nearby_reverse',
             'nameRequired' => 'reservation.name_required', 'resourceRequired' => 'reservation.resource_required',
+            'selectVehicle' => 'reservation.select_vehicle', 'reloadAvailability' => 'reservation.reload_availability',
         ];
 
         $translations = [

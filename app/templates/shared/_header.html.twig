@@ -1,0 +1,132 @@
+<header class="topbar">
+    <a class="brand brand-link" href="{{ path('app_home') }}" aria-label="Resource Center">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-text">
+            <div class="brand-name">Resource Center</div>
+            <div id="brandSubtitle" class="brand-sub" data-i18n="brandSubtitle"
+                 data-shared-en="{{ 'brand.subtitle'|trans({}, 'messages', 'en') }}"
+                 data-shared-fr="{{ 'brand.subtitle'|trans({}, 'messages', 'fr') }}">{{ 'brand.subtitle'|trans }}</div>
+        </div>
+    </a>
+
+    <div class="top-actions">
+        <button id="langToggle" class="lang-switch" type="button" aria-label="{{ 'account.change_language'|trans }}">FR</button>
+        <nav class="nav" aria-label="Main navigation">
+            <div class="nav-dropdown">
+                <button id="reservationMenuToggle" class="nav-item nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="reservationMenu">
+                    <span id="navReservations" data-i18n="navReservations"
+                          data-shared-en="{{ 'nav.reservations'|trans({}, 'messages', 'en') }}"
+                          data-shared-fr="{{ 'nav.reservations'|trans({}, 'messages', 'fr') }}">{{ 'nav.reservations'|trans }}</span>
+                    <img class="nav-dropdown-chevron" aria-hidden="true" src="/assets/icons/Arrow-Button-Up--Streamline-Ultimate.svg"></img>
+                </button>
+                <div id="reservationMenu" class="nav-dropdown-menu" hidden>
+                    {% for reservationType in reservation_navigation_types() %}
+                        <a href="{{ path('app_reservation', {type: reservationType.route}) }}"
+                           data-shared-en="{{ reservationType.label_en }}"
+                           data-shared-fr="{{ reservationType.label_fr }}">{{ reservationType.label_en }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <a id="navCalendar" class="nav-item" href="{{ path('app_calendar') }}" data-i18n="navCalendar"
+                  data-shared-en="{{ 'nav.calendar'|trans({}, 'messages', 'en') }}"
+                data-shared-fr="{{ 'nav.calendar'|trans({}, 'messages', 'fr') }}">{{ 'nav.calendar'|trans }}</a>
+                <a id="navNotifications" class="nav-item" href="{{ path('app_notifications') }}" data-i18n="navNotifications"
+                   aria-label="{{ 'nav.notifications'|trans }}">
+                    <img class="nav-notification-icon" src="/assets/icons/Bell-Notification--Streamline-Nova.png" alt="" aria-hidden="true">
+                    <span data-shared-en="{{ 'nav.notifications'|trans({}, 'messages', 'en') }}"
+                        data-shared-fr="{{ 'nav.notifications'|trans({}, 'messages', 'fr') }}">{{ 'nav.notifications'|trans }}</span>
+                </a>
+        </nav>
+            {% set siteUser = current_user|default(null) %}
+        {% if siteUser %}
+            <div class="user-pill">
+                <button id="profileToggle" class="profile-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu">
+                    <div class="avatar" aria-hidden="true"></div>
+                    <span id="profileName" class="user-name">{{ siteUser.first_name }}</span>
+                </button>
+                <div id="profileMenu" class="profile-menu" role="menu" hidden>
+                    <a id="profileLink" href="{{ path('app_profile') }}" role="menuitem"
+                       data-shared-en="{{ 'nav.profile'|trans({}, 'messages', 'en') }}"
+                       data-shared-fr="{{ 'nav.profile'|trans({}, 'messages', 'fr') }}">{{ 'nav.profile'|trans }}</a>
+                          {% if siteUser.is_admin|default(false) %}
+                                <a href="{{ path('app_admin') }}" role="menuitem"
+                                    data-shared-en="{{ 'nav.administration'|trans({}, 'messages', 'en') }}"
+                                    data-shared-fr="{{ 'nav.administration'|trans({}, 'messages', 'fr') }}">{{ 'nav.administration'|trans }}</a>
+                          {% endif %}
+                      <span class="profile-menu-disabled" role="menuitem" aria-disabled="true"
+                          data-shared-en="{{ 'nav.settings'|trans({}, 'messages', 'en') }}"
+                          data-shared-fr="{{ 'nav.settings'|trans({}, 'messages', 'fr') }}">{{ 'nav.settings'|trans }}</span>
+                    <form action="{{ path('app_logout') }}" method="post" role="menuitem">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                        <button id="logoutLink" type="submit"
+                                data-shared-en="{{ 'nav.sign_out'|trans({}, 'messages', 'en') }}"
+                                data-shared-fr="{{ 'nav.sign_out'|trans({}, 'messages', 'fr') }}">{{ 'nav.sign_out'|trans }}</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <a id="guestSignIn" class="profile-toggle profile-guest" href="{{ path('app_login') }}"
+               aria-label="{{ 'nav.sign_in'|trans }}"
+               data-shared-en="{{ 'nav.sign_in'|trans({}, 'messages', 'en') }}"
+               data-shared-fr="{{ 'nav.sign_in'|trans({}, 'messages', 'fr') }}">{{ 'nav.sign_in'|trans }}</a>
+        {% endif %}
+    </div>
+</header>
+
+<script>
+    const sharedLanguageToggle = document.getElementById('langToggle');
+    const sharedBrowserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+    let sharedLanguage = localStorage.getItem('resource-center-lang') || sharedBrowserLanguage;
+
+    function applySharedLanguage(language) {
+        document.querySelectorAll('[data-shared-en]').forEach((element) => {
+            element.textContent = language === 'fr' ? element.dataset.sharedFr : element.dataset.sharedEn;
+        });
+        document.documentElement.lang = language;
+        sharedLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
+        sharedLanguageToggle.setAttribute('aria-label', language === 'fr' ?
+            '{{ 'account.change_language'|trans({}, 'messages', 'fr') }}' :
+            '{{ 'account.change_language'|trans({}, 'messages', 'en') }}');
+        localStorage.setItem('resource-center-lang', language);
+        sharedLanguage = language;
+    }
+
+    sharedLanguageToggle.addEventListener('click', () => {
+        applySharedLanguage(sharedLanguage === 'fr' ? 'en' : 'fr');
+    });
+    applySharedLanguage(sharedLanguage);
+
+    const sharedProfileToggle = document.getElementById('profileToggle');
+    const sharedProfileMenu = document.getElementById('profileMenu');
+    sharedProfileToggle?.addEventListener('click', () => {
+        const isOpen = sharedProfileToggle.getAttribute('aria-expanded') === 'true';
+        sharedProfileToggle.setAttribute('aria-expanded', String(!isOpen));
+        sharedProfileMenu.hidden = isOpen;
+    });
+    document.addEventListener('click', (event) => {
+        if (sharedProfileToggle && sharedProfileMenu && !sharedProfileToggle.contains(event.target) && !sharedProfileMenu.contains(event.target)) {
+            sharedProfileToggle.setAttribute('aria-expanded', 'false');
+            sharedProfileMenu.hidden = true;
+        }
+    });
+
+    const reservationMenuToggle = document.getElementById('reservationMenuToggle');
+    const reservationMenu = document.getElementById('reservationMenu');
+    function closeReservationMenu() {
+        reservationMenuToggle.setAttribute('aria-expanded', 'false');
+        reservationMenu.hidden = true;
+    }
+    reservationMenuToggle.addEventListener('click', () => {
+        const isOpen = reservationMenuToggle.getAttribute('aria-expanded') === 'true';
+        reservationMenuToggle.setAttribute('aria-expanded', String(!isOpen));
+        reservationMenu.hidden = isOpen;
+    });
+    document.addEventListener('click', (event) => {
+        if (!reservationMenuToggle.contains(event.target) && !reservationMenu.contains(event.target)) {
+            closeReservationMenu();
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeReservationMenu();
+    });
+</script>

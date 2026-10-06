@@ -4,11 +4,9 @@
 
 {% block body %}
     <div class="page-shell">
+        {% include 'shared/_header.html.twig' %}
         <main class="account-page">
             <section class="account-panel" aria-labelledby="login-title">
-                <div class="account-toolbar">
-                    <button id="loginLangToggle" class="lang-switch" type="button" aria-label="{{ 'account.change_language'|trans }}">FR</button>
-                </div>
                 <div class="account-label">{{ 'account.resource_center'|trans }}</div>
                 <h1 id="login-title">{{ 'account.sign_in'|trans }}</h1>
                 <p id="loginIntro" class="account-intro">{{ 'account.intro'|trans }}</p>
@@ -33,12 +31,14 @@
                 <p id="loginNote" class="account-note">{{ 'account.note'|trans }}</p>
             </section>
         </main>
+        {% include 'shared/_footer.html.twig' %}
     </div>
+    {% include 'shared/_scroll_to_top.html.twig' %}
 
     <script>
         const loginTranslations = {{ login_translations|json_encode|raw }};
 
-        const loginLanguageToggle = document.getElementById('loginLangToggle');
+        const loginLanguageToggle = document.getElementById('langToggle');
         const browserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
         let loginLanguage = localStorage.getItem('resource-center-lang') || browserLanguage;
 
