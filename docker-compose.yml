@@ -12,8 +12,7 @@ services:
       - database_data:/var/lib/postgresql/data
       - ./database/Reservations.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/Reservations.demo.fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
-      - ./database/Reservations.resources.fixtures.sql:/docker-entrypoint-initdb.d/03-resources-fixtures.sql:ro
-      - ./database/Reservations.equipment.fixtures.sql:/docker-entrypoint-initdb.d/04-equipment-fixtures.sql:ro
+      - ./database/Reservations.equipment.fixtures.sql:/docker-entrypoint-initdb.d/03-equipment-fixtures.sql:ro
       - ./database/Reservations.resources.fixtures.sql:/docker-entrypoint-initdb.d/04-resources-fixtures.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U resource_center -d resource_center"]
