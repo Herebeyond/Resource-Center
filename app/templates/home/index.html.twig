@@ -3,7 +3,7 @@
 {% block title %}Resource Center{% endblock %}
 
 {% block body %}
-    <div class="page-shell">
+    <div class="page-shell" data-client-language-page>
         {% include 'shared/_header.html.twig' %}
 
         <main class="main">
@@ -87,14 +87,7 @@
             const strings = translations[lang];
             if (!strings) return;
 
-            document.getElementById('brandSubtitle').textContent = strings.brandSubtitle;
-            document.getElementById('navReservations').textContent = strings.navReservations;
-            document.getElementById('navResources').textContent = strings.navResources;
-            document.getElementById('navCalendar').textContent = strings.navCalendar;
-            const profileLink = document.getElementById('profileLink');
-            const logoutLink = document.getElementById('logoutLink');
-            if (profileLink) profileLink.textContent = strings.profile;
-            if (logoutLink) logoutLink.textContent = strings.signOut;
+            applySharedLanguage(lang);
             document.getElementById('scrollUp').setAttribute('aria-label', strings.scrollUp);
             document.getElementById('scrollUp').setAttribute('title', strings.scrollUp);
             document.getElementById('heroTitle').textContent = strings.heroTitle;
@@ -115,7 +108,7 @@
             document.getElementById('footerSubtitle').textContent = strings.footerSubtitle;
 
             document.documentElement.lang = lang;
-            languageToggle.textContent = lang === 'fr' ? 'EN' : 'FR';
+            updateLanguageButton(lang);
             currentLanguage = lang;
             localStorage.setItem('resource-center-lang', lang);
         }

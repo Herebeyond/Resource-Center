@@ -4,7 +4,7 @@
 
 {% block body %}
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
-    <div class="page-shell reservation-page" data-flash-success="{{ flash_success ? '1' : '0' }}">
+    <div class="page-shell reservation-page" data-client-language-page data-flash-success="{{ flash_success ? '1' : '0' }}">
         {% include 'shared/_header.html.twig' %}
 
         <main class="reservation-layout">
@@ -55,10 +55,10 @@
                     equipment: 'Tool-Box--Streamline-Ultimate.svg'
                 } %}
                 {% set resourceIcon = resourceIcons[type]|default('Tool-Box--Streamline-Ultimate.svg') %}
-                {% if type == 'vehicle' %}
+                {% if grouped_selection %}
                     <div class="vehicle-selection-views" data-vehicle-selection-views>
                         <div class="resource-list vehicle-type-list" data-vehicle-type-list>
-                            {% for group in vehicle_groups %}
+                            {% for group in resource_groups %}
                                 <button class="resource-choice vehicle-group-choice" type="button"
                                         data-vehicle-group-choice
                                         data-vehicle-group-key="{{ group.key }}"
@@ -68,13 +68,14 @@
                                         data-resource-building="{{ group.search_location }}"
                                         data-resource-brand="{{ group.brand|lower }}"
                                         data-resource-fuel="{{ group.fuel_type|lower }}"
+                                        data-resource-category="{{ group.category|lower }}"
                                         data-resource-vehicle-class="{{ group.vehicle_class|lower }}">
                                     <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
                                     <span class="resource-choice-content">
                                         <strong>{{ group.name }}</strong>
-                                        <small>{{ group.count }} <span data-i18n="physicalVehicles">{{ reservation_translations.en.physicalVehicles }}</span> · {{ group.capacity }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span></small>
+                                        <small>{{ group.count }} <span data-i18n="{{ type == 'vehicle' ? 'physicalVehicles' : 'physicalUnits' }}">{{ type == 'vehicle' ? reservation_translations.en.physicalVehicles : reservation_translations.en.physicalUnits }}</span>{% if type == 'vehicle' %} · {{ group.capacity }} <span data-i18n="seats">{{ reservation_translations.en.seats }}</span>{% endif %}</small>
                                         <span class="vehicle-group-availability" data-group-availability>{{ group.count }} / {{ group.count }} {{ reservation_translations.en.slotAvailable }}</span>
-                                        <span class="resource-tags"><em>{{ group.vehicle_class }}</em><em>{{ group.fuel_type }}</em></span>
+                                        <span class="resource-tags">{% if type == 'vehicle' %}<em>{{ group.vehicle_class }}</em><em>{{ group.fuel_type }}</em>{% else %}<em>{{ group.category }}</em><em>{{ group.brand }}</em>{% endif %}</span>
                                     </span>
                                 </button>
                             {% else %}
@@ -83,23 +84,25 @@
                         </div>
                         <section class="vehicle-physical-panel" data-vehicle-physical-panel hidden>
                             <button class="vehicle-back-button" type="button" data-vehicle-back>
-                                <span aria-hidden="true">‹</span><span data-i18n="backToVehicles">{{ reservation_translations.en.backToVehicles }}</span>
+                                <span aria-hidden="true">‹</span><span data-i18n="{{ type == 'vehicle' ? 'backToVehicles' : 'backToModels' }}">{{ type == 'vehicle' ? reservation_translations.en.backToVehicles : reservation_translations.en.backToModels }}</span>
                             </button>
                             <h2 data-vehicle-group-title></h2>
                             <label class="vehicle-list-filter"><span data-i18n="resource">{{ reservation_translations.en.resource }}</span>
                                 <select data-vehicle-physical-select>
-                                    <option value="" data-i18n="selectVehicle">{{ reservation_translations.en.selectVehicle }}</option>
+                                    <option value="" data-i18n="{{ type == 'vehicle' ? 'selectVehicle' : 'selectUnit' }}">{{ type == 'vehicle' ? reservation_translations.en.selectVehicle : reservation_translations.en.selectUnit }}</option>
                                     {% for resource in resources %}
                                         {% set registration = resource.license_plate|default('') %}
-                                        {% set displayedRegistration = registration|slice(0, 6) == 'FLEET-' ? '—' : (registration|default('—')) %}
+                                        {% set displayedRegistration = type == 'vehicle' ? (registration|slice(0, 6) == 'FLEET-' ? '—' : (registration|default('—'))) : resource.serial_number|default(resource.code) %}
+                                        {% set resourceModel = type == 'vehicle' ? (resource.vehicle_brand|default('') ~ ' ' ~ resource.vehicle_model|default(''))|trim : (resource.equipment_model ? (resource.equipment_brand|default('') ~ ' ' ~ resource.equipment_model)|trim : resource.name) %}
                                         <option value="{{ resource.id }}" data-resource-card data-vehicle-physical
                                                 data-vehicle-group-key="{{ resource.vehicle_group_key }}"
                                                 data-reservation-resource-id="{{ resource.id }}"
-                                                data-resource-label="{{ (resource.vehicle_brand|default('') ~ ' ' ~ resource.vehicle_model|default(''))|trim|default(resource.name) }} · {{ displayedRegistration }}"
-                                                data-resource-name="{{ resource.name|lower }} {{ resource.location|default('')|lower }} {{ resource.license_plate|default('')|lower }}"
+                                                data-resource-label="{{ resourceModel|default(resource.name) }} · {{ displayedRegistration }}"
+                                                data-resource-name="{{ resourceModel|lower }} {{ resource.name|lower }} {{ resource.location|default('')|lower }} {{ displayedRegistration|lower }}"
                                                 data-resource-capacity="{{ resource.places }}"
                                                 data-resource-building="{{ resource.location|default('')|lower }}"
-                                                data-resource-brand="{{ resource.vehicle_brand|default('')|lower }}"
+                                                data-resource-brand="{{ (type == 'vehicle' ? resource.vehicle_brand|default('') : resource.equipment_brand|default(''))|lower }}"
+                                                data-resource-category="{{ resource.equipment_category|default('')|lower }}"
                                                 data-resource-fuel="{{ resource.fuel_type|default('')|lower }}"
                                                 data-resource-vehicle-class="{{ resource.vehicle_class|default('')|lower }}"
                                                 data-resource-screen="false" data-resource-whiteboard="false"
@@ -198,10 +201,10 @@
                     <p id="summaryReview" data-i18n="review">{{ reservation_translations.en.review }}</p>
                     <ul id="reservationMessages" class="reservation-messages" aria-live="polite"></ul>
                     <dl>
-                        <dt>{{ reservation_translations.en.resource }}</dt><dd id="summaryResource">{{ selected_resource ? selected_resource.name : reservation_translations.en.noResource }}</dd>
-                        <dt>{{ reservation_translations.en.name }}</dt><dd id="summaryName">—</dd>
-                        <dt>{{ reservation_translations.en.date }}</dt><dd id="summaryDate">{{ selected_date|date('l, F d, Y') }}</dd>
-                        <dt>{{ reservation_translations.en.time }}</dt><dd id="summaryTime">11:00 - 12:00</dd>
+                        <dt data-i18n="resource">{{ reservation_translations.en.resource }}</dt><dd id="summaryResource">{{ selected_resource ? selected_resource.name : reservation_translations.en.noResource }}</dd>
+                        <dt data-i18n="name">{{ reservation_translations.en.name }}</dt><dd id="summaryName">—</dd>
+                        <dt data-i18n="date">{{ reservation_translations.en.date }}</dt><dd id="summaryDate">{{ selected_date|date('l, F d, Y') }}</dd>
+                        <dt data-i18n="time">{{ reservation_translations.en.time }}</dt><dd id="summaryTime">11:00 - 12:00</dd>
                     </dl>
                     <div class="summary-actions">
                         <button type="button" class="secondary-button" data-i18n="cancel" data-clear-selection>{{ reservation_translations.en.cancel }}</button>
@@ -217,6 +220,7 @@
     <script>
         const reservationTranslations = {{ reservation_translations|json_encode|raw }};
         const reservationType = {{ type|json_encode|raw }};
+        const groupedSelection = {{ grouped_selection|json_encode|raw }};
         const reservationLanguageToggle = document.getElementById('langToggle');
         const resourceCards = [...document.querySelectorAll('[data-resource-card]')];
         const physicalVehicleOptions = [...document.querySelectorAll('[data-vehicle-physical]')];
@@ -298,19 +302,24 @@
                 if (strings[key]) element.placeholder = strings[key];
             });
             document.querySelector('[data-type-label]').textContent = strings.typeLabel;
+            document.title = `${strings.typeLabel} | Resource Center`;
+            dateLinks.filter((link) => link.classList.contains('date-cell')).forEach((link) => {
+                const date = new URL(link.href).searchParams.get('date');
+                link.querySelector('small').textContent = new Date(`${date}T00:00:00`).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'short' });
+            });
             filterInput.placeholder = strings.searchPlaceholder;
             document.querySelector('[data-filter-building] option').textContent = strings[reservationType === 'vehicle' || ['equipment', 'laptop', 'projector'].includes(reservationType) ? 'allLocations' : 'allBuildings'];
             const categoryOption = document.querySelector('[data-filter-category] option');
             if (categoryOption) categoryOption.textContent = strings.allCategories;
             const vehiclePlaceholder = document.querySelector('[data-vehicle-physical-select] option[value=""]');
-            if (vehiclePlaceholder) vehiclePlaceholder.textContent = strings.selectVehicle;
+            if (vehiclePlaceholder) vehiclePlaceholder.textContent = strings[reservationType === 'vehicle' ? 'selectVehicle' : 'selectUnit'];
             const vehicleClassOption = document.querySelector('[data-filter-vehicle-class] option');
             if (vehicleClassOption) vehicleClassOption.textContent = strings.allVehicleClasses;
             document.querySelector('[data-date-picker]').setAttribute('aria-label', strings.selectDateLabel);
             document.querySelector('[data-timeframe] option[value="work"]').textContent = strings.workHours;
             document.querySelector('[data-timeframe] option[value="full"]').textContent = strings.fullDay;
             document.querySelector('[data-selected-date]').closest('form').querySelector('[data-i18n="start"]')?.textContent;
-            reservationLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
+            updateLanguageButton(language);
             reservationLanguageToggle.setAttribute('aria-label', strings.changeLanguage);
             reservationLanguage = language;
             localStorage.setItem('resource-center-lang', language);
@@ -359,11 +368,12 @@
         }
 
         function updateVehicleAvailability() {
-            if (reservationType !== 'vehicle') return;
+            if (!groupedSelection) return;
             const query = filterInput.value.toLowerCase().trim();
             const brand = brandFilter?.value.toLowerCase() || '';
             const fuel = fuelFilter?.value.toLowerCase() || '';
             const vehicleClass = vehicleClassFilter?.value.toLowerCase() || '';
+            const category = categoryFilter?.value.toLowerCase() || '';
             const minimum = Number(minSeats?.value || 0);
             const maximum = Number(maxSeats?.value || Number.MAX_SAFE_INTEGER);
             const firstLocation = buildingFilter?.value.toLowerCase() || '';
@@ -377,6 +387,7 @@
                     && (!brand || card.dataset.resourceBrand === brand)
                     && (!fuel || card.dataset.resourceFuel === fuel)
                     && (!vehicleClass || card.dataset.resourceVehicleClass === vehicleClass)
+                    && (!category || card.dataset.resourceCategory === category)
                     && (!firstLocation || card.dataset.resourceBuilding === firstLocation);
                 card.dataset.matchesCriteria = matchesSearch && matchesFilters ? '1' : '0';
                 card.hidden = !matchesSearch || Boolean(activeVehicleGroup && !activeVehicleResourceIds.has(card.dataset.reservationResourceId));
@@ -583,10 +594,10 @@
             let vehicleSelectionValid = true;
             if (!resourceId) messages.push({ type: 'error', text: strings.resourceRequired });
             if (!title) messages.push({ type: 'error', text: strings.nameRequired });
-            if (reservationType === 'vehicle' && resourceId) {
+            if (groupedSelection && resourceId) {
                 const selectedVehicle = resourceCards.find((card) => card.dataset.reservationResourceId === resourceId);
                 if (selectedVehicle?.dataset.matchesCriteria !== '1') {
-                    messages.push({ type: 'error', text: strings.criteriaNotMet });
+                    messages.push({ type: 'error', text: strings[reservationType === 'vehicle' ? 'criteriaNotMet' : 'equipmentCriteriaNotMet'] });
                     vehicleSelectionValid = false;
                 } else if (selectedVehicle?.dataset.slotAvailable !== '1') {
                     messages.push({ type: 'error', text: strings.slotUnavailable });
@@ -637,24 +648,7 @@
             const whiteboardRequired = document.querySelector('[data-feature="whiteboard"]')?.checked || false;
             const otherRequired = document.querySelector('[data-feature="other"]')?.checked || false;
 
-            if (reservationType === 'vehicle') {
-                if (activeVehicleGroup) {
-                    updateSummary();
-                    return;
-                }
-                document.querySelectorAll('[data-vehicle-group-choice]').forEach((group) => {
-                    const resourceIds = new Set(group.dataset.vehicleResourceIds.split(',').filter(Boolean));
-                    const groupVehicles = resourceCards.filter((card) => resourceIds.has(card.dataset.reservationResourceId));
-                    const matchesSearch = groupVehicles.some((card) => card.dataset.resourceName.includes(query));
-                    const matchesFilters = Number(group.dataset.resourceCapacity || 0) >= minimum
-                        && Number(group.dataset.resourceCapacity || 0) <= maximum
-                        && (building === '' || group.dataset.resourceBuilding.includes(building))
-                        && (brand === '' || group.dataset.resourceBrand === brand)
-                        && (fuel === '' || group.dataset.resourceFuel === fuel)
-                        && (!vehicleClass || group.dataset.resourceVehicleClass === vehicleClass);
-                    group.hidden = !matchesSearch;
-                    group.classList.toggle('is-filtered-out', matchesSearch && !matchesFilters);
-                });
+            if (groupedSelection) {
                 updateSummary();
                 return;
             }
@@ -816,7 +810,7 @@
 
         populateBuildings();
         restoreFilters();
-        if (reservationType === 'vehicle') {
+        if (groupedSelection) {
             const initiallySelectedVehicle = resourceCards.find((card) => card.dataset.reservationResourceId === reservationForm.querySelector('[name="resource_id"]').value);
             const initiallySelectedGroup = initiallySelectedVehicle
                 ? [...document.querySelectorAll('[data-vehicle-group-choice]')].find((group) => group.dataset.vehicleResourceIds.split(',').includes(initiallySelectedVehicle.dataset.reservationResourceId))

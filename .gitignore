@@ -12,6 +12,7 @@ app/config/secrets/prod/prod.decrypt.private.php
 .vscode/
 *.log
 Thumbs.db
+machine_virtuelle.md
 
 # Docker overrides
 docker-compose.override.yml

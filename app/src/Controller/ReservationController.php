@@ -42,7 +42,8 @@ class ReservationController extends AbstractController
         $timeframe = $request->query->get('timeframe') === 'full' ? 'full' : 'work';
         $hours = range($timeframe === 'full' ? 0 : 6, $timeframe === 'full' ? 23 : 18);
         $resources = $this->getResources((int) $user['company_id'], $resourceTypeNames);
-        $vehicleGroups = $type === 'vehicle' ? $this->groupVehicles($resources) : [];
+        $groupedSelection = in_array($type, ['vehicle', 'equipment', 'laptop', 'projector'], true);
+        $resourceGroups = $groupedSelection ? $this->groupResources($resources, $type === 'vehicle') : [];
         $selectedResourceId = (int) $request->query->get('resource', 0);
         $selectedResource = $this->findResource($resources, $selectedResourceId);
         $error = null;
@@ -125,7 +126,8 @@ class ReservationController extends AbstractController
             'type_label' => $this->translator->trans($this->typeLabelKey($type), [], 'reservation', $request->getLocale()),
             'search_placeholder' => $this->translator->trans($this->searchKey($type), [], 'reservation', $request->getLocale()),
             'resources' => $resources,
-            'vehicle_groups' => $vehicleGroups,
+            'grouped_selection' => $groupedSelection,
+            'resource_groups' => $resourceGroups,
             'vehicle_classes' => $type === 'vehicle'
                 ? $this->connection->fetchFirstColumn(
                     "SELECT DISTINCT vd.vehicle_class
@@ -168,11 +170,12 @@ class ReservationController extends AbstractController
     {
         [$typePlaceholders, $typeParameters] = $this->typeQueryParameters($types, 'resource_type');
         return $this->connection->fetchAllAssociative(
-            "SELECT r.id, r.name, r.code, r.location, r.capacity, rs.label AS state,
+            "SELECT r.id, r.name, r.code, r.location, r.capacity, rs.label AS state, rt.name AS resource_type,
                     COALESCE(rd.available_places, r.capacity, 0) AS places,
                     rd.has_screen, rd.has_whiteboard,
                     vd.license_plate, vd.brand AS vehicle_brand, vd.model AS vehicle_model, vd.fuel_type, vd.vehicle_class,
-                    ed.brand AS equipment_brand, ed.category AS equipment_category
+                    ed.brand AS equipment_brand, ed.model AS equipment_model,
+                    ed.category AS equipment_category, ed.serial_number
              FROM resources r
              JOIN resource_types rt ON rt.id = r.type_id
              JOIN resource_states rs ON rs.id = r.state_id
@@ -193,7 +196,12 @@ class ReservationController extends AbstractController
                 "SELECT r.id, r.title, r.start_at, r.end_at, r.notes, r.resource_id,
                     CASE WHEN rt.name = 'vehicule' THEN CONCAT_WS(' · ',
                         COALESCE(NULLIF(TRIM(CONCAT_WS(' ', vd.brand, vd.model)), ''), res.name),
-                        NULLIF(vd.license_plate, '')) ELSE res.name END AS resource_name,
+                        NULLIF(vd.license_plate, ''))
+                    WHEN rt.name IN ('equipement', 'portable', 'audiovisuel') THEN CONCAT_WS(' · ',
+                        CASE WHEN NULLIF(TRIM(ed.model), '') IS NOT NULL
+                            THEN TRIM(CONCAT_WS(' ', ed.brand, ed.model)) ELSE res.name END,
+                        COALESCE(NULLIF(ed.serial_number, ''), res.code))
+                    ELSE res.name END AS resource_name,
                     GREATEST(r.start_at, CAST(:date AS date)) AS visual_start_at,
                     LEAST(r.end_at, CAST(:date AS date) + INTERVAL '1 day' - INTERVAL '1 second') AS visual_end_at,
                     (r.start_at < CAST(:date AS date)) AS continues_before,
@@ -202,6 +210,7 @@ class ReservationController extends AbstractController
              JOIN resources res ON res.id = r.resource_id
              JOIN resource_types rt ON rt.id = res.type_id
              LEFT JOIN vehicle_details vd ON vd.resource_id = res.id
+             LEFT JOIN equipment_details ed ON ed.resource_id = res.id
              JOIN reservation_status rs ON rs.id = r.status_id
              WHERE r.company_id = :company_id AND rt.name IN ($typePlaceholders)
                AND rs.is_blocking = TRUE
@@ -212,17 +221,21 @@ class ReservationController extends AbstractController
         );
     }
 
-    private function groupVehicles(array &$resources): array
+    private function groupResources(array &$resources, bool $isVehicle): array
     {
         $groups = [];
         foreach ($resources as &$resource) {
-            $brand = trim((string) ($resource['vehicle_brand'] ?? ''));
-            $model = trim((string) ($resource['vehicle_model'] ?? ''));
+            $brand = trim((string) ($resource[$isVehicle ? 'vehicle_brand' : 'equipment_brand'] ?? ''));
+            $model = trim((string) ($resource[$isVehicle ? 'vehicle_model' : 'equipment_model'] ?? ''));
+            $category = trim((string) ($resource['equipment_category'] ?? ''));
             $vehicleClass = trim((string) ($resource['vehicle_class'] ?? ''));
             $fuelType = trim((string) ($resource['fuel_type'] ?? ''));
             $capacity = (int) $resource['places'];
-            $groupKey = $brand !== '' && $model !== ''
-                ? hash('sha256', mb_strtolower($vehicleClass . '|' . $brand . '|' . $model . '|' . $fuelType . '|' . $capacity))
+            $groupIdentity = $isVehicle
+                ? [$vehicleClass, $brand, $model, $fuelType, $capacity]
+                : [$resource['resource_type'], $brand, $model, $category];
+            $groupKey = $model !== '' && (!$isVehicle || $brand !== '')
+                ? hash('sha256', mb_strtolower(json_encode($groupIdentity, JSON_THROW_ON_ERROR)))
                 : 'resource-' . $resource['id'];
             $resource['vehicle_group_key'] = $groupKey;
 
@@ -232,7 +245,8 @@ class ReservationController extends AbstractController
                     'brand' => $brand,
                     'model' => $model,
                     'vehicle_class' => $vehicleClass,
-                    'name' => trim($brand . ' ' . $model) ?: $resource['name'],
+                    'category' => $category,
+                    'name' => $model !== '' ? trim($brand . ' ' . $model) : $resource['name'],
                     'capacity' => $capacity,
                     'fuel_type' => $fuelType,
                     'locations' => [],
@@ -335,6 +349,8 @@ class ReservationController extends AbstractController
             'nearbyReverse' => 'reservation.nearby_reverse',
             'nameRequired' => 'reservation.name_required', 'resourceRequired' => 'reservation.resource_required',
             'selectVehicle' => 'reservation.select_vehicle', 'reloadAvailability' => 'reservation.reload_availability',
+            'physicalUnits' => 'reservation.physical_units', 'selectUnit' => 'reservation.select_unit',
+            'backToModels' => 'reservation.back_to_models', 'equipmentCriteriaNotMet' => 'reservation.equipment_criteria_not_met',
         ];
 
         $translations = [

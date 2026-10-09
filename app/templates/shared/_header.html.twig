@@ -10,7 +10,7 @@
     </a>
 
     <div class="top-actions">
-        <button id="langToggle" class="lang-switch" type="button" aria-label="{{ 'account.change_language'|trans }}">FR</button>
+        {% include 'shared/_language_button.html.twig' with {standalone: false} only %}
         <nav class="nav" aria-label="Main navigation">
             <div class="nav-dropdown">
                 <button id="reservationMenuToggle" class="nav-item nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="reservationMenu">
@@ -79,11 +79,8 @@
     let sharedLanguage = localStorage.getItem('resource-center-lang') || sharedBrowserLanguage;
 
     function applySharedLanguage(language) {
-        document.querySelectorAll('[data-shared-en]').forEach((element) => {
-            element.textContent = language === 'fr' ? element.dataset.sharedFr : element.dataset.sharedEn;
-        });
         document.documentElement.lang = language;
-        sharedLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
+        updateLanguageButton(language);
         sharedLanguageToggle.setAttribute('aria-label', language === 'fr' ?
             '{{ 'account.change_language'|trans({}, 'messages', 'fr') }}' :
             '{{ 'account.change_language'|trans({}, 'messages', 'en') }}');
@@ -93,8 +90,15 @@
 
     sharedLanguageToggle.addEventListener('click', () => {
         applySharedLanguage(sharedLanguage === 'fr' ? 'en' : 'fr');
+        if (!document.querySelector('[data-client-language-page]')) window.location.reload();
     });
     applySharedLanguage(sharedLanguage);
+    document.addEventListener('DOMContentLoaded', () => {
+        applySharedLanguage(sharedLanguage);
+        if (!document.querySelector('[data-client-language-page]') && document.documentElement.dataset.serverLanguage !== sharedLanguage) {
+            window.location.reload();
+        }
+    }, { once: true });
 
     const sharedProfileToggle = document.getElementById('profileToggle');
     const sharedProfileMenu = document.getElementById('profileMenu');

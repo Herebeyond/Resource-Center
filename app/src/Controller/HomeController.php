@@ -207,6 +207,7 @@ class HomeController extends AbstractController
     {
         $keys = [
             'menu' => 'account.user_menu',
+            'title' => 'nav.profile',
             'intro' => 'account.profile_intro',
             'signOut' => 'account.sign_out_other',
             'backHome' => 'account.back_home',

@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libpq-dev \
     libzip-dev \
@@ -17,7 +17,20 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-RUN composer install --no-interaction --prefer-dist --no-progress
+RUN printf '%s\n' \
+    'APP_ENV=prod' \
+    'APP_SECRET=build-only-placeholder' \
+    'DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build?serverVersion=16&charset=utf8' \
+    'DEFAULT_URI=http://localhost' \
+    > .env \
+    && composer install --no-interaction --prefer-dist --no-progress \
+    && rm .env
+
+RUN mkdir -p var && chown -R www-data:www-data var
+
+COPY --chown=www-data:www-data .env.example .env
+
+USER www-data
 
 EXPOSE 8000
 

@@ -29,7 +29,7 @@
                                 {% elseif reservation.is_late or reservation.was_late %}
                                     <span class="fleet-status is-late">{{ 'fleet.overdue'|trans }}</span>
                                 {% else %}
-                                    <span class="fleet-status">{{ reservation.vehicle_state }}</span>
+                                    <span class="fleet-status">{{ reservation.vehicle_state in ['disponible', 'reserve', 'indisponible', 'maintenance'] ? ('resource.state.' ~ reservation.vehicle_state)|trans : reservation.vehicle_state }}</span>
                                 {% endif %}
                             </header>
 

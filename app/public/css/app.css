@@ -110,6 +110,12 @@ body {
 }
 
 .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 74px;
+    min-height: 38px;
     border: 1px solid var(--border);
     background: rgba(0,0,0,0.03);
     color: var(--text);
@@ -123,6 +129,32 @@ body {
 
 .lang-switch:hover {
     background: rgba(0,0,0,0.05);
+}
+
+.language-flag {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    object-fit: contain;
+}
+
+.lang-switch [data-language-code] {
+    width: 1.5em;
+    text-align: center;
+}
+
+.standalone-language-toggle {
+    position: fixed;
+    top: 18px;
+    right: 24px;
+    z-index: 30;
+}
+
+@media (max-width: 620px) {
+    .standalone-language-toggle {
+        top: 12px;
+        right: 12px;
+    }
 }
 
 .nav {

@@ -3,7 +3,7 @@
 {% block title %}{{ 'nav.profile'|trans }} | Resource Center{% endblock %}
 
 {% block body %}
-    <div class="page-shell">
+    <div class="page-shell" data-client-language-page>
         {% include 'shared/_header.html.twig' %}
         <main class="account-page">
             <section class="account-panel" aria-labelledby="profile-title">
@@ -38,6 +38,7 @@
 
         function applyProfileLanguage(language) {
             const strings = profileTranslations[language];
+            document.title = `${strings.title} | Resource Center`;
             document.getElementById('profileMenuLabel').textContent = strings.menu;
             document.getElementById('profileIntro').textContent = strings.intro;
             document.getElementById('profileSignOut').textContent = strings.signOut;

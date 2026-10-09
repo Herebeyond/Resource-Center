@@ -1,5 +1,56 @@
 # Cahier des charges - Site web de réservation de ressources
 
+## Sommaire
+
+- [1. Objet du projet](#1-objet-du-projet)
+- [2. Contexte](#2-contexte)
+- [3. Objectif général](#3-objectif-général)
+- [3.1 Périmètre du MVP](#31-périmètre-du-mvp)
+- [4. Public cible et utilisateurs](#4-public-cible-et-utilisateurs)
+	- [4.1 Utilisateurs](#41-utilisateurs)
+	- [4.2 Rôles attendus](#42-rôles-attendus)
+- [5. Fonctionnalités attendues](#5-fonctionnalités-attendues)
+	- [5.1 Gestion des ressources](#51-gestion-des-ressources)
+		- [Ressources de type véhicule](#ressources-de-type-véhicule)
+		- [Ressources de type équipement](#ressources-de-type-équipement)
+		- [Suivi opérationnel de la flotte](#suivi-opérationnel-de-la-flotte)
+	- [5.2 Gestion des utilisateurs et des droits](#52-gestion-des-utilisateurs-et-des-droits)
+	- [5.3 Gestion des réservations](#53-gestion-des-réservations)
+	- [5.4 Gestion des disponibilités](#54-gestion-des-disponibilités)
+	- [5.5 Calendrier](#55-calendrier)
+	- [5.6 Internationalisation et langue](#56-internationalisation-et-langue)
+	- [5.7 Notifications](#57-notifications)
+	- [5.8 Historique et traçabilité](#58-historique-et-traçabilité)
+	- [5.9 API de consultation](#59-api-de-consultation)
+- [6. Règles métier prioritaires](#6-règles-métier-prioritaires)
+- [7. Cas d’utilisation principaux](#7-cas-dutilisation-principaux)
+	- [1. Consultation des disponibilités](#cas-dutilisation-1--consultation-des-disponibilités)
+	- [2. Réservation d’une ressource](#cas-dutilisation-2--réservation-dune-ressource)
+	- [3. Refus de réservation](#cas-dutilisation-3--refus-de-réservation)
+	- [4. Annulation](#cas-dutilisation-4--annulation)
+	- [5. Gestion d’une ressource](#cas-dutilisation-5--gestion-dune-ressource)
+	- [6. Consultation de l’historique](#cas-dutilisation-6--consultation-de-lhistorique)
+	- [7. Prise en charge et retour d’un véhicule](#cas-dutilisation-7--prise-en-charge-et-retour-dun-véhicule)
+	- [8. Incident sur un véhicule](#cas-dutilisation-8--incident-sur-un-véhicule)
+	- [9. Remplacement d’un véhicule](#cas-dutilisation-9--remplacement-dun-véhicule)
+	- [10. Appel API](#cas-dutilisation-10--appel-api)
+- [8. Exigences fonctionnelles](#8-exigences-fonctionnelles)
+- [9. Exigences non fonctionnelles](#9-exigences-non-fonctionnelles)
+	- [9.1 Performance](#91-performance)
+	- [9.2 Sécurité](#92-sécurité)
+	- [9.3 Confiance et intégrité](#93-confiance-et-intégrité)
+	- [9.4 Maintenabilité](#94-maintenabilité)
+	- [9.5 Ergonomie](#95-ergonomie)
+- [10. Contraintes techniques](#10-contraintes-techniques)
+- [11. Contraintes fonctionnelles à traiter plus tard](#11-contraintes-fonctionnelles-à-traiter-plus-tard)
+- [12. Livrables attendus](#12-livrables-attendus)
+- [13. Critères de validation](#13-critères-de-validation)
+- [14. Périmètre du projet](#14-périmètre-du-projet)
+	- [Inclus](#inclus)
+	- [Évolutions futures identifiées](#évolutions-futures-identifiées)
+	- [Exclu](#exclu)
+- [15. Conclusion](#15-conclusion)
+
 ## 1. Objet du projet
 
 Le projet consiste à concevoir et développer un site web de gestion des réservations de ressources partagées pour une entreprise ou toute organisation utilisant des équipements et espaces communs.
@@ -97,6 +148,14 @@ Pour faciliter la sélection d'une flotte importante, les véhicules présentant
 
 La recherche textuelle retire de la liste les véhicules qui ne correspondent pas à la saisie. Les autres critères (localisation, marque, motorisation, classe et capacité) laissent visibles les véhicules non conformes avec un style atténué, sans les confondre avec une indisponibilité horaire. Les véhicules ne pouvant pas être réservés sur le créneau restent identifiables comme indisponibles et apparaissent après ceux qui sont disponibles. Les disponibilités peuvent être rechargées explicitement et sont recalculées après une réservation.
 
+#### Ressources de type équipement
+
+Les équipements, ordinateurs portables et matériels audiovisuels peuvent exister en plusieurs exemplaires. La sélection distingue le modèle de l'exemplaire physique : les ressources de même type, marque, modèle et catégorie sont regroupées, puis chaque exemplaire est identifié par sa localisation et son numéro de série, ou par son code lorsque le numéro de série manque.
+
+La disponibilité du groupe est calculée à partir des disponibilités individuelles. La réservation, son résumé, sa timeline et les contrôles de conflit concernent toujours l'exemplaire choisi. La réservation d'un exemplaire ne bloque pas automatiquement les autres exemplaires du même modèle.
+
+Comme pour les véhicules, la recherche textuelle masque les exemplaires non correspondants ; les autres filtres laissent les exemplaires non conformes visibles mais grisés et non sélectionnables. Les exemplaires disponibles apparaissent avant les exemplaires grisés. Les messages distinguent les critères non respectés d'un créneau indisponible, avec priorité au message de critères. Les salles restent présentées individuellement.
+
 #### Suivi opérationnel de la flotte
 
 Le suivi de flotte permet, pour une réservation autorisée :
@@ -190,6 +249,9 @@ Une API de consultation est prévue, mais ses endpoints, son authentification et
 
 Le système devra respecter les règles suivantes :
 - un utilisateur non connecté doit être redirigé vers la page de connexion avant d'accéder au site principal ;
+- les routes applicatives sont privées par défaut, y compris les futures pages ; les exceptions publiques sont définies explicitement et testées ;
+- chaque accès privé vérifie que le compte de la session existe et reste actif ; les appels JSON ou AJAX non authentifiés reçoivent un statut `401` ;
+- les futures pages d'administration exigent le rôle administrateur et les réponses privées ne doivent pas être conservées en cache ;
 - les données métier de la homepage ne doivent être chargées qu'après identification de l'utilisateur et de son entreprise ;
 - l'adresse email utilisée pour la connexion doit identifier un seul compte dans l'ensemble du site ;
 - les formulaires d'authentification et de déconnexion doivent être protégés contre les requêtes CSRF ;

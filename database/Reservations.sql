@@ -128,6 +128,7 @@ CREATE TABLE equipment_details (
   resource_id INT PRIMARY KEY REFERENCES resources(id) ON DELETE CASCADE,
   serial_number VARCHAR(120),
   brand VARCHAR(120),
+  model VARCHAR(120),
   category VARCHAR(120),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_equipment_serial_number UNIQUE (serial_number)

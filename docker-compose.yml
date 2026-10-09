@@ -12,6 +12,7 @@ services:
       - database_data:/var/lib/postgresql/data
       - ./database/Reservations.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/Reservations.demo.fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
+      - ./database/Reservations.equipment.fixtures.sql:/docker-entrypoint-initdb.d/03-equipment-fixtures.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U resource_center -d resource_center"]
       interval: 5s
@@ -28,7 +29,15 @@ services:
       - "8000:8000"
     working_dir: /var/www/html
     volumes:
-      - ./app:/var/www/html
+      - ./app/bin:/var/www/html/bin
+      - ./app/composer.json:/var/www/html/composer.json
+      - ./app/composer.lock:/var/www/html/composer.lock
+      - ./app/config:/var/www/html/config
+      - ./app/public:/var/www/html/public
+      - ./app/src:/var/www/html/src
+      - ./app/symfony.lock:/var/www/html/symfony.lock
+      - ./app/templates:/var/www/html/templates
+      - ./app/translations:/var/www/html/translations
       - symfony_vendor:/var/www/html/vendor
       - symfony_var:/var/www/html/var
     depends_on:

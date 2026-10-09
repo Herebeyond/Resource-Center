@@ -1,0 +1,21 @@
+<button id="langToggle" class="lang-switch{% if standalone|default(false) %} standalone-language-toggle{% endif %}" type="button"
+        aria-label="{{ 'account.change_language'|trans }}"
+        data-language-label-fr="{{ 'account.change_language'|trans({}, 'messages', 'fr') }}"
+        data-language-label-en="{{ 'account.change_language'|trans({}, 'messages', 'en') }}">
+    <img class="language-flag" data-language-flag src="/assets/icons/france.png" width="20" height="20" alt="" aria-hidden="true">
+    <span data-language-code>FR</span>
+</button>
+
+<script>
+    function updateLanguageButton(language) {
+        const button = document.getElementById('langToggle');
+        button.querySelector('[data-language-code]').textContent = language.toUpperCase();
+        button.querySelector('[data-language-flag]').src = language === 'fr'
+            ? '/assets/icons/france.png'
+            : '/assets/icons/united-kingdom.png';
+        document.querySelectorAll('[data-shared-en][data-shared-fr]').forEach((element) => {
+            element.textContent = language === 'fr' ? element.dataset.sharedFr : element.dataset.sharedEn;
+        });
+        document.cookie = `resource_center_lang=${language}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+    }
+</script>

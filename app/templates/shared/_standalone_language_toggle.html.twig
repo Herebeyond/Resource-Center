@@ -1,0 +1,26 @@
+{% include 'shared/_language_button.html.twig' with {standalone: true} only %}
+
+<script>
+    const standaloneLanguageToggle = document.getElementById('langToggle');
+    const standaloneBrowserLanguage = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+    let standaloneLanguage = localStorage.getItem('resource-center-lang') || standaloneBrowserLanguage;
+
+    function applyStandaloneLanguage(language) {
+        const languageSuffix = language === 'fr' ? 'Fr' : 'En';
+        document.documentElement.lang = language;
+        updateLanguageButton(language);
+        standaloneLanguageToggle.setAttribute('aria-label', standaloneLanguageToggle.dataset[`languageLabel${languageSuffix}`]);
+        document.querySelectorAll('[data-standalone-fr][data-standalone-en]').forEach((element) => {
+            element.textContent = element.dataset[`standalone${languageSuffix}`];
+        });
+        const title = document.querySelector('[data-standalone-title-fr]');
+        if (title) document.title = title.dataset[`standaloneTitle${languageSuffix}`];
+        localStorage.setItem('resource-center-lang', language);
+        standaloneLanguage = language;
+    }
+
+    standaloneLanguageToggle.addEventListener('click', () => {
+        applyStandaloneLanguage(standaloneLanguage === 'fr' ? 'en' : 'fr');
+    });
+    document.addEventListener('DOMContentLoaded', () => applyStandaloneLanguage(standaloneLanguage), { once: true });
+</script>

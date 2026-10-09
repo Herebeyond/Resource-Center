@@ -24,6 +24,7 @@ UPDATE vehicle_usage vu SET vehicle_id = r.resource_id FROM reservations r WHERE
 ALTER TABLE vehicle_usage ALTER COLUMN vehicle_id SET NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_vehicle_usage_vehicle ON vehicle_usage(vehicle_id);
 ALTER TABLE vehicle_details ADD COLUMN IF NOT EXISTS vehicle_class VARCHAR(80);
+ALTER TABLE equipment_details ADD COLUMN IF NOT EXISTS model VARCHAR(120);
 
 -- Répare les libellés de référence si la base existante contient une ancienne valeur mal encodée.
 UPDATE resource_types

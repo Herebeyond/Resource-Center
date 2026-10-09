@@ -3,7 +3,7 @@
 {% block title %}{{ translations.en.title }} | Resource Center{% endblock %}
 
 {% block body %}
-    <div class="page-shell calendar-page">
+    <div class="page-shell calendar-page" data-client-language-page>
         {% include 'shared/_header.html.twig' %}
 
         <main class="calendar-layout">
@@ -146,6 +146,7 @@
 
         function applyCalendarLanguage(language) {
             const strings = calendarTranslations[language];
+            document.title = `${strings.title} | Resource Center`;
             document.documentElement.lang = language;
             document.querySelectorAll('[data-calendar-key]').forEach((element) => {
                 element.textContent = strings[element.dataset.calendarKey];

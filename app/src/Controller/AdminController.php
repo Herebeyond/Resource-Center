@@ -81,10 +81,10 @@ final class AdminController extends AbstractController
         return $this->render('admin/resources.html.twig', [
             'current_user' => $user,
             'error' => $error,
-            'resource_types' => $this->connection->fetchAllAssociative('SELECT id, description FROM resource_types ORDER BY description'),
+            'resource_types' => $this->connection->fetchAllAssociative('SELECT id, name, description FROM resource_types ORDER BY description'),
             'resources' => $this->connection->fetchAllAssociative(
                 'SELECT r.id, r.name, r.code, r.location, r.capacity, r.is_active,
-                        rt.description AS type_label, rs.label AS state
+                        rt.name AS type_name, rt.description AS type_label, rs.label AS state
                  FROM resources r
                  JOIN resource_types rt ON rt.id = r.type_id
                  JOIN resource_states rs ON rs.id = r.state_id

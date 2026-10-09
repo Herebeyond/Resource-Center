@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="page-shell">
-        {% include 'shared/_header.html.twig' %}
+        {% include 'shared/_standalone_language_toggle.html.twig' %}
         <main class="account-page">
             <section class="account-panel" aria-labelledby="login-title">
                 <div class="account-label">{{ 'account.resource_center'|trans }}</div>
@@ -33,7 +33,6 @@
         </main>
         {% include 'shared/_footer.html.twig' %}
     </div>
-    {% include 'shared/_scroll_to_top.html.twig' %}
 
     <script>
         const loginTranslations = {{ login_translations|json_encode|raw }};
@@ -45,13 +44,14 @@
         function applyLoginLanguage(language) {
             const strings = loginTranslations[language];
             document.documentElement.lang = language;
+            document.title = `${strings.title} | Resource Center`;
             document.getElementById('login-title').textContent = strings.title;
             document.getElementById('loginIntro').textContent = strings.intro;
             document.getElementById('emailLabel').textContent = strings.email;
             document.getElementById('passwordLabel').textContent = strings.password;
             document.getElementById('loginSubmit').textContent = strings.submit;
             document.getElementById('loginNote').textContent = strings.note;
-            loginLanguageToggle.textContent = language === 'fr' ? 'EN' : 'FR';
+            updateLanguageButton(language);
             loginLanguageToggle.setAttribute('aria-label', strings.toggle);
             const error = document.getElementById('loginError');
             if (error) error.textContent = strings.error;

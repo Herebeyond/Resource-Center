@@ -1,4 +1,14 @@
 vendor/
 var/
+.git/
+.env
+.env.*
+!.env.example
 .env.local
 .env.*.local
+auth.json
+**/auth.json
+*.pem
+*.key
+**/*.pem
+**/*.key

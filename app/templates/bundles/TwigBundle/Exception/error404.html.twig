@@ -3,13 +3,16 @@
 {% block title %}{{ 'errors.not_found_title'|trans }} | Resource Center{% endblock %}
 
 {% block body %}
-    <main class="site-error-page">
+    {% include 'shared/_standalone_language_toggle.html.twig' %}
+    <main class="site-error-page"
+          data-standalone-title-fr="{{ 'errors.not_found_title'|trans({}, 'messages', 'fr') }} | Resource Center"
+          data-standalone-title-en="{{ 'errors.not_found_title'|trans({}, 'messages', 'en') }} | Resource Center">
         <section class="site-error-content" aria-labelledby="error-title">
             <img src="/assets/icons/Arrow-Thick-Circle-Left-2--Streamline-Ultimate.svg" alt="" aria-hidden="true">
             <p class="site-error-code">404</p>
-            <h1 id="error-title">{{ 'errors.not_found_title'|trans }}</h1>
-            <p>{{ 'errors.not_found_message'|trans }}</p>
-            <a class="site-error-link" href="{{ path('app_home') }}">{{ 'errors.back_home'|trans }}</a>
+            <h1 id="error-title" data-standalone-fr="{{ 'errors.not_found_title'|trans({}, 'messages', 'fr') }}" data-standalone-en="{{ 'errors.not_found_title'|trans({}, 'messages', 'en') }}">{{ 'errors.not_found_title'|trans }}</h1>
+            <p data-standalone-fr="{{ 'errors.not_found_message'|trans({}, 'messages', 'fr') }}" data-standalone-en="{{ 'errors.not_found_message'|trans({}, 'messages', 'en') }}">{{ 'errors.not_found_message'|trans }}</p>
+            <a class="site-error-link" href="{{ path('app_home') }}" data-standalone-fr="{{ 'errors.back_home'|trans({}, 'messages', 'fr') }}" data-standalone-en="{{ 'errors.back_home'|trans({}, 'messages', 'en') }}">{{ 'errors.back_home'|trans }}</a>
         </section>
     </main>
 {% endblock %}

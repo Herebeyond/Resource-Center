@@ -3,6 +3,7 @@
 {% block title %}{{ 'admin.resources'|trans }} | Resource Center{% endblock %}
 
 {% block body %}
+    {% set resourceTypeLabels = {salle: 'resource.rooms', vehicule: 'resource.vehicles', portable: 'resource.laptops', audiovisuel: 'resource.projectors', equipement: 'resource.equipment'} %}
     <div class="page-shell admin-page">
         {% include 'shared/_header.html.twig' %}
         <main class="admin-layout">
@@ -21,7 +22,7 @@
                     <label>{{ 'admin.resource_name'|trans }}<input name="name" required maxlength="255"></label>
                     <label>{{ 'admin.resource_code'|trans }}<input name="code" required maxlength="80"></label>
                     <label>{{ 'admin.resource_type'|trans }}<select name="type_id" required>
-                        {% for type in resource_types %}<option value="{{ type.id }}">{{ type.description }}</option>{% endfor %}
+                        {% for type in resource_types %}<option value="{{ type.id }}">{{ resourceTypeLabels[type.name] is defined ? resourceTypeLabels[type.name]|trans : type.description }}</option>{% endfor %}
                     </select></label>
                     <label>{{ 'admin.location'|trans }}<input name="location" maxlength="255"></label>
                     <label>{{ 'admin.capacity'|trans }}<input name="capacity" type="number" min="0"></label>
@@ -37,7 +38,7 @@
                         <tbody>
                         {% for resource in resources %}
                             <tr>
-                                <td>{{ resource.name }}</td><td>{{ resource.code }}</td><td>{{ resource.type_label }}</td>
+                                <td>{{ resource.name }}</td><td>{{ resource.code }}</td><td>{{ resourceTypeLabels[resource.type_name] is defined ? resourceTypeLabels[resource.type_name]|trans : resource.type_label }}</td>
                                 <td>{{ resource.location|default('—') }}</td><td>{{ resource.capacity|default('—') }}</td>
                                 <td>{{ resource.is_active ? 'admin.active'|trans : 'admin.inactive'|trans }}</td>
                                 <td><form method="post" action="{{ path('app_admin_resource_toggle', {id: resource.id}) }}">
