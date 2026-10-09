@@ -21,9 +21,9 @@
                 <fieldset class="search-options">
                     <legend id="searchOptionsLabel" data-i18n="searchOptions">{{ reservation_translations.en.searchOptions }}</legend>
                     {% if type == 'room' %}
-                        <label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>
-                        <label><input type="checkbox" data-feature="other"> <span data-i18n="other">{{ reservation_translations.en.other }}</span></label>
-                        <label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>
+                        {% if 'screen' in room_features %}<label><input type="checkbox" data-feature="screen"> <span data-i18n="videoConferencing">{{ reservation_translations.en.videoConferencing }}</span></label>{% endif %}
+                        {% if 'whiteboard' in room_features %}<label><input type="checkbox" data-feature="whiteboard"> <span data-i18n="whiteboard">{{ reservation_translations.en.whiteboard }}</span></label>{% endif %}
+                        {% if 'projector' in room_features %}<label><input type="checkbox" data-feature="projector"> <span data-i18n="projectorTag">{{ reservation_translations.en.projectorTag }}</span></label>{% endif %}
                     {% endif %}
                     {% if type == 'vehicle' %}
                         <div class="number-filters">
@@ -125,7 +125,8 @@
                                data-resource-fuel="{{ resource.fuel_type|default('')|lower }}"
                                data-resource-category="{{ resource.equipment_category|default('')|lower }}"
                                data-resource-screen="{{ resource.has_screen ? 'true' : 'false' }}"
-                               data-resource-whiteboard="{{ resource.has_whiteboard ? 'true' : 'false' }}">
+                               data-resource-whiteboard="{{ resource.has_whiteboard ? 'true' : 'false' }}"
+                               data-resource-projector="{{ resource.has_projector ? 'true' : 'false' }}">
                                 <span class="resource-thumbnail" aria-hidden="true"><img src="/assets/icons/{{ resourceIcon }}" alt=""></span>
                                 <span class="resource-choice-content">
                                     <strong>{{ resource.name }}</strong>
@@ -646,7 +647,7 @@
             const category = categoryFilter?.value.toLowerCase() || '';
             const screenRequired = document.querySelector('[data-feature="screen"]')?.checked || false;
             const whiteboardRequired = document.querySelector('[data-feature="whiteboard"]')?.checked || false;
-            const otherRequired = document.querySelector('[data-feature="other"]')?.checked || false;
+            const projectorRequired = document.querySelector('[data-feature="projector"]')?.checked || false;
 
             if (groupedSelection) {
                 updateSummary();
@@ -663,7 +664,7 @@
                     && (category === '' || card.dataset.resourceCategory.toLowerCase() === category)
                     && (!screenRequired || card.dataset.resourceScreen === 'true')
                     && (!whiteboardRequired || card.dataset.resourceWhiteboard === 'true')
-                    && (!otherRequired || (card.dataset.resourceScreen === 'false' && card.dataset.resourceWhiteboard === 'false'));
+                    && (!projectorRequired || card.dataset.resourceProjector === 'true');
                 card.hidden = !matches;
             });
         }

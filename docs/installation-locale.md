@@ -10,17 +10,39 @@
 
 Depuis la racine du projet, renseigner les variables locales à partir de `.env.example`, puis démarrer la stack Docker. Le fichier `.env` reste local et n'est pas versionné. Le service `database` lance PostgreSQL 16 et le service `symfony_app` attend que PostgreSQL soit sain avant de démarrer.
 
-Les fichiers `app/.env` et `app/.env.dev` ne sont pas versionnés. Pour lancer Symfony directement depuis `app/`, copier `app/.env.example` vers `app/.env.local` et remplacer les valeurs de développement localement. Dans Docker Compose, `APP_SECRET` et `DATABASE_URL` sont injectés par l'environnement Compose.
+Les fichiers `app/.env` et `app/.env.dev` ne sont pas versionnés. Pour lancer Symfony directement depuis `app/`, copier `app/.env.example` vers `app/.env.local` et remplacer les valeurs de développement localement. Dans Docker Compose, `APP_SECRET`, `DATABASE_URL` et `DEFAULT_URI` sont injectés par l'environnement Compose.
+
+`DEFAULT_URI` sert à générer les URL absolues hors d'une requête HTTP. Compose utilise `http://127.0.0.1:8000` par défaut. Sur la machine du campus, définir dans le `.env` à la racine du dépôt l'adresse réellement accessible aux utilisateurs, par exemple `DEFAULT_URI=http://10.30.3.2:8000` si cette adresse et ce port sont ouverts sur le VPN.
 
 Les scripts sont exécutés dans cet ordre lors de la première création du volume :
 
 1. `database/Reservations.sql` : tables, contraintes, index, triggers et données de référence.
 2. `database/Reservations.demo.fixtures.sql` : entreprise, utilisateurs, ressources et réservations de démonstration.
-3. `database/Reservations.equipment.fixtures.sql` : 200 exemplaires d'équipements répartis sur 20 modèles, avec numéros de série uniques et réservations de test pour la date d'exécution.
+3. `database/Reservations.resources.fixtures.sql` : crée l'entreprise de démonstration si nécessaire et ajoute 40 salles et 200 véhicules sans créer de comptes ni modifier les rôles.
+4. `database/Reservations.equipment.fixtures.sql` : 200 exemplaires d'équipements répartis sur 20 modèles, avec numéros de série uniques et réservations de test pour la date d'exécution.
+
+Le fixture de ressources peut être exécuté seul après `Reservations.sql`, même si `Reservations.demo.fixtures.sql` n'est pas utilisé. Sur une base déjà initialisée, les scripts de `/docker-entrypoint-initdb.d/` ne sont pas rejoués automatiquement; pour ajouter les ressources de démonstration sans toucher aux utilisateurs, exécuter `docker compose exec -T database psql -U resource_center -d resource_center -v ON_ERROR_STOP=1 -f /docker-entrypoint-initdb.d/03-resources-fixtures.sql` (ou fournir le fichier à `psql` depuis l'hôte).
 
 Le schéma de flotte ajoute `vehicle_details.vehicle_class` et `vehicle_usage` pour les classes de véhicules, prises en charge, retours et incidents. Les fixtures appliquent ces ajouts de façon idempotente aux volumes existants. Une migration autonome est également fournie dans `database/migrations/20261001_vehicle_class.sql` et `database/migrations/20261001_vehicle_usage.sql`.
 
 Les équipements disposent aussi de `equipment_details.model`, ajouté aux bases existantes par `database/migrations/20261008_equipment_model.sql` ou par le script d'équipements. Ce script peut être réexécuté sans dupliquer les ressources ni les créneaux bloquants du jour et sans réinitialiser les rôles des utilisateurs. Les nouvelles réservations de test concernent un exemplaire par modèle entre 10 h et 13 h ; les autres exemplaires restent libres.
+
+### Mettre à jour une base existante
+
+Les scripts montés dans `/docker-entrypoint-initdb.d/` ne s'exécutent qu'à la première création du volume PostgreSQL. Un `git pull` ou un redémarrage de Docker ne met donc pas à jour un volume déjà initialisé. Après récupération des migrations sur le serveur, les appliquer dans l'ordre sans supprimer le volume :
+
+```sh
+cd ~/apps/Resource-Center
+git pull origin dev
+set -e
+for migration in database/migrations/*.sql; do
+	echo "Application de $migration"
+	docker compose exec -T database psql -U resource_center -d resource_center -v ON_ERROR_STOP=1 < "$migration"
+done
+docker compose restart symfony_app
+```
+
+Les migrations actuelles utilisent `IF NOT EXISTS` et peuvent être rejouées. En cas d'erreur, la boucle s'arrête; corriger l'erreur avant de poursuivre. Ne pas supprimer `database_data` pour appliquer une migration, car cela effacerait les données.
 
 La sélection d'un équipement suit le même parcours que les véhicules : modèle regroupé par type, marque et catégorie, puis exemplaire identifié par localisation et numéro de série (ou code de ressource si le numéro manque). Les anciens équipements sans modèle explicite restent des entrées séparées, sans tentative de regroupement à partir de leur nom numéroté.
 

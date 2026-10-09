@@ -44,6 +44,14 @@ class ReservationController extends AbstractController
         $resources = $this->getResources((int) $user['company_id'], $resourceTypeNames);
         $groupedSelection = in_array($type, ['vehicle', 'equipment', 'laptop', 'projector'], true);
         $resourceGroups = $groupedSelection ? $this->groupResources($resources, $type === 'vehicle') : [];
+        $roomFeatures = [];
+        if ($type === 'room') {
+            foreach (['screen' => 'has_screen', 'whiteboard' => 'has_whiteboard', 'projector' => 'has_projector'] as $feature => $column) {
+                if (array_filter($resources, static fn (array $resource): bool => (bool) $resource[$column])) {
+                    $roomFeatures[] = $feature;
+                }
+            }
+        }
         $selectedResourceId = (int) $request->query->get('resource', 0);
         $selectedResource = $this->findResource($resources, $selectedResourceId);
         $error = null;
@@ -128,6 +136,7 @@ class ReservationController extends AbstractController
             'resources' => $resources,
             'grouped_selection' => $groupedSelection,
             'resource_groups' => $resourceGroups,
+            'room_features' => $roomFeatures,
             'vehicle_classes' => $type === 'vehicle'
                 ? $this->connection->fetchFirstColumn(
                     "SELECT DISTINCT vd.vehicle_class
@@ -172,7 +181,7 @@ class ReservationController extends AbstractController
         return $this->connection->fetchAllAssociative(
             "SELECT r.id, r.name, r.code, r.location, r.capacity, rs.label AS state, rt.name AS resource_type,
                     COALESCE(rd.available_places, r.capacity, 0) AS places,
-                    rd.has_screen, rd.has_whiteboard,
+                    rd.has_screen, rd.has_whiteboard, rd.has_projector,
                     vd.license_plate, vd.brand AS vehicle_brand, vd.model AS vehicle_model, vd.fuel_type, vd.vehicle_class,
                     ed.brand AS equipment_brand, ed.model AS equipment_model,
                     ed.category AS equipment_category, ed.serial_number
@@ -344,6 +353,7 @@ class ReservationController extends AbstractController
             'noResources' => 'reservation.no_resources', 'error' => 'reservation.invalid_form',
             'warning' => 'reservation.nearby', 'companyResource' => 'reservation.company_resource',
             'videoTag' => 'reservation.video_tag', 'whiteboardTag' => 'reservation.whiteboard_tag',
+            'projectorTag' => 'reservation.projector_tag',
             'seats' => 'reservation.seats', 'changeLanguage' => 'account.change_language',
             'conflict' => 'reservation.conflict', 'nearby' => 'reservation.nearby',
             'nearbyReverse' => 'reservation.nearby_reverse',
